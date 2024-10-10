@@ -1,7 +1,7 @@
 import { CloseCircleFilled } from "@ant-design/icons";
 import { CanvasWidget } from "@projectstorm/react-canvas-core";
 import createEngine, { DiagramModel } from "@projectstorm/react-diagrams";
-import { Button as AntdButton, Modal as AntdModal } from "antd";
+import { Button as AntdButton, Modal as AntdModal, notification } from "antd";
 import React, { useEffect, useRef, useState } from "react";
 import { Button, Col, Offcanvas, Row } from "react-bootstrap";
 import * as API from "../API";
@@ -35,6 +35,7 @@ const Workspace = (props) => {
   const diagramData = useRef(null);
 
   const [showNodeMenu, setShowNodeMenu] = useState(true);
+  const [api, contextHolder] = notification.useNotification();
 
   //const navigate = useNavigate();
 
@@ -46,6 +47,9 @@ const Workspace = (props) => {
 
   useEffect(() => {
     if (flow_id && flow_id != "new") {
+      //Open Banner Message
+      showBannerMessage();
+
       API.getFlow(flow_id)
         .then((value) => {
           try {
@@ -83,6 +87,24 @@ const Workspace = (props) => {
         .catch((err) => console.log(err));
     }
   }, [flow_id]);
+
+  const showBannerMessage = () => {
+    api.open({
+      message: "New Flow",
+      description:
+        "Create a new flow and drag & drop different nodes, configure their models and see them working!",
+      duration: 0, //0 means indefinite, pass a +ve number to hide it after that time
+      placement: "topRight",
+      onClick: () => {
+        //Perform any action on click on message
+        console.log("Banner Message Click");
+      },
+      onClose: () => {
+        //Perform whatever action wanted after message is closed
+        console.log("Banner Message Closed");
+      },
+    });
+  };
 
   /**
    * Retrieve available nodes from server to display in the menu
@@ -238,6 +260,7 @@ const Workspace = (props) => {
 
   return (
     <>
+      {contextHolder}
       <Row className="Workspace">
         <Col xs={3}>
           <FlowMenu
