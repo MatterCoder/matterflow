@@ -14,6 +14,7 @@ import MFLinkFactory from "./MFLink/MFLinkFactory";
 import MFPortFactory from "./MFPort/MFPortFactory";
 import ModelMenu from "./ModelMenu";
 import NodeMenu from "./NodeMenu";
+import BannerBox from "./BannerBox";
 const { confirm } = AntdModal;
 
 /**
@@ -36,7 +37,6 @@ const Workspace = (props) => {
 
   const [showNodeMenu, setShowNodeMenu] = useState(true);
   const [api, contextHolder] = notification.useNotification();
-  const [firstTime, setFirstTime] = useState(true);
 
   //const navigate = useNavigate();
 
@@ -48,7 +48,6 @@ const Workspace = (props) => {
 
   useEffect(() => {
     if (flow_id && flow_id != "new") {
-      setFirstTime(false);
       API.getFlow(flow_id)
         .then((value) => {
           try {
@@ -84,33 +83,27 @@ const Workspace = (props) => {
           getGlobalVars();
         })
         .catch((err) => console.log(err));
-      setFirstTime(true);
-      //Open Banner Message
-      showBannerMessage();
+
+      if (flow_id != "new") {
+        //Open Banner Message
+        showBannerMessage();
+      }
     }
   }, [flow_id]);
 
   const showBannerMessage = () => {
     api.open({
-      message: "Start",
+      style : { width: 900},
+      message: "",   
       description:(
-        <>
-<div>
-  <ul>
-    <li>
-        <strong>New pipeline</strong>
-        <p>Open a new untitled pipeline and drag and drop components to design and develop your data flow.</p>
-    </li>
-  </ul>
-</div>
-
-        </>
+        <BannerBox/>
       ),
       duration: 0, //0 means indefinite, pass a +ve number to hide it after that time
       placement: "topRight",
-      onClick: () => {
+      onClick: (e) => {
         //Perform any action on click on message
         console.log("Banner Message Click");
+        handleAddFlow();
       },
       onClose: () => {
         //Perform whatever action wanted after message is closed

@@ -49,7 +49,11 @@
 }
 .ant-notification-topRight {
     top: 20% !important;
-    margin-right: 40%;
+    margin-right: 20%;
     transform: translate(-50%, -50%);
 }
+li:hover {
+    background-color: #f0f0f0;
+  }
+  
   
