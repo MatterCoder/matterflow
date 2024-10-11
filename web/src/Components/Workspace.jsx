@@ -36,6 +36,7 @@ const Workspace = (props) => {
 
   const [showNodeMenu, setShowNodeMenu] = useState(true);
   const [api, contextHolder] = notification.useNotification();
+  const [firstTime, setFirstTime] = useState(true);
 
   //const navigate = useNavigate();
 
@@ -47,9 +48,7 @@ const Workspace = (props) => {
 
   useEffect(() => {
     if (flow_id && flow_id != "new") {
-      //Open Banner Message
-      showBannerMessage();
-
+      setFirstTime(false);
       API.getFlow(flow_id)
         .then((value) => {
           try {
@@ -85,14 +84,28 @@ const Workspace = (props) => {
           getGlobalVars();
         })
         .catch((err) => console.log(err));
+      setFirstTime(true);
+      //Open Banner Message
+      showBannerMessage();
     }
   }, [flow_id]);
 
   const showBannerMessage = () => {
     api.open({
-      message: "New Flow",
-      description:
-        "Create a new flow and drag & drop different nodes, configure their models and see them working!",
+      message: "Start",
+      description:(
+        <>
+<div>
+  <ul>
+    <li>
+        <strong>New pipeline</strong>
+        <p>Open a new untitled pipeline and drag and drop components to design and develop your data flow.</p>
+    </li>
+  </ul>
+</div>
+
+        </>
+      ),
       duration: 0, //0 means indefinite, pass a +ve number to hide it after that time
       placement: "topRight",
       onClick: () => {
@@ -315,21 +328,6 @@ const Workspace = (props) => {
               </div>
             </div>
             <CanvasWidget className="diagram-canvas" engine={engine} />
-            <Offcanvas
-              placement="bottom"
-              show={show}
-              onHide={handleClose}
-              scroll={false}
-              backdrop={true}
-            >
-              <Offcanvas.Header closeButton>
-                <Offcanvas.Title>Offcanvas</Offcanvas.Title>
-              </Offcanvas.Header>
-              <Offcanvas.Body>
-                Some text as placeholder. In real life you can have the elements
-                you have chosen. Like, text, images, lists, etc.
-              </Offcanvas.Body>
-            </Offcanvas>
           </div>
         </Col>
         {showNodeMenu && (

@@ -8,6 +8,7 @@ import * as API from "../../API";
 import "../../styles/GraphView.css";
 import JsonView from "react18-json-view";
 import "react18-json-view/src/style.css";
+import ResizableDrawer from "../ResizableDrawer";
 
 export default class GraphView extends React.Component {
   constructor(props) {
@@ -230,7 +231,7 @@ export default class GraphView extends React.Component {
 
     return (
       <>
-        <Drawer
+        <ResizableDrawer
           open={this.props.show}
           onClose={this.props.toggleShow}
           placement="bottom"
@@ -244,7 +245,7 @@ export default class GraphView extends React.Component {
             <div>{body}</div>
             {footer}
           </div>
-        </Drawer>
+        </ResizableDrawer>
       </>
     );
   }

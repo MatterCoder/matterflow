@@ -9,9 +9,7 @@ import './index.css'
 const router = createBrowserRouter(routes);
 
 const App = () => (
-  <React.StrictMode>
     <RouterProvider router={ router }/>
-  </React.StrictMode>
 )
 
 export default App
