@@ -258,6 +258,20 @@ def retrieve_data(request, node_id):
     except WorkflowException as e:
         return JsonResponse({e.action: e.reason}, status=500)
 
+@swagger_auto_schema(method='get',
+                     operation_summary='Gets the data frame by file name.',
+                     operation_description='Retrieves the data by file.',
+                     responses={
+                         200: 'Data successfully retrieved'
+                     })
+@api_view(['GET'])
+def retrieve_data_by_file(request, node_id, file):
+    try:
+        print(node_id)
+        data = request.matterflow.retrieve_node_data_by_file(node_id, file)
+        return JsonResponse(data, safe=False, status=200)
+    except WorkflowException as e:
+        return JsonResponse({e.action: e.reason}, status=500)
 
 def create_node(request):
     """Pass all request info to Node Factory.

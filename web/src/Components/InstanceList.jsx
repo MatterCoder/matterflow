@@ -249,7 +249,7 @@ const InstanceList = () => {
           <InstanceModal
             show={showModal}
             handleClose={handleCloseModal}
-            instanceName={selectedItem.name}
+            instanceName={selectedItem.description}
             instanceId={selectedItem.id}
           />
         </>

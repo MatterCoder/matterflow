@@ -3,7 +3,7 @@ import { CanvasWidget } from "@projectstorm/react-canvas-core";
 import createEngine, { DiagramModel } from "@projectstorm/react-diagrams";
 import { Button as AntdButton, Modal as AntdModal, notification } from "antd";
 import React, { useEffect, useRef, useState } from "react";
-import { Button, Col, Offcanvas, Row } from "react-bootstrap";
+import { Button, Col, Row } from "react-bootstrap";
 import * as API from "../API";
 import "../styles/Workspace.css";
 import CustomNodeFactory from "./CustomNode/CustomNodeFactory";
@@ -103,7 +103,7 @@ const Workspace = (props) => {
       onClick: (e) => {
         //Perform any action on click on message
         console.log("Banner Message Click");
-        handleAddFlow();
+        //handleAddFlow();
       },
       onClose: () => {
         //Perform whatever action wanted after message is closed
@@ -209,8 +209,6 @@ const Workspace = (props) => {
       if (flow_id && flow_id != "new") {
         const inputData = {
           id: flow_id,
-          name: JSON.parse(json_data)["react"]["id"],
-          description: "flow-" + Math.random().toString(36).substring(7),
           json_data,
         };
         API.updateFlow(flow_id, inputData).then(() => {
@@ -257,12 +255,6 @@ const Workspace = (props) => {
   const handleAddFlow = async () => {
     window.location = `/new`;
   };
-
-  /**
-   * Handlers for offcanvas dialog
-   */
-  const handleClose = () => setShow(false);
-  const handleShow = () => setShow(true);
 
   return (
     <>
@@ -311,9 +303,6 @@ const Workspace = (props) => {
                 </Button>{" "}
                 <Button size="sm" onClick={execute}>
                   Execute
-                </Button>{" "}
-                <Button size="sm" onClick={handleShow}>
-                  Console
                 </Button>{" "}
                 <Button size="sm" onClick={() => handleSave(flow_id)}>
                   Save

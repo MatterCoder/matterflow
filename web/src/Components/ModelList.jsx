@@ -247,7 +247,7 @@ const ModelList = () => {
           <ModelModal
             show={showModal}
             handleClose={handleCloseModal}
-            modelName={selectedItem.name}
+            modelName={selectedItem.description}
             modelId={selectedItem.id}
           />
         </>

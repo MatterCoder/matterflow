@@ -132,11 +132,7 @@ const InstanceEditor = (params) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const now = new Date();
-    const currentDateTime = now.toLocaleString();
     const inputs = {
-      name: "instance - " + currentDateTime,
-      description: "instance description",
       json_data: JSON.stringify(inputFields),
     };
 

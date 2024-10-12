@@ -20,9 +20,9 @@ const useFetch = () => {
         };
         for (let i = 0; i < value.data.length; i++) {
           var matterflow = JSON.parse(value.data[i]["json_data"])["matterflow"];
-
+          var flowname = value.data[i]["description"];
           var flow = {
-            label: matterflow["name"],
+            label: flowname,
             items: [],
           };
 
@@ -30,9 +30,12 @@ const useFetch = () => {
             var nodes = matterflow["graph"]["nodes"];
             for (let j = 0; j < nodes.length; j++) {
               var node = nodes[j];
+              var node_id = node["node_id"];
+              var data = node["data"];
               flow.items.push({
                 label: node["name"],
-                node_id: node["node_id"],
+                node_id: node_id,
+                data: data,
               });
             }
             new_nodes.items.push(flow);
@@ -56,8 +59,12 @@ const useFetch = () => {
   return { nodes, loading, error };
 };
 
-const handleNodeSelect = (handleNodeData, nodeId) => {
-  API.retrieveData(nodeId).then((value) => {
+const handleNodeSelect = (handleNodeData, nodeFile) => {
+//  API.retrieveData(nodeId).then((value) => {
+//    handleNodeData(value);
+//  });
+
+  API.retrieveDataByFile(null, nodeFile).then((value) => {
     handleNodeData(value);
   });
 };
@@ -71,7 +78,8 @@ const NodeDataExplorer = ({ handleNodeData }) => {
       return items.map((item, index) => {
         return {
           label: item.label,
-          key: item.node_id || `${item.label}-${index}`,
+          //key: item.node_id || `${item.node_id}:${item.data}`,
+          key: item.data || `${item.label}-${index}`,
           children: getMenuItems(item.items),
         };
       });
@@ -88,7 +96,7 @@ const NodeDataExplorer = ({ handleNodeData }) => {
         },
       }}
     >
-      <Button type="primary" style={{ width: "fit-content" }}>
+      <Button style={{ width: "fit-content", marginTop: 20  }}>
         {nodes.title} <DownOutlined />
       </Button>
     </AntdDropdown>

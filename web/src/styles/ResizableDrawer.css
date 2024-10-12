@@ -1,14 +1,24 @@
 .resizable-line {
-    width: 100%;
-    height: 5px;
-    background-color: #f4f7f9;
-    cursor: ns-resize;
-    position: absolute;
-    top: 0;
-    z-index: 100;
-  }
+  width: 100%;
+  height: 5px;
+  background-color: #f4f7f9;
+  cursor: ns-resize;
+  position: absolute;
+  top: 0;
+  z-index: 100;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.resizable-line::before {
+  content: "";
+  width: 40px; /* Adjust width of the handle */
+  height: 4px;
+  border-radius: 10px;
+  background-color: #999; /* Handle color */
+}
   
-  .drawer-contents {
-    padding: 16px;
-  }
-  
+.drawer-contents {
+  padding: 16px;
+}

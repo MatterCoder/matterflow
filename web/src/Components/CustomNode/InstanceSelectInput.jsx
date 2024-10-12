@@ -55,7 +55,7 @@ const InstanceSelectInput = ( props ) => {
       <option value="" disabled>Select an instance</option>
       {instances.map(instance => (
         <option key={instance.id} value={instance.id} >
-          {instance.name}
+          {instance.description}
         </option>
       ))}
     </select>

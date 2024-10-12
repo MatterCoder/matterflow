@@ -9,7 +9,7 @@ const BannerBox = () => {
         <h3>Start</h3>
         <ul style={{ listStyleType: 'none', paddingLeft: 0 }}>
           <li style={{ border: '1px solid #ccc', padding: '15px', borderRadius: '8px', marginBottom: '10px', transition: 'background-color 0.3s' }}>
-            <a href="#" style={{ display: 'flex', alignItems: 'center', textDecoration: 'none', color: 'inherit' }}>
+            <a href="/new" style={{ display: 'flex', alignItems: 'center', textDecoration: 'none', color: 'inherit' }}>
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 16 16" style={{ marginRight: '8px' }}>
                 <path fill="currentColor" fillRule="evenodd" d="M2.75 2.5A1.75 1.75 0 001 4.25v1C1 6.216 1.784 7 2.75 7h1a1.75 1.75 0 001.732-1.5H6.5a.75.75 0 01.75.75v3.5A2.25 2.25 0 009.5 12h1.018c.121.848.85 1.5 1.732 1.5h1A1.75 1.75 0 0015 11.75v-1A1.75 1.75 0 0013.25 9h-1a1.75 1.75 0 00-1.732 1.5H9.5a.75.75 0 01-.75-.75v-3.5A2.25 2.25 0 006.5 4H5.482A1.75 1.75 0 003.75 2.5h-1zM2.5 4.25A.25.25 0 012.75 4h1a.25.25 0 01.25.25v1a.25.25 0 01-.25.25h-1a.25.25 0 01-.25-.25v-1zm9.75 6.25a.25.25 0 00-.25.25v1c0 .138.112.25.25.25h1a.25.25 0 00.25-.25v-1a.25.25 0 00-.25-.25h-1z" clipRule="evenodd"></path>
               </svg>
@@ -33,11 +33,24 @@ const BannerBox = () => {
           </li>
           <li style={{ border: '1px solid #ccc', padding: '15px', borderRadius: '8px', marginBottom: '10px', transition: 'background-color 0.3s' }}>
             <a href="https://join.slack.com/t/matterflow/shared_invite/zt-2ci2ptvoy-FENw8AW4ISDXUmz8wcd3bw" target="_blank" style={{ display: 'flex', alignItems: 'center', textDecoration: 'none', color: 'inherit' }}>
-              <svg xmlns="http://www.w3.org/2000/svg" enableBackground="new 0 0 2447.6 2452.5" viewBox="0 0 2447.6 2452.5" version="1.1" width="16" height="16" style={{ marginRight: '8px' }}>
-                <path fill="#36c5f0" d="M897.4 0C762.1 0.1 652.6 109.9 652.7 245.2 652.6 380.5 762.2 490.3 897.5 490.4h244.8V245.3C1142.4 110 1032.8 0.2 897.4 0c0.1 0 0.1 0 0 0m0 654H244.8C109.5 654.1-0.1 763.9 0 899.2c-0.2 135.3 109.4 245.1 244.7 245.3h652.7c135.3-0.1 244.9-109.9 244.8-245.2C1142.3 763.9 1032.7 654.1 897.4 654z"></path>
-                <path fill="#2eb67d" d="M2447.6 899.2C2447.7 763.9 2338.1 654.1 2202.8 654 2067.5 654.1 1957.9 763.9 1958 899.2v245.3h244.8c135.3-0.1 244.9-109.9 244.8-245.3zM1795 245.2c-0.2-135.3-109.4-245.1-244.7-245.3-135.3 0.1-244.9 109.9-244.8 245.2v654c-0.2 135.3 109.4 245.1 244.7 245.3 135.3-0.1 244.9-109.9 244.8-245.3z"></path>
-                <path fill="#ecb22e" d="M1550.1 2452.5c135.3-0.1 244.9-109.9 244.8-245.2 0.1-135.3-109.4-245.1-244.7-245.3 -135.3 0.1 -244.9 109.9 -244.8 245.3v654c0.2 135.3 109.4 245.1 244.7 245.3z"></path>
-              </svg>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" style={{ marginRight: '8px' }}>
+              <path
+                d="M20.077 11.23a1.923 1.923 0 1 0-1.923-1.922v1.923h1.923Zm-5.385 0a1.923 1.923 0 0 0 1.923-1.922V3.923a1.923 1.923 0 0 0-3.846 0v5.385c0 1.062.861 1.923 1.923 1.923Z"
+                fill="#2EB67D"
+              />
+              <path
+                d="M3.923 12.77a1.923 1.923 0 1 0 1.923 1.922V12.77H3.923Zm5.385 0a1.923 1.923 0 0 0-1.923 1.923v5.384a1.923 1.923 0 1 0 3.846 0v-5.385a1.923 1.923 0 0 0-1.923-1.923Z"
+                fill="#E01E5A"
+              />
+              <path
+                d="M12.77 20.077a1.923 1.923 0 1 0 1.922-1.923H12.77v1.923Zm0-5.385c0 1.062.86 1.923 1.923 1.923h5.384a1.923 1.923 0 1 0 0-3.846h-5.385a1.923 1.923 0 0 0-1.923 1.923Z"
+                fill="#ECB22E"
+              />
+              <path
+                d="M11.23 3.923a1.923 1.923 0 1 0-1.922 1.923h1.923V3.923Zm0 5.385a1.923 1.923 0 0 0-1.923-1.923H3.923a1.923 1.923 0 0 0 0 3.846h5.384a1.923 1.923 0 0 0 1.924-1.923Z"
+                fill="#36C5F0"
+              />
+            </svg>
               <strong> Join The Community</strong>
             </a>
             <p>Join our Slack community to discuss your use case and learn about Matterflow.</p>

@@ -22,7 +22,7 @@ class WorkflowMiddleware:
             pass
         elif path == '/workflow/open' or path == '/workflow/new' or path == '/workflow/activate':
             # 'open' loads from file upload, 'new' inits new Workflow
-            pass
+            pass               
         else:
             # All other cases, load workflow from session
             try:

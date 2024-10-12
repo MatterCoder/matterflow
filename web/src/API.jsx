@@ -693,3 +693,16 @@ export async function retrieveData(nodeId) {
   }
   return fetchWrapper(`/node/${nodeId}/retrieve_data`);
 }
+
+/**
+* Retrieves the data by the specified file
+* @param {string }nodeId - node identifier for an execution state
+* @param {string }file - file identifier for a node
+* @returns {Promise<Object>} - json respnse with the data at specified state
+*/
+export async function retrieveDataByFile(nodeId, file) {
+  if (window.STORIES != undefined) {
+    return {"data": "data"}
+  }
+  return fetchWrapper(`/node/${nodeId}/retrieve_data_by_file/${file}`);
+}

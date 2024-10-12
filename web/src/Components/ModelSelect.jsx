@@ -12,8 +12,6 @@ const useFetch = () => {
       const fetchData = async () => {
         try {
             const response = await API.getModels();
-            console.log(response.data)
-            console.log(typeof(response.data))
 
             var data = {}
             if(typeof response.data === 'string') {
@@ -34,7 +32,7 @@ const useFetch = () => {
             const transformedData = filteredEmpty.map(item => {
                 return {
                     value: item.json_data,
-                    label: item.name
+                    label: item.description
                 };
             });
             
@@ -58,15 +56,6 @@ const useFetch = () => {
   }
 
 const ModelSelect = (props) => {
-    /*
-    const data = [
-        {      value: "[{'fieldName': 'Test1', 'fieldDatatype': 'Object', 'fieldNameError': ''}]",      label: "Model1",    },    
-        {      value: "[{'fieldName': 'Test2', 'fieldDatatype': 'Object', 'fieldNameError': ''}]",      label: "Model2",    },    
-        {      value: "[{'fieldName': 'Test3', 'fieldDatatype': 'Object', 'fieldNameError': ''}]",      label: "Model3",    },   
-        {      value: "[{'fieldName': 'Test4', 'fieldDatatype': 'Object', 'fieldNameError': ''}]",      label: "Model4",    },    
-        {      value: "[{'fieldName': 'Test5', 'fieldDatatype': 'Object', 'fieldNameError': ''}]",      label: "Model5",    },  
-    ]
-    */
     const { data, loading, error } = useFetch();
 
     if (loading) {

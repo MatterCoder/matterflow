@@ -494,6 +494,35 @@ class Workflow:
         except json.JSONDecodeError as e:
             raise WorkflowException('retrieve node data', str(e))
 
+    def retrieve_node_data_by_file(self, node_to_retrieve, file):
+        """Retrieve Node data
+
+        Reads a saved DataFrame, referenced by the file.
+
+        Args:
+            file: The file containing the data saved to disk.
+
+        Returns:
+            Contents of the file (a DataFrame) in a JSON object.
+
+        Raises:
+            WorkflowException: File does not exist, file does not exist, or
+                problem parsing the file.
+        """
+        try:
+            with open(self.path(file)) as f:
+                return json.load(f)
+        except OSError as e:
+            #instead of raising a WorkflowException('retrieve node data', str(e)) we will send back a readable error in the json
+            return {"error": "unable to load node data by file. try loading any inputs files and re-executing"}
+        except TypeError:
+            raise WorkflowException(
+                'retrieve node data by file',
+                'Retrieving data for Node %s has not yet been executed. No file to retrieve.' % file
+            )
+        except json.JSONDecodeError as e:
+            raise WorkflowException('retrieve node data by file', str(e))
+
     @staticmethod
     def read_graph_json(json_data):
         """Deserialize JSON NetworkX graph

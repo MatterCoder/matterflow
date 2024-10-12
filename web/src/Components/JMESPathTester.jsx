@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import * as jmespath from "jmespath";
 import NodeDataExplorer from "./NodeDataExplorer";
 import { DragOutlined } from "@ant-design/icons";
+import JsonDataInput from "./JsonDataInput";
 
 const JMESPathTester = () => {
   const [expression, setExpression] = useState(
@@ -69,22 +70,8 @@ const JMESPathTester = () => {
         <h3>
           <strong>Sample JSON</strong>
         </h3>
-        <textarea
-          placeholder='{"key":"value"}'
-          className="form-control jmespath-input"
-          rows="8"
-          value={jsonData}
-          onChange={(e) => setJsonData(e.target.value)}
-        />
-        <div className="flex" style={{ flexDirection: "column", gap: 8 }}>
-          <input
-            type="file"
-            id="json-file-input"
-            accept=".json"
-            onChange={handleFileUpload}
-          />
-          <NodeDataExplorer handleNodeData={handleNodeDataSelected} />
-        </div>
+        {/* Replace textarea and file input with JsonDataInput */}
+        <JsonDataInput jsonData={jsonData} setJsonData={setJsonData} />        
       </form>
       <div className="jmes-result">
         <h3>
