@@ -2,7 +2,7 @@ import { CloseCircleFilled } from "@ant-design/icons";
 import { CanvasWidget } from "@projectstorm/react-canvas-core";
 import createEngine, { DiagramModel } from "@projectstorm/react-diagrams";
 import { Button as AntdButton, Modal as AntdModal, notification } from "antd";
-import React, { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import { Button, Col, Row } from "react-bootstrap";
 import * as API from "../API";
 import "../styles/Workspace.css";
@@ -22,9 +22,8 @@ const { confirm } = AntdModal;
  */
 const Workspace = (props) => {
   const [nodes, setNodes] = useState([]);
-  const [flows, setFlows] = useState([]);
+  const [flows] = useState([]);
   const [models, setModels] = useState([]);
-  const [show, setShow] = useState(false);
   const [globals, setGlobals] = useState([]);
   const [isDirty, setIsDirty] = useState(false);
 
@@ -45,6 +44,41 @@ const Workspace = (props) => {
   engine.getPortFactories().registerFactory(new MFPortFactory());
   engine.setModel(model);
   engine.setMaxNumberPointsPerLink(0);
+
+  const showBannerMessage = useCallback(() => {
+
+    // Get screen width
+    const screenWidth = window.innerWidth;
+
+    // Determine banner width dynamically based on screen width
+    let bannerWidth;
+    if (screenWidth > 1200) {
+      bannerWidth = 900; // For larger screens
+    } else if (screenWidth > 768) {
+      bannerWidth = 600; // For medium screens like tablets
+    } else {
+      bannerWidth = 300; // For smaller screens like mobile
+    }
+
+    api.open({
+      style : { width: bannerWidth },
+      message: "",   
+      description:(
+        <BannerBox/>
+      ),
+      duration: 0, //0 means indefinite, pass a +ve number to hide it after that time
+      placement: "topRight",
+      onClick: (e) => {
+        //Perform any action on click on message
+        console.log("Banner Message Click");
+        console.log(e);
+      },
+      onClose: () => {
+        //Perform whatever action wanted after message is closed
+        console.log("Banner Message Closed");
+      },
+    });
+  }, [api]);
 
   useEffect(() => {
     if (flow_id && flow_id != "new") {
@@ -75,7 +109,7 @@ const Workspace = (props) => {
             });
           }
         })
-        .catch((err) => (window.location = `/`));
+        .catch(() => (window.location = `/`));
     } else {
       API.initWorkflow(model)
         .then(() => {
@@ -89,28 +123,7 @@ const Workspace = (props) => {
         showBannerMessage();
       }
     }
-  }, [flow_id]);
-
-  const showBannerMessage = () => {
-    api.open({
-      style : { width: 900},
-      message: "",   
-      description:(
-        <BannerBox/>
-      ),
-      duration: 0, //0 means indefinite, pass a +ve number to hide it after that time
-      placement: "topRight",
-      onClick: (e) => {
-        //Perform any action on click on message
-        console.log("Banner Message Click");
-        //handleAddFlow();
-      },
-      onClose: () => {
-        //Perform whatever action wanted after message is closed
-        console.log("Banner Message Closed");
-      },
-    });
-  };
+  }, [flow_id, engine, model, showBannerMessage]);
 
   /**
    * Retrieve available nodes from server to display in the menu
@@ -127,15 +140,6 @@ const Workspace = (props) => {
   const getGlobalVars = () => {
     API.getGlobalVars()
       .then((vars) => setGlobals(vars))
-      .catch((err) => console.log(err));
-  };
-
-  /**
-   * Retrieve available flows from server to display in the menu
-   */
-  const getAvailableFlows = () => {
-    API.getFlows()
-      .then((flows) => setFlows(flows))
       .catch((err) => console.log(err));
   };
 

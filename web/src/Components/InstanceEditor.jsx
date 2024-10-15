@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from "react";
-import { Divider, TextInput, Select, SelectItem } from "@tremor/react";
+import { useState, useEffect } from "react";
+import { TextInput } from "@tremor/react";
 import { Button } from "antd";
 import * as API from "../API";
 import ModelSelect from "./ModelSelect";
@@ -11,21 +11,22 @@ const InstanceEditor = (params) => {
   const instance_id = params?.instance_id;
 
   const hasInstanceId = instance_id !== undefined;
+  
+  useEffect(() => {
+    if (hasInstanceId) {
+      const init = () => {
+        API.getInstance(instance_id).then((res) => {
+          let json_data = JSON.parse(res.data.json_data.replace(/'/g, '"'));
+          if (json_data.length === 0 || Object.keys(json_data).length === 0) {
+            json_data = [];
+          }
+          setInputFields(json_data);
+        });
+      };
+      init(); // Call the init function inside the effect
+    }
+  }, [hasInstanceId, instance_id]); // Add all variables that the effect depends on
 
-  if (hasInstanceId) {
-    const init = () => {
-      API.getInstance(instance_id).then((res) => {
-        let json_data = JSON.parse(res.data.json_data.replace(/'/g, '"'));
-        if (json_data.length === 0 || Object.keys(json_data).length === 0) {
-          json_data = [];
-        }
-        setInputFields(json_data);
-      });
-    };
-    useEffect(() => {
-      init();
-    }, []);
-  }
 
   const transformJson = (json) => {
     return json.map((element) => {

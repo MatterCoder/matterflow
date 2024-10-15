@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import * as _ from "lodash";
 import { OverlayTrigger, Tooltip } from "react-bootstrap";
 import CustomNodeUpload from "./CustomNodeUpload";
@@ -142,3 +142,6 @@ const NodeTooltip = React.forwardRef((props, ref) => {
     </Tooltip>
   );
 });
+
+NodeTooltip.displayName = 'NodeTooltip';
+

@@ -1,4 +1,3 @@
-import React from "react";
 import FlowList from "./FlowList";
 import { Card, Typography } from "antd";
 

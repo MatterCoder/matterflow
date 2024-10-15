@@ -1,9 +1,8 @@
 import propTypes from "prop-types";
-import React, { useState, useRef, useEffect } from 'react';
+import React from 'react';
 import { Button, Spinner } from "react-bootstrap";
 import { VegaLite } from "react-vega";
-//import { VariableSizeGrid as Grid } from 'react-window';
-import { Drawer, Tabs, Table } from "antd";
+import { Tabs, Table } from "antd";
 import * as API from "../../API";
 import "../../styles/GraphView.css";
 import JsonView from "react18-json-view";

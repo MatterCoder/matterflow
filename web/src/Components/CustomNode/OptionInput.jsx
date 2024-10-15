@@ -1,4 +1,3 @@
-import React from "react";
 import { useState } from "react";
 import SimpleInput from "./SimpleInput";
 import FileUploadInput from "./FileUploadInput";

@@ -1,6 +1,5 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import * as jmespath from "jmespath";
-import NodeDataExplorer from "./NodeDataExplorer";
 import { DragOutlined } from "@ant-design/icons";
 import JsonDataInput from "./JsonDataInput";
 
@@ -9,11 +8,7 @@ const JMESPathTester = () => {
   const [jsonData, setJsonData] = useState('');
   const [result, setResult] = useState("");
 
-  useEffect(() => {
-    evaluateJMESPath();
-  }, [expression, jsonData]);
-
-  const evaluateJMESPath = () => {
+  const evaluateJMESPath = useCallback(() => {
     try {
       const data = JSON.parse(jsonData);
       const searchResult = jmespath.search(data, expression);
@@ -26,22 +21,11 @@ const JMESPathTester = () => {
         setResult(`Error: ${error.message}`);
       }
     }
-  };
+  }, [jsonData, expression, setResult]);
 
-  const handleFileUpload = (event) => {
-    const file = event.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        setJsonData(e.target.result);
-      };
-      reader.readAsText(file);
-    }
-  };
-
-  const handleNodeDataSelected = (jsonObject) => {
-    setJsonData(JSON.stringify(jsonObject));
-  };
+  useEffect(() => {
+    evaluateJMESPath();
+  }, [expression, jsonData, evaluateJMESPath]);
 
   return (
     <div>

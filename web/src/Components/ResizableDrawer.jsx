@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { Drawer } from "antd";
 import "../styles/ResizableDrawer.css";
 
@@ -24,16 +24,7 @@ const ResizableDrawer = (props) => {
     document.body.style.overflow = "";
   };
 
-  const throttledResize = (e) => {
-    if (!resizeRef.current) {
-      resizeRef.current = requestAnimationFrame(() => {
-        handleMouseMove(e);
-        resizeRef.current = null;
-      });
-    }
-  };
-
-  const handleMouseMove = (e) => {
+  const handleMouseMove = useCallback((e) => {
     if (isResizing) {
       const windowHeight = window.innerHeight;
       const offsetBottom = windowHeight - e.clientY;
@@ -44,7 +35,17 @@ const ResizableDrawer = (props) => {
         setHeight(offsetBottom);
       }
     }
-  };
+  }, [isResizing]);
+
+  const throttledResize = useCallback((e) => {
+    if (!resizeRef.current) {
+      resizeRef.current = requestAnimationFrame(() => {
+        handleMouseMove(e);
+        resizeRef.current = null;
+      });
+    }
+  }, [handleMouseMove, resizeRef]);
+
 
   useEffect(() => {
     if (isResizing) {
@@ -59,7 +60,7 @@ const ResizableDrawer = (props) => {
       document.removeEventListener("mousemove", throttledResize);
       document.removeEventListener("mouseup", onMouseUp);
     };
-  }, [isResizing]);
+  }, [isResizing, throttledResize]);
 
   return (
     <Drawer

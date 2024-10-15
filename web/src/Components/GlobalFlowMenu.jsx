@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { Dropdown, ButtonGroup, Table } from "react-bootstrap";
 import CustomNodeModel from "./CustomNode/CustomNodeModel";
 import NodeConfig from "./CustomNode/NodeConfig";

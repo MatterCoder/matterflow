@@ -1,5 +1,4 @@
 import { Tabs as AntdTabs } from "antd";
-import React from "react";
 import InstanceList from "./InstanceList";
 import ModelList from "./ModelList";
 

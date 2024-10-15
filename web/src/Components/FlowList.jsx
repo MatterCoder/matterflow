@@ -1,9 +1,5 @@
-import React from "react";
-import { Link } from "react-router-dom";
 import { useState, useEffect } from "react";
-import { timeTag, truncate } from "../lib/formatters";
 import * as API from "../API";
-import DialogConfirmation from "./DialogConfirmation";
 import { ListGroup, Button, InputGroup, FormControl } from "react-bootstrap";
 import StatusLight from "./StatusLight";
 import { OverlayTrigger, Tooltip } from "react-bootstrap";
@@ -54,10 +50,12 @@ const FlowList = (props) => {
   const selected_flow_id = props?.flow_id;
 
   const [processes, setProcesses] = useState([]);
-  const [isPolling, setIsPolling] = useState(true);
   const [pollInterval, setPollInterval] = useState(PROCESS_POLL_TIME);
   const [showProcessModal, setShowProcessModal] = useState(false);
   const [loadingProcesses, setLoadingProcesses] = useState(false);
+
+  // Construct the iframe source dynamically based on the current host and protocol
+  const iframeSrc = `${window.location.protocol}//${window.location.hostname}:9001/`;
 
   useEffect(() => {
     const pollProcesses = async () => {
@@ -137,16 +135,6 @@ const FlowList = (props) => {
     });
 
     setRenamingId(null);
-  };
-
-  // Function to find the next unique flow ID
-  const getNextFlowId = () => {
-    if (data.length === 0) {
-      return 1; // Return 1 if the array is empty
-    }
-    const flowIds = data.map((flow) => flow.id);
-    const maxId = Math.max(...flowIds); // Find the maximum existing ID
-    return maxId + 1; // Return the next highest ID
   };
 
   // Handler to add a new flow and make it bold
@@ -415,7 +403,7 @@ const FlowList = (props) => {
         >
           {loadingProcesses && <Spin spinning />}
           <iframe
-            src="http://127.0.0.1:9001/"
+            src={iframeSrc}
             style={{ width: "100%", minHeight: "400px" }}
             onLoad={() => {
               setLoadingProcesses(false);

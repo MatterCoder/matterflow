@@ -1,4 +1,3 @@
-import React from "react";
 import ModelsInstancesList from "./ModelsInstancesList";
 import { Card, Typography } from "antd";
 

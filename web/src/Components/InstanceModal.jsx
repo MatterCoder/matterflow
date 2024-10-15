@@ -1,5 +1,4 @@
 import { Modal as AntdModal, Divider } from "antd";
-import React from "react";
 import InstanceEditor from "./InstanceEditor";
 
 const InstanceModal = ({ show, handleClose, instanceName, instanceId }) => {

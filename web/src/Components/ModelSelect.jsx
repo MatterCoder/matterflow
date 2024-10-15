@@ -1,4 +1,3 @@
-import React from 'react'
 import {  Select,  SelectItem } from '@tremor/react';
 import { useState, useEffect } from 'react';
 import * as API from '../API';

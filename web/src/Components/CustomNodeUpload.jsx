@@ -1,4 +1,4 @@
-import React, {useRef, useState} from "react";
+import {useRef, useState} from "react";
 import * as API from "../API";
 import {Button} from "react-bootstrap";
 
@@ -14,6 +14,7 @@ export default function CustomNodeUpload({ onUpload }) {
         fd.append("file", file);
         API.uploadDataFile(fd)
             .then(resp => {
+                console.log(resp);
                 onUpload();
                 setStatus("ready");
             }).catch(() => {

@@ -1,4 +1,3 @@
-import React from 'react'
 import { useState, useRef, useEffect } from "react";
 import { Button } from 'react-bootstrap';
 import * as API from '../../API';

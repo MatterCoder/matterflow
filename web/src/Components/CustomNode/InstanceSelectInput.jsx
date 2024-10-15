@@ -1,4 +1,3 @@
-import React from 'react'
 import { useState, useEffect } from 'react';
 import * as API from '../../API';
 
@@ -26,7 +25,7 @@ const InstanceSelectInput = ( props ) => {
     if (props.value) {
       setSelectedInstance(props.value.id);
     }
-  }, []);
+  }, [props.value]);
 
     // whenever value changes, fire callback to update config form
     useEffect(() => {

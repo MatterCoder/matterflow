@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Divider, TextInput, Select, SelectItem } from '@tremor/react';
+import { useState, useEffect, useCallback } from 'react';
+import { TextInput, Select, SelectItem } from '@tremor/react';
 import { Button } from 'antd';
 import * as API from '../API';
 
@@ -27,7 +27,7 @@ const ModelEditor = (params) => {
   ];
 
   // Fetch data from API if model_id exists
-  const init = () => {
+  const init = useCallback(() => {
     if (model_id !== undefined) {
       setHasModelId(true);
       API.getModel(model_id)
@@ -43,11 +43,11 @@ const ModelEditor = (params) => {
         })
         .catch((err) => console.log(err));
     }
-  };
+  }, [model_id, setHasModelId]);
 
   useEffect(() => {
     init();
-  }, []);
+  }, [init]);
 
   const updateFieldDeep = (fields, indices, key, value) => {
     if (indices.length === 1) {

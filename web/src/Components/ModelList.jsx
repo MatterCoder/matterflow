@@ -1,11 +1,9 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import {
   ListGroup,
   Button,
   InputGroup,
   FormControl,
-  Tabs,
-  Tab,
 } from "react-bootstrap";
 import ModelModal from "./ModelModal"; // Import the model modal component
 import * as API from "../API";
