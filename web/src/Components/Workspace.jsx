@@ -1,9 +1,9 @@
-import { CloseCircleFilled } from "@ant-design/icons";
+import { CloseCircleFilled, SaveOutlined, DatabaseOutlined, ExportOutlined, UploadOutlined, ClearOutlined, PlayCircleOutlined } from "@ant-design/icons";
 import { CanvasWidget } from "@projectstorm/react-canvas-core";
 import createEngine, { DiagramModel } from "@projectstorm/react-diagrams";
 import { Button as AntdButton, Modal as AntdModal, notification } from "antd";
 import { useEffect, useRef, useState, useCallback } from "react";
-import { Button, Col, Row } from "react-bootstrap";
+import { Col, Row } from "react-bootstrap";
 import * as API from "../API";
 import "../styles/Workspace.css";
 import CustomNodeFactory from "./CustomNode/CustomNodeFactory";
@@ -285,32 +285,51 @@ const Workspace = (props) => {
           >
             <div style={{ position: "relative", zIndex: 100, maxWidth: "70%" }}>
               <div style={{ position: "absolute", top: 8, left: 8 }}>
-                <Button
+                <AntdButton
                   size="sm"
+                  type="primary"
+                  icon=<DatabaseOutlined />
                   onClick={() => {
-                    alert(JSON.stringify(model.serialize()));
+                      alert(JSON.stringify(model.serialize()));
                   }}
                 >
-                  ShowData
-                </Button>{" "}
-                <Button
+                ShowData
+                </AntdButton>{" "}
+                <AntdButton
                   size="sm"
+                  type="primary"
+                  icon=<ExportOutlined />
                   onClick={() => {
                     API.save(model.serialize());
                   }}
                 >
                   Export
-                </Button>{" "}
+                </AntdButton>{" "}
                 <FileUpload handleData={load} />{" "}
-                <Button size="sm" onClick={clear}>
+                <AntdButton 
+                  size="sm" 
+                  onClick={clear}
+                  type="primary"
+                  icon=<ClearOutlined />  
+                >
                   Clear
-                </Button>{" "}
-                <Button size="sm" onClick={execute}>
+                </AntdButton>{" "}
+                <AntdButton 
+                  size="sm" 
+                  onClick={execute}
+                  type="primary"
+                  icon=<PlayCircleOutlined />  
+                >
                   Execute
-                </Button>{" "}
-                <Button size="sm" onClick={() => handleSave(flow_id)}>
+                </AntdButton>{" "}
+                <AntdButton 
+                  size="sm" 
+                  type="primary"
+                  icon=<SaveOutlined />  
+                  onClick={() => handleSave(flow_id)}
+                  >
                   Save
-                </Button>
+                </AntdButton>
               </div>
             </div>
             <CanvasWidget className="diagram-canvas" engine={engine} />
@@ -396,9 +415,14 @@ function FileUpload(props) {
         onChange={onFileSelect}
         style={{ display: "none" }}
       />
-      <Button size="sm" onClick={() => input.current.click()}>
+      <AntdButton
+        size="sm" 
+        type="primary"
+        icon=<UploadOutlined />  
+        onClick={() => input.current.click()}
+        >
         Load
-      </Button>
+      </AntdButton>
     </>
   );
 }
