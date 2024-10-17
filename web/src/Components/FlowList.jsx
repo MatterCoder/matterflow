@@ -55,7 +55,7 @@ const FlowList = (props) => {
   const [loadingProcesses, setLoadingProcesses] = useState(false);
 
   // Construct the iframe source dynamically based on the current host and protocol
-  const iframeSrc = `${window.location.protocol}//${window.location.hostname}:9001/`;
+  const iframeSrc = `${window.location.protocol}//${window.location.hostname}:7002/`;
 
   useEffect(() => {
     const pollProcesses = async () => {
