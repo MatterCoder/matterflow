@@ -15,6 +15,7 @@ import MFPortFactory from "./MFPort/MFPortFactory";
 import ModelMenu from "./ModelMenu";
 import NodeMenu from "./NodeMenu";
 import BannerBox from "./BannerBox";
+import WatermarkText from "./WatermarkText";
 const { confirm } = AntdModal;
 
 /**
@@ -26,6 +27,7 @@ const Workspace = (props) => {
   const [models, setModels] = useState([]);
   const [globals, setGlobals] = useState([]);
   const [isDirty, setIsDirty] = useState(false);
+  const [processId, setProcessId] = useState();
 
   const engine = useRef(createEngine()).current;
   const model = useRef(new DiagramModel()).current;
@@ -86,6 +88,7 @@ const Workspace = (props) => {
         .then((value) => {
           try {
             diagramData.current = JSON.parse(value.data.json_data)["react"];
+            setProcessId(diagramData.current.id)
           } catch {
             console.log("Invalid or missing json data");
             diagramData.current = {};
@@ -283,7 +286,7 @@ const Workspace = (props) => {
             onDrop={handleNodeCreation}
             onDragOver={(event) => event.preventDefault()}
           >
-            <div style={{ position: "relative", zIndex: 100, maxWidth: "70%" }}>
+            <div style={{ position: "relative", zIndex: 100, maxWidth: "80%" }}>
               <div style={{ position: "absolute", top: 8, left: 8 }}>
                 <AntdButton
                   size="sm"
@@ -330,6 +333,7 @@ const Workspace = (props) => {
                   >
                   Save
                 </AntdButton>
+                <WatermarkText text={processId}/>
               </div>
             </div>
             <CanvasWidget className="diagram-canvas" engine={engine} />
