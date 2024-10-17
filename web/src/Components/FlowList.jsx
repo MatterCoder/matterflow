@@ -10,6 +10,8 @@ import {
   Tooltip as AntdTooltip,
 } from "antd";
 import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
+import ProcessTable from "./ProcessTable";
+
 const { confirm } = AntdModal;
 
 const PROCESS_POLL_TIME = 10000; // 10 seconds
@@ -402,13 +404,8 @@ const FlowList = (props) => {
           destroyOnClose
         >
           {loadingProcesses && <Spin spinning />}
-          <iframe
-            src={iframeSrc}
-            style={{ width: "100%", minHeight: "400px" }}
-            onLoad={() => {
-              setLoadingProcesses(false);
-            }}
-          />
+          <ProcessTable processes={processes} iframeSrc={iframeSrc} setLoadingProcesses={setLoadingProcesses}/>
+
         </AntdModal>
       </div>
     </div>
