@@ -6,6 +6,7 @@ from matterflow.nodes import ReadCsvNode, WriteCsvNode, ReadJsonNode, WriteJsonN
 import asyncio
 import time
 import io
+import os
 
 from matterflow.connection import *
 
@@ -89,6 +90,11 @@ async def run_all_ws_flows(filenames, verbose):
         "port": 5580,
         "Clean Session": True
     }
+    #Check if we are running as part of HASSIO (Home assistant IO)
+    #as then we will use the matter server home assistant
+    if 'HASSIO_TOKEN' in os.environ:
+        connection_settings["host"] = 'local-matterflow'
+
     input_settings = {
         "Topic": "#",
         "Include Topic": True,
