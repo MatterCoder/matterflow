@@ -303,11 +303,6 @@ class Workflow:
 
         try:
             # Validate input data, and replace flow variables
-            print("^^"*40)
-            print("len of preceding_data")
-            print(len(preceding_data))
-            print(node_to_execute)
-            print("^^"*40)
             numberOfInputs = len(preceding_data)
             node_to_execute.validate_input_data(len(preceding_data))
             execution_options = node_to_execute.get_execution_options(self, flow_nodes)

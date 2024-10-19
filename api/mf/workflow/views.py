@@ -266,12 +266,12 @@ def save_workflow_to_server(request):
         dir_path = os.path.dirname(os.path.realpath(__file__))
         supervisord_filename = f"{dir_path}/../../supervisor_confs/{request.matterflow.filename}.conf"
         f = open(supervisord_filename, "w")
-#        f.write(f'''[program:{request.matterflow.name}]
-#command=/bin/bash -c "source {dir_path}/../../venv/bin/activate && matterflow execute {workflow_filename} --verbose"
-#''')
         f.write(f'''[program:{request.matterflow.name}]
-command=/bin/cat
-''')        
+command=/bin/bash -c "source {dir_path}/../../venv/bin/activate && matterflow execute {workflow_filename} --verbose"
+''')
+#        f.write(f'''[program:{request.matterflow.name}]
+#command=/bin/cat
+#''')        
         f.close()
 
         return HttpResponse(combined_json, content_type='application/json')

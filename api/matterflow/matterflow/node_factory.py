@@ -70,6 +70,8 @@ def manipulation_node(node_key, node_info):
         return CombineNode(node_info)
     elif node_key == 'SizeBufferNode':
         return SizeBufferNode(node_info)
+    elif node_key == 'MergeJsonNode':
+        return MergeJsonNode(node_info)
     else:
         return None
 

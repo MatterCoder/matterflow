@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Button } from 'antd'; // Import Ant Design Button
+import '../styles/Supervisor.css';
 
 const ProcessTable = ({ processes, iframeSrc, setLoadingProcesses }) => {
     const [loading, setLoading] = useState(true);
@@ -8,7 +9,7 @@ const ProcessTable = ({ processes, iframeSrc, setLoadingProcesses }) => {
     useEffect(() => {
         const link = document.createElement('link');
         link.rel = 'stylesheet';
-        link.href = `${window.location.protocol}//${window.location.hostname}:9001/stylesheets/supervisor.css`;
+        //link.href = `${window.location.protocol}//${window.location.hostname}:9001/stylesheets/supervisor.css`;
         document.head.appendChild(link);
 
         setLoadingProcesses(true);
@@ -82,7 +83,7 @@ const ProcessTable = ({ processes, iframeSrc, setLoadingProcesses }) => {
                         <th className="state">State</th>
                         <th className="desc">Description</th>
                         <th className="name">Name</th>
-                        <th className="action">Action</th>
+                        <th className="action">View Logs</th>
                     </tr>
                 </thead>
                 <tbody>

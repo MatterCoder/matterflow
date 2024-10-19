@@ -21,6 +21,11 @@ class ReadJsonNode(IONode):
             "File",
             docstring="Json File"
         ),
+        "multiline": BooleanParameter(
+            "Multi-line JSON file",
+            default=False,
+            docstring="Set multiline to True if the file contains multiple JSON objects, each on a separate line; otherwise, leave it as False for a single JSON object."
+        ),
     }
 
     def execute(self, predecessor_data, flow_vars):
@@ -28,19 +33,28 @@ class ReadJsonNode(IONode):
         print("file")
         print(flow_vars["file"].get_value())
         try:
-            # Read from file and check json validity
+            # Read from file
             with open(flow_vars["file"].get_value(), 'r') as f:
-                json_string = f.read()
-                f.close()
+                if flow_vars["multiline"].get_value():
+                    # Process each line as a separate JSON object
+                    json_objects = []
+                    for line in f:
+                        stripped_line = line.strip()
+                        if stripped_line:  # Avoid empty lines
+                            json_objects.append(json.loads(stripped_line))
+                    
+                    # Create a new JSON object that is an array of the JSON objects
+                    json_string = json.dumps(json_objects)
+                else:
+                    # Read entire file as one JSON object
+                    json_string = f.read()
 
-            #check that its valid json by converting to a json object and then back again to string
-            #this will throw an exception if invalid json
-            json_string = json.dumps(json.loads(json_string))
-            return json_string            
-        
+                    # Check that it's valid JSON by converting it to an object and then back to string
+                    json_string = json.dumps(json.loads(json_string))
+            
+            return json_string
+
         except Exception as e:
             print("got error in read")
             raise NodeException('read json', str(e))
-
-
 

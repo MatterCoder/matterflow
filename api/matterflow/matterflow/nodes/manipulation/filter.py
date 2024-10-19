@@ -45,28 +45,23 @@ class FilterNode(ManipulationNode):
 
             input = '{"filtered":"true"}'
             transformedandfilterdata = jmespath.search(filter, message)
-            if transformedandfilterdata is not None:
+            if transformedandfilterdata is not None and transformedandfilterdata is not False:
                 #we have found a match
                 if include_settings: #check if we are to include
                     if data_settings: #check if data settings is true then we return the filtered
-                        print("sending back transformed data")
+                        print("Filtering - sending back transformed data")
                         if type(transformedandfilterdata) is list and len(transformedandfilterdata)>0:
                             transformedandfilterdata[0]['filtered'] = "true"
                         input = json.dumps(transformedandfilterdata)
                     else:
-                        print("sending back original")
+                        print("Filtering - sending back original")
                         input = json.dumps(message)  
             else:
                 if not include_settings:
                     input = json.dumps(message)
                 else:
-                    print("ignoring message as we message not given matching filter")
+                    print("Filtering - ignoring message as the message does not given matching filter")
 
-            print("*"*80)
-            #
-            # 
-            # print(input)
-            print("*"*80)
             return input
 
         except Exception as e:

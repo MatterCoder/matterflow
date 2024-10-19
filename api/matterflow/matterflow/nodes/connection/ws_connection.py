@@ -20,13 +20,13 @@ def isWebsocketOpen(ip,port):
 class WsConnectionNode(ConnectionNode):
     """WsConnectionNode
 
-    Reads a Websocket into a workflow.
+    Reads from the Matter server Websocket into a workflow.
 
     Raises:
          NodeException: any error reading web socket, converting
             to workflow.
     """
-    name = "WS Connection"
+    name = "Matter WS Connection"
     num_in = 0
     num_out = 1
 
@@ -38,6 +38,12 @@ class WsConnectionNode(ConnectionNode):
             "Test Json",
             default=test_file_path,
             docstring="Json File"
+        ),
+        "accept_events": SelectParameter(
+            "Accepted Events",
+            options=["*","fabric_id", "result", "event == 'attribute_updated'", "event == 'node_added'", "event == 'node_updated'", "event == 'node_event'", "event == 'node_removed'", "event == 'node_updated'"],
+            default="*",
+            docstring="Which events are accepted from Matter Websocket"
         ),
     }
 
@@ -61,10 +67,17 @@ class WsConnectionNode(ConnectionNode):
                     flow_vars["file"].get_value()
                     , typ='series'
                 )
+
+                # Now try to match the accepted events
+                expression = flow_vars["accept_events"].get_value()
+                data = df.to_json()
+                result = jmespath.search(expression, json.loads(data))
+                if result is None or result == False:
+                    raise ResourceWarning('Info: No match found in event from Matter WS. Expected ' + expression)
+        
                 return df.to_json()
 
         except Exception as e:
-            print("got error in ws connection")
             print(str(e))
             raise NodeException('WS Connection', str(e))
         
