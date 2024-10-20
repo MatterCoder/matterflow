@@ -1,13 +1,6 @@
-import Workspace from '../Components/Workspace';
-import { Container } from 'react-bootstrap';
-import 'bootstrap/dist/css/bootstrap.css';
-import { useParams } from 'react-router-dom';
-import MobileWarning from '../Components/MobileWarning';
 import { useEffect, useState } from 'react';
 
-function HomePage() {
-  const params = useParams(); // Call useParams unconditionally
-
+const MobileWarning = () => {
   const [isMobileOrTablet, setIsMobileOrTablet] = useState(false);
 
   useEffect(() => {
@@ -15,7 +8,7 @@ function HomePage() {
     const checkDevice = () => {
       const screenWidth = window.innerWidth;
 
-      // User agent check for iPads or other tablets
+      // User agent check for tablets or mobile devices
       const userAgent = navigator.userAgent.toLowerCase();
       const isTabletOrMobile = /android|ipad|iphone|ipod/.test(userAgent) || screenWidth < 1024;
 
@@ -34,19 +27,17 @@ function HomePage() {
     };
   }, []);
 
-  // If it's a mobile or tablet device, only render the MobileWarning
   if (isMobileOrTablet) {
-    return <MobileWarning />;
+    return (
+      <div style={{ textAlign: 'center', marginTop: '20%' }}>
+        <h1>App is not supported on mobile or tablet devices</h1>
+        <p>Please use a desktop or larger screen to access this application.</p>
+      </div>
+    );
   }
 
-  // If it's not a mobile or tablet device, render the rest of the app
-  return (
-    <main className="flex">
-      <Container fluid={true} className="App">
-        <Workspace params={params} />
-      </Container>
-    </main>
-  );
-}
+  // Return null or nothing if the screen size is acceptable
+  return null;
+};
 
-export default HomePage;
+export default MobileWarning;
