@@ -10,6 +10,11 @@ import os
 
 from matterflow.connection import *
 
+#If running in home assistant addon we will ignore the warnings
+if 'HASSIO_TOKEN' in os.environ:
+    import warnings
+    warnings.filterwarnings("ignore")
+
 class Config(object):
     def __init__(self):
         self.verbose = False

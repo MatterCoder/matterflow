@@ -5,11 +5,6 @@ import sys
 
 import dotenv
 
-# If running in Home assistant addon - suppress warning
-if 'HASSIO_TOKEN' in os.environ:
-    import warnings
-    warnings.filterwarnings("ignore")
-
 def main():
     dotenv.load_dotenv(".environment")
 

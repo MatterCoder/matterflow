@@ -194,18 +194,18 @@ export default class GraphView extends React.Component {
           {
             label: "Raw Data",
             key: "RawData",
-            children: <p>{JSON.stringify(this.state.data)}</p>,
+            children: this.props.node.options.status === "complete" ? <p>{JSON.stringify(this.state.data)}</p> : <></>,
           },
           {
             label: "JSON Viewer",
             key: "JSON Viewer",
-            children: (
+            children: this.props.node.options.status === "complete" ?  (
               <JsonView
                 collapsed
                 src={this.state.data}
                 style={{ marginBottom: 10 }}
               />
-            ),
+            ) : <></>,
           },
         ];
 
