@@ -8,8 +8,6 @@ import "../../styles/GraphView.css";
 import JsonView from "react18-json-view";
 import "react18-json-view/src/style.css";
 import ResizableDrawer from "../ResizableDrawer";
-import { Button as AntdButton, Tooltip as AntdTooltip} from "antd";
-import { ReloadOutlined, CloudDownloadOutlined } from "@ant-design/icons";
 
 export default class GraphView extends React.Component {
   constructor(props) {
@@ -45,7 +43,10 @@ export default class GraphView extends React.Component {
           loading: false,
         });
       })
-      .catch((err) => console.error(err));
+      .catch((err) => { 
+        console.error(err)
+        this.setState({loading: false});
+      });
   };
 
   loadGraph = async () => {
@@ -227,25 +228,16 @@ export default class GraphView extends React.Component {
             items={tabsArray}
             size="small"
           ></Tabs>
-          <AntdTooltip title="Reload">
-            <AntdButton 
-              type="text"
-              danger
-              disabled={this.props.node.options.status !== "complete"}
-              onClick={this.load}
-              icon={<ReloadOutlined />}
-            />
-          </AntdTooltip>
-          <AntdTooltip title="Download">
-            <AntdButton
-              type="text"
-              danger
-              icon={<CloudDownloadOutlined />}
+            <Button variant="secondary" onClick={this.onClose}>
+              Cancel
+            </Button>{" "}
+            <Button
               variant="secondary"
               disabled={this.props.node.options.status !== "complete"}
-              onClick={this.downloadFile}
-          />
-          </AntdTooltip>
+              onClick={this.load}
+            >
+              Reload
+            </Button>          
           { this.props.node.options.status !== "complete"  &&        
             <p>No new results to show</p>
           }
