@@ -27,6 +27,7 @@ websocket-client = "*"
 websockets = "*"
 jmespath = "*"
 boto3 = "*"
+supervisor = "*"
 
 [requires]
 python_version = "3.12"
