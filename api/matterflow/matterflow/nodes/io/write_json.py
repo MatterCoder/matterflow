@@ -15,7 +15,7 @@ class WriteJsonNode(IONode):
     name = "Write Json"
     num_in = 1
     num_out = 0
-    download_result = True
+    download_result = False
 
     OPTIONS = {
         "file": StringParameter(

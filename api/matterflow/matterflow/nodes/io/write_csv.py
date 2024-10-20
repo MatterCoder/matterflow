@@ -18,7 +18,7 @@ class WriteCsvNode(IONode):
     name = "Write CSV"
     num_in = 1
     num_out = 0
-    download_result = True
+    download_result = False
 
     OPTIONS = {
         "file": StringParameter(
