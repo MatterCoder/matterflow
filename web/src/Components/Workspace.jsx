@@ -323,7 +323,7 @@ const Workspace = (props) => {
                   type="primary"
                   icon=<PlayCircleOutlined />  
                 >
-                  Execute
+                  Test
                 </AntdButton>{" "}
                 <AntdButton 
                   size="sm" 
