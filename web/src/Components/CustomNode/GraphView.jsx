@@ -8,11 +8,14 @@ import "../../styles/GraphView.css";
 import JsonView from "react18-json-view";
 import "react18-json-view/src/style.css";
 import ResizableDrawer from "../ResizableDrawer";
+import { Button as AntdButton, Tooltip as AntdTooltip} from "antd";
+import { ReloadOutlined, CloudDownloadOutlined } from "@ant-design/icons";
 
 export default class GraphView extends React.Component {
   constructor(props) {
     super(props);
     this.key_id = props.node.getNodeId();
+    this.serialized_node = props.node.serialize();
     this.state = {
       loading: false,
       data: [],
@@ -53,6 +56,14 @@ export default class GraphView extends React.Component {
           data: json,
           loading: false,
         });
+      })
+      .catch((err) => console.log(err));
+  };
+
+  downloadFile = async () => {
+    API.downloadDataFile(this.serialized_node)
+      .then((json) => {
+        console.log(json);
       })
       .catch((err) => console.log(err));
   };
@@ -151,7 +162,8 @@ export default class GraphView extends React.Component {
         );
       } else {
         // Print instructions about loading
-        body = "Press Load or Reload to see the data.";
+        body = this.props.node.options.status === "complete" ? "Press Load or Reload to see the data." : "";
+        
         footer = (
           <div style={{ marginTop: 8 }}>
             <Button variant="secondary" onClick={this.onClose}>
@@ -164,6 +176,9 @@ export default class GraphView extends React.Component {
             >
               Load
             </Button>
+            { this.props.node.options.status !== "complete" &&        
+               <p>No results to show</p>
+            }            
           </div>
         );
       }
@@ -208,20 +223,32 @@ export default class GraphView extends React.Component {
 
         body = (
           <>
-            <Tabs
-              items={tabsArray}
-              size="small"
-            ></Tabs>
-            <Button variant="secondary" onClick={this.onClose}>
-              Cancel
-            </Button>{" "}
-            <Button
-              variant="secondary"
+          <Tabs
+            items={tabsArray}
+            size="small"
+          ></Tabs>
+          <AntdTooltip title="Reload">
+            <AntdButton 
+              type="text"
+              danger
               disabled={this.props.node.options.status !== "complete"}
               onClick={this.load}
-            >
-              Reload
-            </Button>
+              icon={<ReloadOutlined />}
+            />
+          </AntdTooltip>
+          <AntdTooltip title="Download">
+            <AntdButton
+              type="text"
+              danger
+              icon={<CloudDownloadOutlined />}
+              variant="secondary"
+              disabled={this.props.node.options.status !== "complete"}
+              onClick={this.downloadFile}
+          />
+          </AntdTooltip>
+          { this.props.node.options.status !== "complete"  &&        
+            <p>No new results to show</p>
+          }
           </>
         );
       }

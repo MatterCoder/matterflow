@@ -652,7 +652,7 @@ export async function downloadDataFile(node) {
           contentType = resp.headers.get("content-type");
           let filename = resp.headers.get("Content-Disposition");
 
-          if (contentType.startsWith("text")) {
+          if (contentType.startsWith("text") || contentType === "application/json") {
               resp.text().then(data => {
                   downloadFile(data, contentType, filename);
               })
