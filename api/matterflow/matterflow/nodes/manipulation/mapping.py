@@ -27,7 +27,7 @@ def findMappedItems(searchString, predecessor_data):
         print('mapping jmespath error', str(e))
         return searchString
 
-    return needle
+    return searchString # if we cant find anything then return the original string
 
 def count_curly_bracket_pairs(s):
     # Initialize counters
@@ -63,7 +63,7 @@ def replaceCurlys(item, new_json_object, predecessor_data):
     else:     
         new_json_object[item['fieldName']] = findMappedItems(replacedString, predecessor_data)
 
-    return new_json_object
+    return new_json_object[item['fieldName']]
 
 
 # Recursive function to handle nested subInputFields

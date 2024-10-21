@@ -53,7 +53,11 @@ def transform_json_data(input_json):
             return [process_json(item) for item in data]
         elif isinstance(data, dict):
             if 'data' in data:
-                data['data'] = unflatten_attributes(data['data'])
+                #check if the attributes are nested
+                if 'attributes' in data['data']:
+                    data['data']['attributes'] = unflatten_attributes(data['data']['attributes'])
+                else:
+                    data['data'] = unflatten_attributes(data['data'])
             if 'result' in data:
                 for result in data['result']:
                     if 'attributes' in result:
