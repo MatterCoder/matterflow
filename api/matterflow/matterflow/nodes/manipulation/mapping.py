@@ -67,8 +67,7 @@ def replaceCurlys(item, new_json_object, predecessor_data):
 
 
 # Recursive function to handle nested subInputFields
-def process_item(item, predecessor_data):
-    result = {}
+def process_item(item, predecessor_data, result):
 
     # If the item has subInputFields, process them recursively
     if item['fieldDatatype'] == 'Object' and 'subInputFields' in item and item['subInputFields']:
@@ -130,7 +129,7 @@ class MappingNode(ManipulationNode):
 
             # Iterate over each object in the JSON array
             for item in json_array:
-                new_json_object[item['fieldName']] = process_item(item, predecessor_data)
+                new_json_object[item['fieldName']] = process_item(item, predecessor_data, new_json_object)
 
             # Convert the new JSON object to a JSON string (if needed)
             new_json_object_str = json.dumps(new_json_object)
