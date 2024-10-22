@@ -64,7 +64,17 @@ const JMESPathTester = () => {
         <h3>
           <strong>Result</strong>
         </h3>
-        <pre className="jmespath-result">{result}</pre>
+        <pre
+          className="jmespath-result"
+          style={{
+            maxHeight: "200px", // Set the max height as per your preference
+            overflowY: "auto",  // Enable vertical scrolling
+            whiteSpace: "pre-wrap", // Allow line breaks inside the pre
+            wordBreak: "break-all", // Handle long words without breaking the layout
+          }}
+        >        
+        {result}
+        </pre>
       </div>
     </div>
   );
