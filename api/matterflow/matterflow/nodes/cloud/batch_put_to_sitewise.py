@@ -41,6 +41,38 @@ class BatchPutToSitewiseNode(IONode):
 
     def execute(self, predecessor_data, flow_vars):
 
+        #this is an example of what comes in currently
+        #we only current handle one entry at a time
+        #TBD = we need to handle multiple entries in an array
+        #and in that case we dont need to do entries=[entries]
+        #in boto3 call
+        example_entry_string = '''
+    {
+      "entryId": "2",
+      "propertyAlias": "/sensors/Sensor1/Temperature",
+      "propertyValues": [
+        {
+          "timestamp": {
+            "timeInSeconds": 1729627045,
+            "offsetInNanos": 0
+          },
+          "value": {
+            "integerValue": 15
+          }
+        },
+        {
+          "timestamp": {
+            "timeInSeconds": 1729626800,
+            "offsetInNanos": 0
+          },
+          "value": {
+            "integerValue": 16
+          }
+        }
+      ]
+    }
+'''
+
         try:
 
             if flow_vars["exclude"].get_value() != '':
