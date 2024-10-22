@@ -53,40 +53,6 @@ class SizeBufferNode(ManipulationNode):
             os.remove(tempFileName)        
             return json.dumps(jsonObj) #return the jsonObj
 
-        '''
-        try:
-
-            try:
-                #load the buffered file
-                df_all = pd.read_json(tempFileName)
-            except Exception as e:
-                df_all = pd.DataFrame()
-
-            #Load this incoming data
-            df = pd.DataFrame.from_dict(predecessor_data[0], orient='index')
-
-            #Join the dataframes
-            if df_all.empty:
-                df_all = df
-            else:
-                df_all.join(df)
-
-            #check the size
-            df_size = df_all.size
-            bufferSize = flow_vars["bufferSize"].get_value()
-
-            if df_size < bufferSize:
-                df_all.to_json(tempFileName)
-                raise Exception('Not reached size yet of ' + str(bufferSize))
-
-            #remove the buffer file
-            os.remove(tempFileName)        
-            return df_all.to_json()
-
-        except Exception as e:
-            raise NodeException('SizeBuffer', str(e))
-        '''
-
     def validate(self):
         """Validate Node configuration
 

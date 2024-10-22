@@ -24,7 +24,7 @@ def findMappedItems(searchString, predecessor_data):
                 return needle # only the first thing found will be returned
 
     except Exception as e:
-        print('mapping jmespath error', str(e))
+        #If we have not found anything then return the original search string
         return searchString
 
     return searchString # if we cant find anything then return the original string
@@ -74,7 +74,7 @@ def process_item(item, predecessor_data, result):
         # Create a nested object for this field
         sub_object = {}
         for sub_item in item['subInputFields']:
-            sub_object[sub_item['fieldName']] = process_item(sub_item, predecessor_data)
+            sub_object[sub_item['fieldName']] = process_item(sub_item, predecessor_data, result)
         result = sub_object
     else:
         # If the field is a timestamp, use the current timestamp
@@ -88,7 +88,9 @@ def process_item(item, predecessor_data, result):
                 # Use the fieldName as the key and fieldValue as the value in the new JSON object
                 tempFieldValue = findMappedItems(item['fieldValue'], predecessor_data)
                 if tempFieldValue is not None:
-                    if isinstance(tempFieldValue, list) and len(tempFieldValue) == 1:
+                    if isinstance(tempFieldValue, list) and item['fieldDatatype'] == 'Array':
+                        tempFieldValue = tempFieldValue  # Return all entries
+                    elif isinstance(tempFieldValue, list) and len(tempFieldValue) == 1:
                         tempFieldValue = tempFieldValue[0]  # Return the first entry
                     elif isinstance(tempFieldValue, str) and tempFieldValue.isnumeric() and item['fieldDatatype'] == 'Number':
                         tempFieldValue = int(tempFieldValue)

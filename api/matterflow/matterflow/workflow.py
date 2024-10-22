@@ -312,6 +312,10 @@ class Workflow:
 
             # Save new execution data to disk
             node_to_execute.data = Workflow.store_node_data(self, node_id, output)
+        except ResourceWarning as e:
+            #We are using ResourceWarning when flows are correctly interrupted. 
+            #This is OK.
+            pass
         except NodeException as e:
             raise e
 
