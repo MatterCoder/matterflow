@@ -37,6 +37,11 @@ class BatchPutToSitewiseNode(IONode):
             default="",
             docstring="Exclude json matching this jmespath query"
         ),
+        "array_of_entries": BooleanParameter(
+            "Input is array of entries",
+            default=False,
+            docstring="Specify if input is array of entries"
+        ),
     }
 
     def execute(self, predecessor_data, flow_vars):
@@ -93,15 +98,22 @@ class BatchPutToSitewiseNode(IONode):
                 region_name = flow_vars["aws_region_name"].get_value()
             )
 
-            # We are going to have to change this to reflect the incoming model format
             entries = predecessor_data[0]
+            #entries = json.loads(example_entry_string)
+
+            # If we are passing in a single entry we need to make it a list
+            if not flow_vars["array_of_entries"].get_value():
+                entries_array = [entries]  
+            else:
+                entries_array = entries
+
             try:
                 response = client.batch_put_asset_property_value(
-                    entries=[entries]
+                    entries=entries_array
                 )
 
             except Exception as e:
-                json_string = '{"error":"aws sitewise error - check your credentials"}'
+                json_string = '{"error":"aws sitewise error - check your credentials or format"}'
 
             return json_string
 
