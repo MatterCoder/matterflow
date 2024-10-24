@@ -28,12 +28,10 @@ export default class MFLinkModel extends DefaultLinkModel {
       return this.getLastPoint().getX() === 0 && this.getLastPoint().getY() === 0;
     }
 
-    /**
-     * TODO: Notify backend the link has been removed
-    */
     remove() {
-        super.remove();
         API.deleteEdge(this)
             .catch(() => {});
+        //import to call super.remove after we have deleted as the source and target port will be erased.
+        super.remove(); 
     }
 }

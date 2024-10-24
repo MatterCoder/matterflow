@@ -91,6 +91,8 @@ class BatchPutToSitewiseNode(IONode):
             # Convert JSON data to string
             json_string = json.dumps(predecessor_data[0])
 
+            print(json_string)
+
             # Set up Boto3 resource and specify the bucket and object name
             client = boto3.client('iotsitewise',
                 aws_access_key_id = flow_vars["aws_access_key_id"].get_value(),
@@ -114,6 +116,7 @@ class BatchPutToSitewiseNode(IONode):
 
             except Exception as e:
                 json_string = '{"error":"aws sitewise error - check your credentials or format"}'
+                print(e)
 
             return json_string
 
