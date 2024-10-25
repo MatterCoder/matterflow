@@ -5,6 +5,7 @@ import pandas as pd
 import json
 import jmespath
 import time
+import re
 
 def findMappedItems(searchString, predecessor_data):
     #this function will go thru each of the predecessor_data input sources
@@ -12,6 +13,11 @@ def findMappedItems(searchString, predecessor_data):
     #once found the item is return so the order to the predecessor_data is important
     #if not found then an emtry string is returned
     needle = ""
+
+    # lets remove the double brackets (if any)
+    hasDoubleBrackets = re.findall(r'\{\{[^{}]*\}\}', searchString)
+    if hasDoubleBrackets:   
+        searchString = re.sub(r'[{}]', '', searchString)
 
     if len(searchString) == 0:
         return needle
@@ -27,6 +33,8 @@ def findMappedItems(searchString, predecessor_data):
         #If we have not found anything then return the original search string
         return searchString
 
+    if hasDoubleBrackets:
+        return '{"error":"unable to find match"}'
     return searchString # if we cant find anything then return the original string
 
 def count_curly_bracket_pairs(s):
@@ -35,11 +43,11 @@ def count_curly_bracket_pairs(s):
     bracket_pairs = 0
 
     # Iterate through each character in the string
-    for char in s:
-        if char == '{':
+    for index in range(len(s)):
+        if s[index] == '$' and index < len(s) and s[index+1] == '{':
             # Increment open bracket counter
             open_brackets += 1
-        elif char == '}':
+        elif s[index] == '}':
             # Check if there's an unmatched opening bracket
             if open_brackets > 0:
                 open_brackets -= 1
@@ -51,7 +59,7 @@ def replaceCurlys(item, new_json_object, predecessor_data):
     replacedString = item['fieldValue']
     for i in range(count_curly_bracket_pairs(replacedString)):
         for key, value in list(new_json_object.items()):
-            placeholder = f'{{{key}}}'
+            placeholder = f'${{{key}}}'
             if placeholder in item['fieldValue']:
                 replacedString = replacedString.replace(placeholder, str(value))
 
@@ -82,7 +90,7 @@ def process_item(item, predecessor_data, result):
             result = int(time.time())
         else:
             # Replace placeholders with actual values
-            if '{' in item['fieldValue'] and '}' in item['fieldValue']:
+            if '${' in item['fieldValue'] and '}' in item['fieldValue']:
                 result = replaceCurlys(item, result, predecessor_data)
             else:
                 # Use the fieldName as the key and fieldValue as the value in the new JSON object
@@ -99,6 +107,16 @@ def process_item(item, predecessor_data, result):
     return result
 
 class MappingNode(ManipulationNode):
+    """MappingNode
+
+    Maps data using jmespath. E.g mapping
+    {{data[0]}}
+    /path/to/thing/${IntegerValue}
+    {{data[${IntegerValue}]}}
+
+    Raises:
+        NodeException: any error mapping
+    """
     name = "Mapping"
     num_in = 1
     num_out = 1
