@@ -18,6 +18,10 @@ class SizeBufferNode(ManipulationNode):
 
     def execute(self, predecessor_data, flow_vars):
 
+        # Ignore any predecessor data that was rejected by preceding nodes
+        if 'meta' in predecessor_data[0] and predecessor_data[0]['meta']['status'] == 'rejected':
+            return predecessor_data[0]
+
         # use a temporary file to buffer into
         tempFileName = "/tmp/" + self.node_id + "_sizebuffer.json"
 
@@ -27,7 +31,6 @@ class SizeBufferNode(ManipulationNode):
                 data = json.load(f)
         except FileNotFoundError:
             data = []
-
 
         # Append the new JSON object to the list
         data.append(predecessor_data[0])

@@ -97,7 +97,8 @@ const InstanceEditor = (params) => {
     const newInputFields = JSON.parse(JSON.stringify(inputFields));
     const field = getFieldDeep(newInputFields, indices);
 
-    field[event.target.name] = dropValue;
+    // add the double curly brackets to the dropValue
+    field[event.target.name] = '{{' + dropValue + '}}';
 
     // Check if the field is of type Object
     if (field.fieldDatatype === "Object") {

@@ -299,30 +299,85 @@ class Workflow:
 
         # Load predecessor data and FlowNode values
         preceding_data = self.load_input_data(node_to_execute.node_id)
+
         flow_nodes = self.load_flow_nodes(node_to_execute.option_replace)
 
-        try:
-            # Validate input data, and replace flow variables
-            numberOfInputs = len(preceding_data)
-            node_to_execute.validate_input_data(len(preceding_data))
-            execution_options = node_to_execute.get_execution_options(self, flow_nodes)
+        # We will use this flag to indicate successful execution
+        execution_successful = True
+        execution_failure_reason = ""
 
-            # Pass in data to current Node to use in execution
-            output = node_to_execute.execute(preceding_data, execution_options)
+        # Process the proceding data for previous rejections
+        if len(self.find_rejected_proceding_data(preceding_data)) > 0:
+            execution_successful = False
+            execution_failure_reason = "Data rejected by previous nodes"
+        else:
+            try:
+                # Validate input data, and replace flow variables
+                numberOfInputs = len(preceding_data)
+                node_to_execute.validate_input_data(len(preceding_data))
+                execution_options = node_to_execute.get_execution_options(self, flow_nodes)
 
-            # Save new execution data to disk
-            node_to_execute.data = Workflow.store_node_data(self, node_id, output)
-        except ResourceWarning as e:
-            #We are using ResourceWarning when flows are correctly interrupted. 
-            #This is OK.
-            pass
-        except NodeException as e:
-            raise e
+                # Pass in data to current Node to use in execution
+                output = node_to_execute.execute(preceding_data, execution_options)
+
+            except ResourceWarning as e:
+                #We are using ResourceWarning when flows are correctly interrupted. 
+                #This is OK.
+                execution_successful = False
+                execution_failure_reason = e.args
+                pass
+            except NodeException as e:
+                execution_successful = False
+                execution_failure_reason = e.reason
+                pass
+                #raise e
+
+        if execution_successful:
+            output_json_object = json.loads(output)
+        else:
+            output_json_object = {
+                "meta": {
+                    "status": "rejected",
+                    "reason": execution_failure_reason
+                    }
+            }
+
+
+        # Save new execution data to disk
+        node_to_execute.data = Workflow.store_node_data(self, node_id, json.dumps(output_json_object))
 
         if node_to_execute.data is None and node_to_execute.node_type != "flow_control":
             raise WorkflowException('execute', 'There was a problem saving node output.')
 
         return node_to_execute
+
+    def find_rejected_proceding_data(self, preceding_data):
+
+        '''
+        We now have a wrapper on the json data with meta details
+        e.g.
+        {
+            "meta": {
+                "status": "rejected",
+                "reason": "Invalid event data structure"
+            },
+            "json": {
+                "event": "attribute_updated",
+                "data": [1, "0/40/6", 99]
+            }
+        }
+        '''
+        
+        rejected_preceding_data = []
+        for input_json in preceding_data:
+            # Check the status of the input JSON
+            if 'meta' in input_json:
+                meta_details = input_json.get("meta")
+                # Check the status of the input JSON
+                if 'status' in meta_details and meta_details.get("status") == "rejected":
+                    rejected_preceding_data.append(input_json)
+
+        return rejected_preceding_data
 
     def load_flow_nodes(self, option_replace):
         """Construct dict of FlowNodes indexed by option name.

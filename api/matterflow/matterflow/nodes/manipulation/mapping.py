@@ -34,7 +34,9 @@ def findMappedItems(searchString, predecessor_data):
         return searchString
 
     if hasDoubleBrackets:
-        return '{"error":"unable to find match"}'
+        #return '{"error":"unable to find match"}'
+        raise NodeException('mapping', 'unable to find match')
+    
     return searchString # if we cant find anything then return the original string
 
 def count_curly_bracket_pairs(s):
