@@ -72,6 +72,8 @@ def manipulation_node(node_key, node_info):
         return SizeBufferNode(node_info)
     elif node_key == 'MergeJsonNode':
         return MergeJsonNode(node_info)
+    elif node_key == 'TranslateAttributesNode':
+        return TranslateAttributesNode(node_info)
     else:
         return None
 
