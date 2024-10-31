@@ -51,6 +51,8 @@ def io_node(node_key, node_info):
         return ReadJsonNode(node_info)
     elif node_key == 'WriteJsonNode':
         return WriteJsonNode(node_info)
+    elif node_key == 'WriteJsonToCsvNode':
+        return WriteJsonToCsvNode(node_info)
     else:
         return None
 
