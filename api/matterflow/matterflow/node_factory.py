@@ -28,6 +28,8 @@ def node_factory(node_info):
 def connection_node(node_key, node_info):
     if node_key == 'WsConnectionNode':
         return WsConnectionNode(node_info)
+    elif node_key == 'MqttConnectionNode':
+        return MqttConnectionNode(node_info)
     else:
         return None
 

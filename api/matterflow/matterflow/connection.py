@@ -1,12 +1,11 @@
 from abc import ABC, abstractmethod
-import paho.mqtt.client as mqtt
 from queue import Queue, Empty
 import json
 import pickle
 import time 
 import asyncio
-import aiomqtt
 import aiohttp
+import aiomqtt
 import sys
 import random
 
@@ -121,6 +120,77 @@ class CSVConnection(BaseConnection):
     def send_output(self, data):
         # Implementation specific to Webhook Connection
         print(f"Sending data to Webhook: {data}")
+
+class MQTTConnection(BaseConnection):
+    def __init__(self, connection_settings, input_settings, output_settings):
+        super().__init__(connection_settings, input_settings, output_settings)
+        self.message_queue = asyncio.Queue()
+        self.client = None
+
+    async def connect(self):
+        """Set up MQTT client and connect to the broker."""
+        # Connect to the MQTT broker
+        async with aiomqtt.Client(self.connection_settings["host"], self.connection_settings["port"]) as client:
+            self.client = client
+
+            #Subscribe to topics
+            if "topics" in self.input_settings:
+                for topic in self.input_settings["topics"]:
+                    await client.subscribe(topic)
+
+            print("MQTT connection established.")
+
+            async with asyncio.TaskGroup() as tg:
+                """Asynchronously listen for messages and enqueue them."""
+                async for message in client.messages:
+                    print(f"Received message from topic {message.topic}")
+                    message_data = {"topic": str(message.topic), "payload": message.payload.decode()}
+                    tg.create_task(self._queue.put(message_data))  # Spawn new coroutine
+
+            # simulate i/o operation using sleep
+            await asyncio.sleep(random.random())
+
+
+    async def disconnect(self):
+        """Disconnect from the MQTT broker."""
+        await self.client.disconnect()
+        print("MQTT connection closed.")
+
+    async def read_input(self):
+        """Retrieve messages from the queue asynchronously."""
+        while True:
+            # get a unit of work
+            Item_size, item = await self._queue.get()
+            if item is None:
+                break
+            # report
+
+            # Notify the queue that the "work item" has been processed.
+            self._queue.task_done()
+
+            # simulate i/o operation using sleep
+            await asyncio.sleep(0.1)
+
+            return item
+        
+    async def send_output(self, data):
+        # Connect to the MQTT broker
+        async with aiomqtt.Client(self.connection_settings["host"], self.connection_settings["port"]) as client:
+            """Publish a message to a specific topic."""
+            topic = data.get("topic", self.output_settings.get("default_topic"))
+            payload = data.get("payload")
+            qos = data.get("qos", 0)
+            retain = data.get("retain", False)
+
+            if topic and payload:
+                await client.publish(topic, payload, qos=qos, retain=retain)
+                print(f"Published data to MQTT topic {topic}: {payload}")
+            else:
+                print("Invalid output data for MQTT publish. Missing 'topic' or 'payload'.")
+
+
+            print("MQTT connection established.")
+
 
 class WebsocketConnection(BaseConnection):
     def __init__(self, connection_settings, input_settings, output_settings):
@@ -263,7 +333,8 @@ class ConnectionFactory:
     def create_connection(connection_type, connection_settings, input_settings, output_settings):
         if connection_type == "Websocket":
             return WebsocketConnection(connection_settings, input_settings, output_settings)
-
+        elif connection_type == "Mqtt":
+            return MQTTConnection(connection_settings, input_settings, output_settings)
         else:
             raise ValueError(f"Unknown connection type: {connection_type}")
 
@@ -286,6 +357,25 @@ async def useWsConnectionForReading(websocket_connection_settings, websocket_inp
         print(message)
         await asyncio.sleep(0.1)
 
+async def useMqttConnectionForConsuming(filenames, verbose, mqtt_connection_settings, mqtt_input_settings, mqtt_output_settings):
+    mqtt_connection = ConnectionFactory.create_connection("Mqtt", mqtt_connection_settings, mqtt_input_settings, mqtt_output_settings)
+
+    print("started useMqttConnectionForConsuming")
+    await mqtt_connection.connect()
+
+async def useMqttConnectionForReading(filenames, verbose, mqtt_connection_settings, mqtt_input_settings, mqtt_output_settings):
+    mqtt_connection = ConnectionFactory.create_connection("Mqtt", mqtt_connection_settings, mqtt_input_settings, mqtt_output_settings)
+    print("started useMqttConnectionForReading")
+
+    while True:
+        message = await mqtt_connection.read_input()
+        input = json.dumps(message)
+        in_stream = io.BytesIO(input.encode('utf-8'))
+        sys.stdin = io.TextIOWrapper(in_stream, encoding='utf-8')        
+        await execute_async(filenames, verbose)
+        await asyncio.sleep(0.1)
+
+
 async def run_all_ws_flows(connection_settings, input_settings, output_settings):
     """ Start concurrent tasks and join  together """
     print("Begin to start tasks...")
@@ -299,6 +389,9 @@ async def run_all_ws_flows(connection_settings, input_settings, output_settings)
 
     return results
 
+'''
+The code below is only used for individual file testing
+'''
 def main():
 
     # Example usage "WS"

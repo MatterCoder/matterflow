@@ -2,7 +2,7 @@ import click
 import json
 from matterflow import Workflow, WorkflowException
 from matterflow import NodeException
-from matterflow.nodes import ReadCsvNode, WriteCsvNode, ReadJsonNode, WriteJsonNode, WsConnectionNode, WriteJsonToS3Node, BatchPutToSitewiseNode
+from matterflow.nodes import ReadCsvNode, WriteCsvNode, ReadJsonNode, WriteJsonNode, WsConnectionNode, WriteJsonToS3Node, BatchPutToSitewiseNode, MqttConnectionNode
 import asyncio
 import time
 import io
@@ -22,7 +22,23 @@ class Config(object):
 
 pass_config = click.make_pass_decorator(Config, ensure=True)
 
+async def useMqttConnectionForConsuming(filenames, verbose, mqtt_connection_settings, mqtt_input_settings, mqtt_output_settings):
+    mqtt_connection = ConnectionFactory.create_connection("Mqtt", mqtt_connection_settings, mqtt_input_settings, mqtt_output_settings)
 
+    print("started useMqttConnectionForConsuming")
+    await mqtt_connection.connect()
+
+async def useMqttConnectionForReading(filenames, verbose, mqtt_connection_settings, mqtt_input_settings, mqtt_output_settings):
+    mqtt_connection = ConnectionFactory.create_connection("Mqtt", mqtt_connection_settings, mqtt_input_settings, mqtt_output_settings)
+    print("started useMqttConnectionForReading")
+
+    while True:
+        message = await mqtt_connection.read_input()
+        input = json.dumps(message)
+        in_stream = io.BytesIO(input.encode('utf-8'))
+        sys.stdin = io.TextIOWrapper(in_stream, encoding='utf-8')        
+        await execute_async(filenames, verbose)
+        await asyncio.sleep(0.1)
 
 async def useWsConnectionForConsuming(filenames, verbose, websocket_connection_settings, websocket_input_settings, websocket_output_settings):
     websocket_connection = ConnectionFactory.create_connection("Websocket", websocket_connection_settings, websocket_input_settings, websocket_output_settings)
@@ -86,35 +102,6 @@ async def run_all_periodic_flows(filenames, verbose, interval=5):
     return results
 
 async def run_all_ws_flows(filenames, verbose):
-    # Example usage "WS"
-    connection_settings = {
-        "Client ID": "client123",
-        "Connection Timeout": 60,
-        "Keep Alive": 120,
-        "host": "127.0.0.1",
-        "port": 5580,
-        "Clean Session": True
-    }
-    #Check if we are running as part of HASSIO (Home assistant IO)
-    #as then we will use the matter server home assistant
-    if 'HASSIO_TOKEN' in os.environ:
-        connection_settings["host"] = 'local-matterflow'
-
-    input_settings = {
-        "Topic": "#",
-        "Include Topic": True,
-        "Payload Type": "JSON"
-    }
-    output_settings = {
-        "Topic": "sensors/response",
-        "QoS": 1,
-        "Named Root": "sensor_data",
-        "Retain": False,
-        "Breakup Arrays": False,
-        "Template": "{temperature}",
-        "AWS IoT Core": False
-    }    
-
 
     """ Start concurrent tasks and join  together """
     print("Begin to start tasks...")
@@ -132,17 +119,59 @@ async def run_all_ws_flows(filenames, verbose):
                 workflow = open_workflow(workflow_file)
                 execution_order = workflow.execution_order()
                 node_to_execute = workflow.get_node(execution_order[0])
-#                connection_settings = json.loads(node_to_execute.option_values["connection"])
-#                input_settings = json.loads(node_to_execute.option_values["input"])
 
-                ##create the tasks
-                tasks.create_task(useWsConnectionForConsuming(filenames, verbose, connection_settings, input_settings, output_settings))
-                tasks.create_task(useWsConnectionForReading(filenames, verbose, connection_settings, input_settings, output_settings))
+                if node_to_execute.name == 'Matter WS Connection':
+    #                connection_settings = json.loads(node_to_execute.option_values["connection"])
+    #                input_settings = json.loads(node_to_execute.option_values["input"])
+
+                    # Example usage "WS"
+                    connection_settings = {
+                        "Client ID": "client123",
+                        "Connection Timeout": 60,
+                        "Keep Alive": 120,
+                        "host": "127.0.0.1",
+                        "port": 5580,
+                        "Clean Session": True
+                    }
+                    #Check if we are running as part of HASSIO (Home assistant IO)
+                    #as then we will use the matter server home assistant
+                    if 'HASSIO_TOKEN' in os.environ:
+                        connection_settings["host"] = 'local-matterflow'
+
+                    input_settings = {
+                        "Topic": "#",
+                        "Include Topic": True,
+                        "Payload Type": "JSON"
+                    }
+                    output_settings = {
+                        "Topic": "sensors/response",
+                        "QoS": 1,
+                        "Named Root": "sensor_data",
+                        "Retain": False,
+                        "Breakup Arrays": False,
+                        "Template": "{temperature}",
+                        "AWS IoT Core": False
+                    }    
+
+                    ##create the tasks
+                    tasks.create_task(useWsConnectionForConsuming(filenames, verbose, connection_settings, input_settings, output_settings))
+                    tasks.create_task(useWsConnectionForReading(filenames, verbose, connection_settings, input_settings, output_settings))
+                elif node_to_execute.name == 'MQTT Connection':
+                    connection_settings = json.loads(node_to_execute.option_values["connection"])
+                    input_settings  = json.loads(node_to_execute.option_values["input"])
+                    output_settings = {"Topic": "sensors/response","QoS": 1,"Named Root": "sensor_data","Retain": False,"Breakup Arrays": False,"Template": "{temperature}","AWS IoT Core": False}    
+
+                    ##create the tasks
+                    tasks.create_task(useMqttConnectionForConsuming(filenames, verbose, connection_settings, input_settings, output_settings))
+                    tasks.create_task(useMqttConnectionForReading(filenames, verbose, connection_settings, input_settings, output_settings))
 
             except OSError as e:
                 click.echo(f"Issues loading workflow file: {e}", err=True)
             except WorkflowException as e:
                 click.echo(f"Issues during workflow execution\n{e}", err=True)
+            except Exception as e:
+                click.echo(f"Issues during workflow execution\n{e}", err=True)
+
 
     results = []
 
@@ -263,6 +292,8 @@ def pre_execute(workflow, node_to_execute, log):
         #this is important as we dont want to use stdin for files that are writing out to the file system
         return None
     elif type(node_to_execute) is WsConnectionNode and not stdin.isatty():
+        new_file_location = stdin
+    elif type(node_to_execute) is MqttConnectionNode and not stdin.isatty():
         new_file_location = stdin
     else:
         # No file redirection needed
