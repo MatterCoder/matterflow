@@ -3,7 +3,8 @@ import { Dropdown, ButtonGroup, Table } from "react-bootstrap";
 import CustomNodeModel from "./CustomNode/CustomNodeModel";
 import NodeConfig from "./CustomNode/NodeConfig";
 import * as API from "../API";
-import { Modal as AntdModal } from "antd";
+import { Modal as AntdModal, Button } from "antd";
+import EnvUploadModal from "./EnvUploadModal";
 const { confirm } = AntdModal;
 
 export default function GlobalFlowMenu(props) {
@@ -11,6 +12,16 @@ export default function GlobalFlowMenu(props) {
   const [activeNode, setActiveNode] = useState();
   const [creating, setCreating] = useState(false);
   const toggleShow = () => setShow(!show);
+
+  const [isModalVisible, setIsModalVisible] = useState(false);
+
+  const showModal = () => {
+    setIsModalVisible(true);
+  };
+
+  const handleModalClose = () => {
+    setIsModalVisible(false);
+  };
 
   // Create CustomNodeModel from JSON data,
   // whether from menu item or global flow variable
@@ -72,7 +83,7 @@ export default function GlobalFlowMenu(props) {
 
   return (
     <div className="GlobalFlowMenu">
-      <h3>Flow Variables</h3>
+      <h3>Env Variables</h3>
       <Table size="sm">
         <thead>
           <tr>
@@ -107,6 +118,7 @@ export default function GlobalFlowMenu(props) {
           ))}
         </tbody>
       </Table>
+      <div >
       <Dropdown as={ButtonGroup}>
         <Dropdown.Toggle
           split
@@ -114,7 +126,7 @@ export default function GlobalFlowMenu(props) {
           size="sm"
           id="dropdown-split-basic"
         >
-          Add Global Flow Variable&nbsp;
+          Add Global Env Variable&nbsp;
         </Dropdown.Toggle>
         <Dropdown.Menu>
           {props.menuItems.map((node, i) => (
@@ -127,6 +139,17 @@ export default function GlobalFlowMenu(props) {
           ))}
         </Dropdown.Menu>
       </Dropdown>
+      <Button type="link" onClick={showModal}>
+        Upload .env File
+      </Button>
+      
+      <EnvUploadModal
+        visible={isModalVisible}
+        onClose={handleModalClose}
+        possibleNodes={props.menuItems}
+        onUpdate={props.onUpdate}
+      />
+      </div>
       <NodeConfig
         node={activeNode}
         show={show}

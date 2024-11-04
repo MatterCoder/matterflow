@@ -94,7 +94,7 @@ export default class NodeConfig extends React.Component {
         onWheel={(e) => e.stopPropagation()}
       >
         <Form onSubmit={this.handleSubmit}>
-          <Modal.Header>
+          <Modal.Header closeButton onHide={this.props.toggleShow}>
             <Modal.Title>
               <b>{this.props.node.options.name}</b> Configuration
             </Modal.Title>

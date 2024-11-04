@@ -23,6 +23,7 @@
     "@tremor/react": "^3.17.4",
     "antd": "^5.21.1",
     "bootstrap": "^5.3.3",
+    "dotenv": "^16.4.5",
     "humanize-string": "^3.0.0",
     "jmespath": "^0.16.0",
     "react": "^18.3.1",
