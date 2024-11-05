@@ -412,7 +412,7 @@ function ExportButton({ model }) {
               okText="Continue"
               cancelText="Cancel"
           >
-              <p>Warning: The flow configuration file may contain sensitive environment variables, such as AWS keys and database credentials. We will attempt to automatically redact this information. Note: You may still need to review the file before sharing.</p>
+              <p>Warning: Your flow configuration file may contain sensitive environment variables, such as AWS keys and database credentials. We will attempt to automatically redact this information. Note: You may still need to review the file before sharing.</p>
               <AntdCheckbox
                   onChange={e => setIncludeSensitiveData(e.target.checked)}
                   checked={includeSensitiveData}

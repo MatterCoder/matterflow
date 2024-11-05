@@ -81,6 +81,13 @@ export default function GlobalFlowMenu(props) {
     });
   };
 
+  const truncateString = (str, maxLength) => {
+    if (str.length > maxLength) {
+      return str.substring(0, maxLength) + '...';
+    }
+    return str;
+  };
+  
   return (
     <div className="GlobalFlowMenu">
       <h3>Flow Variables</h3>
@@ -97,9 +104,9 @@ export default function GlobalFlowMenu(props) {
         <tbody>
           {props.nodes.map((node) => (
             <tr key={node.id}>
-              <td>{node.options.var_name}</td>
+              <td>{truncateString(node.options.var_name, 12)}</td>
               <td>{node.name}</td>
-              <td className="text-primary">{node.options.default_value}</td>
+              <td className="text-primary">{truncateString(node.options.default_value,6)}</td>
               <td
                 className="edit-global"
                 title="Edit Variable"
