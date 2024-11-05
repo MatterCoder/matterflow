@@ -15,7 +15,7 @@ const FlowVariableOverride = (props) => {
     return  (
         <Col>
             <Form.Check type="checkbox" inline
-                        label="Use Env Variable"
+                        label="Use Flow Variable"
                         checked={props.checked} onChange={handleCheck} />
             {props.checked ?
                 <Form.Control as="select" name={props.keyName} onChange={handleSelect}

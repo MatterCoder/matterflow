@@ -1,7 +1,7 @@
 import { CloseCircleFilled, SaveOutlined, DatabaseOutlined, ExportOutlined, UploadOutlined, ClearOutlined, PlayCircleOutlined } from "@ant-design/icons";
 import { CanvasWidget } from "@projectstorm/react-canvas-core";
 import createEngine, { DiagramModel } from "@projectstorm/react-diagrams";
-import { Button as AntdButton, Modal as AntdModal, notification } from "antd";
+import { Button as AntdButton, Modal as AntdModal, notification, Checkbox as AntdCheckbox } from "antd";
 import { useEffect, useRef, useState, useCallback } from "react";
 import { Col, Row } from "react-bootstrap";
 import * as API from "../API";
@@ -16,6 +16,7 @@ import ModelMenu from "./ModelMenu";
 import NodeMenu from "./NodeMenu";
 import BannerBox from "./BannerBox";
 import WatermarkText from "./WatermarkText";
+
 const { confirm } = AntdModal;
 
 /**
@@ -298,16 +299,7 @@ const Workspace = (props) => {
                 >
                 ShowData
                 </AntdButton>{" "}
-                <AntdButton
-                  size="sm"
-                  type="primary"
-                  icon=<ExportOutlined />
-                  onClick={() => {
-                    API.save(model.serialize());
-                  }}
-                >
-                  Export
-                </AntdButton>{" "}
+                <ExportButton model={model}/>{" "}
                 <FileUpload handleData={load} />{" "}
                 <AntdButton 
                   size="sm" 
@@ -379,6 +371,58 @@ const Workspace = (props) => {
     </>
   );
 };
+
+// ExportButton Component
+function ExportButton({ model }) {
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [includeSensitiveData, setIncludeSensitiveData] = useState(false);
+
+  const handleExport = () => {
+      setIsModalVisible(true);  // Show modal on click
+  };
+
+  const handleOk = () => {
+      setIsModalVisible(false);
+      const serializedData = model.serialize();
+      
+      // Call the save function with processed data
+      API.save(serializedData, true, !includeSensitiveData);
+  };
+
+  const handleCancel = () => {
+      setIsModalVisible(false);
+  };
+
+  return (
+      <>
+          <AntdButton
+              size="sm"
+              type="primary"
+              icon={<ExportOutlined />}
+              onClick={handleExport}
+          >
+              Export
+          </AntdButton>
+
+          <AntdModal
+              title="Export Flow File"
+              visible={isModalVisible}
+              onOk={handleOk}
+              onCancel={handleCancel}
+              okText="Continue"
+              cancelText="Cancel"
+          >
+              <p>Warning: The flow configuration file may contain sensitive environment variables, such as AWS keys and database credentials. We will attempt to automatically redact this information. Note: You may still need to review the file before sharing.</p>
+              <AntdCheckbox
+                  onChange={e => setIncludeSensitiveData(e.target.checked)}
+                  checked={includeSensitiveData}
+              >
+                  Do not redact sensitive information
+              </AntdCheckbox>
+          </AntdModal>
+      </>
+  );
+}
 
 /**
  * FileUpload Component: Handles file upload and passes data to parent component.

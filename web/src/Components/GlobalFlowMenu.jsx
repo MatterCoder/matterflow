@@ -83,7 +83,7 @@ export default function GlobalFlowMenu(props) {
 
   return (
     <div className="GlobalFlowMenu">
-      <h3>Env Variables</h3>
+      <h3>Flow Variables</h3>
       <Table size="sm">
         <thead>
           <tr>
@@ -130,12 +130,14 @@ export default function GlobalFlowMenu(props) {
         </Dropdown.Toggle>
         <Dropdown.Menu>
           {props.menuItems.map((node, i) => (
-            <Dropdown.Item
-              key={node.key || i}
-              onClick={() => handleEdit(node, true)}
-            >
-              {node.name}
-            </Dropdown.Item>
+            node.node_key !== "DynamicNode" && (
+              <Dropdown.Item
+                key={node.key || i}
+                onClick={() => handleEdit(node, true)}
+              >
+                {node.name}
+              </Dropdown.Item>
+            )
           ))}
         </Dropdown.Menu>
       </Dropdown>

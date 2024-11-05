@@ -342,6 +342,10 @@ class Workflow:
                     }
             }
 
+        # Update any Dynamic Input nodes with the new data
+        if node_to_execute.name == 'Dynamic Input':
+            node_to_execute.option_values['default_value'] = output_json_object['value']
+            self.update_or_add_node(node_to_execute)
 
         # Save new execution data to disk
         node_to_execute.data = Workflow.store_node_data(self, node_id, json.dumps(output_json_object))

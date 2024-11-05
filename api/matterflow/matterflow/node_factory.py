@@ -38,6 +38,8 @@ def flow_node(node_key, node_info):
         return StringNode(node_info)
     elif node_key == 'IntegerNode':
         return IntegerNode(node_info)
+    elif node_key == 'DynamicNode':
+        return DynamicNode(node_info)
     else:
         return None
 

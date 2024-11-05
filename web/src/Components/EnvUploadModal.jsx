@@ -8,6 +8,7 @@ import CustomNodeModel from "./CustomNode/CustomNodeModel";
 const EnvUploadModal = ({ visible, onClose, possibleNodes, onUpdate }) => {
   const [fileList, setFileList] = useState([]);
   const [uploading, setUploading] = useState(false);
+  const [pendingAddNodeCalls, setPendingAddNodeCalls] = useState(0)
 
   // Look up option types from appropriate menu item.
   // The option types aren't included in the global flow
@@ -47,8 +48,8 @@ const EnvUploadModal = ({ visible, onClose, possibleNodes, onUpdate }) => {
       setUploading(true);
       try {
         for (const [key, value] of Object.entries(parsedEnv)) {
-          //const config = { key, value };
-
+          setPendingAddNodeCalls(pendingAddNodeCalls + 1);
+          // Create a new node
           const config = { 
             default_value: value,
             description: "From env file",
@@ -59,21 +60,23 @@ const EnvUploadModal = ({ visible, onClose, possibleNodes, onUpdate }) => {
           ? 'integer_input'
           : 'string_input';        
           
-          const varTypeNode = possibleNodes.find(
-            (node) => (node.filename == varFileName)
-            );
+          const varTypeNode = possibleNodes.find((node) => (node.filename == varFileName));
           const node = nodeFromData(varTypeNode);            
           node.config = config;
           API.addNode(node)
-          .then((res) => {
-            console.log(res)    
-            console.log(config)
-            // Update the UI
-            onUpdate();
-          })
-          .catch((err) => 
-            console.log(err)
-        );
+            .then((res) => {
+                console.log(res);
+                setPendingAddNodeCalls(pendingAddNodeCalls -1 );
+                if (pendingAddNodeCalls === 0) {
+                  setTimeout(() => {
+                    // Update the UI
+                    onUpdate();
+                  }, 100); // adjust the delay as needed      
+                }          
+            })
+            .catch((err) => 
+                console.log(err)
+            );
         }
         message.success('Environment variables uploaded successfully.');
         onClose(); // Close the modal on success

@@ -474,7 +474,7 @@ export async function updateNode(node, config, flowConfig) {
 * Save front-end workflow and download server response as JSON file
 * @param {Object} diagramData - serialized react-diagrams model
 */
-export async function save(diagramData, download=true) {
+export async function save(diagramData, download=true, scrubSensitiveData = false) {
   const payload = JSON.stringify(diagramData);
   const options = {
       method: "POST",
@@ -482,6 +482,9 @@ export async function save(diagramData, download=true) {
   };
   fetchWrapper("/workflow/save", options)
       .then(json => {
+          if (scrubSensitiveData) {
+            json = filterSensitiveData(json);  // Scrub sensitive data if flag is true
+          }
           if (download){downloadFile(JSON.stringify(json), "application/json", json.filename || "diagram.json")}
       }).catch(err => console.log(err));
 }
@@ -705,4 +708,60 @@ export async function retrieveDataByFile(nodeId, file) {
     return {"data": "data"}
   }
   return fetchWrapper(`/node/${nodeId}/retrieve_data_by_file/${file}`);
+}
+
+function filterSensitiveData(data) {
+  const processedData = JSON.parse(JSON.stringify(data)); // Deep copy to avoid mutating original
+
+  // Define patterns for sensitive `var_name` values
+  const sensitiveVarPatterns = [
+    /aws.*key/i,
+    /azure.*key/i,
+    /google.*key/i,
+    /gcp.*key/i,
+    /db.*host/i,
+    /db.*password/i,
+    /db.*user/i,
+    /database.*password/i,
+    /database.*user/i,
+    /api.*key/i,
+    /api.*secret/i,
+    /token/i,
+    /secret/i,
+    /private.*key/i,
+    /public.*key/i,
+    /jwt/i,
+    /encryption.*key/i,
+    /mail.*key/i,
+    /stripe.*key/i,
+    /paypal.*secret/i,
+    /facebook.*id/i,
+    /facebook.*secret/i,
+    /twitter.*key/i,
+    /linkedin.*id/i,
+    /linkedin.*secret/i,
+    /password/i,
+    /auth/i,
+    /session/i,
+    /credential/i
+  ];
+
+  // Check and redact sensitive `default_value` if `var_name` is sensitive
+  function redactSensitiveDefaultValue(nodes) {
+      nodes.forEach(node => {
+          if (node.options && node.options.var_name && node.options.default_value) {
+              const { var_name } = node.options;
+              if (sensitiveVarPatterns.some(pattern => pattern.test(var_name))) {
+                  node.options.default_value = '[REDACTED]'; // Redact the sensitive value
+              }
+          }
+      });
+  }
+
+  // Check if `flow_vars` exists and process `nodes` if it does
+  if (processedData.matterflow.flow_vars && Array.isArray(processedData.matterflow.flow_vars.nodes)) {
+      redactSensitiveDefaultValue(processedData.matterflow.flow_vars.nodes);
+  }
+
+  return processedData;
 }
