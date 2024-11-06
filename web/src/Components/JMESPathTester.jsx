@@ -34,6 +34,9 @@ const JMESPathTester = () => {
           <h3>
             <strong>Test JMESPath Expression</strong>
           </h3>
+          <p>Test a JMESPath Expression on your flow data. To learn more about JMESPath, check out the&nbsp;<a href="https://jmespath.org/tutorial.html" target="_blank">JMESPath Tutorial</a>&nbsp;and&nbsp;
+            <a href="https://jmespath.org/examples.html" target="_blank">JMESPath Examples</a>.
+          </p>
           <div className="flex">
             <div
               draggable="true"
