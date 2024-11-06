@@ -11,7 +11,8 @@ class SizeBufferNode(ManipulationNode):
 
     OPTIONS = {
         "bufferSize": IntegerParameter(
-            "Size To Buffer", 
+            "Size To Buffer",
+            default=0,
             docstring="Size of file to buffer (Bytes)"
         ),
     }

@@ -23,16 +23,16 @@ class DynamicNode(FlowNode):
             default="my_var",
             docstring="Name of the variable to use in another Node"
         ),
-        "filter": StringParameter(
-            "Filter",
+        "expression": StringParameter(
+            "Expression",
             default='*',
-            docstring="Jmespath query to filter"
+            docstring="Extract text using this JMESPath expression"
         )
     }
 
     def execute(self, predecessor_data, flow_vars):
 
-        filter_settings = flow_vars["filter"].get_value()
+        filter_settings = flow_vars["expression"].get_value()
         default_value = flow_vars["default_value"].get_value()
 
         #filter the input if required        
@@ -42,12 +42,13 @@ class DynamicNode(FlowNode):
 
         data = jmespath.search(filter, predecessor_data[0])
 
-        if data is not None:
+        # Check if data is a primitive type (str, int, float, bool) and not None
+        if data is not None and isinstance(data, (str, int, float, bool)):
             return json.dumps({
                 "value": data
             })
         else:
-            print("dynamic import no found, returning default value")
+            print("dynamic import not found, returning default value")
             returnObj = {
                 "value": default_value
             }

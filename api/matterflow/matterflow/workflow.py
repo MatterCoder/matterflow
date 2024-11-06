@@ -314,7 +314,7 @@ class Workflow:
             try:
                 # Validate input data, and replace flow variables
                 numberOfInputs = len(preceding_data)
-                node_to_execute.validate_input_data(len(preceding_data))
+                node_to_execute.validate_input_data(numberOfInputs)
                 execution_options = node_to_execute.get_execution_options(self, flow_nodes)
 
                 # Pass in data to current Node to use in execution
