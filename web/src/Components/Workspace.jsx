@@ -32,21 +32,32 @@ const Workspace = (props) => {
 
   const engine = useRef(createEngine()).current;
   const model = useRef(new DiagramModel()).current;
-  const flow_id = props.params?.flow_id;
-  //we can access the flow_id by using props.params.flow_id
 
   const diagramData = useRef(null);
-
-  const [showNodeMenu, setShowNodeMenu] = useState(true);
-  const [api, contextHolder] = notification.useNotification();
-
-  //const navigate = useNavigate();
 
   engine.getNodeFactories().registerFactory(new CustomNodeFactory());
   engine.getLinkFactories().registerFactory(new MFLinkFactory());
   engine.getPortFactories().registerFactory(new MFPortFactory());
   engine.setModel(model);
   engine.setMaxNumberPointsPerLink(0);
+
+  // Register listeners for links here
+  model.registerListener({
+    linksUpdated:(e) => {
+      e.link.registerListener({
+        targetPortChanged:(event) => {
+          event.stopPropagation()
+          API.addEdge(event.entity).catch(() => {});
+        },
+      })
+    }
+  });
+
+  const flow_id = props.params?.flow_id;
+  //we can access the flow_id by using props.params.flow_id
+
+  const [showNodeMenu, setShowNodeMenu] = useState(true);
+  const [api, contextHolder] = notification.useNotification();
 
   const showBannerMessage = useCallback(() => {
 
@@ -162,6 +173,7 @@ const Workspace = (props) => {
    */
   const load = (diagramData) => {
     model.deserializeModel(diagramData, engine);
+
     setTimeout(() => engine.repaintCanvas(), 100);
     getGlobalVars();
   };

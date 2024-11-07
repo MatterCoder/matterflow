@@ -11,7 +11,7 @@ export default class MFLinkModel extends DefaultLinkModel {
         this.registerListener({
             targetPortChanged: event => {
                 console.log(event)
-                API.addEdge(this).catch(() => {});
+                //API.addEdge(this).catch(() => {});
             },
         })
     }
