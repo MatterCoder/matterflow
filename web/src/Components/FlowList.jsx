@@ -315,6 +315,11 @@ const FlowList = (props) => {
                       <FormControl
                         value={renameValue}
                         onChange={(e) => setRenameValue(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') {
+                            handleRenameConfirm(flow.id);
+                          }
+                        }}                        
                       />
                       <Button
                         variant="outline-success"

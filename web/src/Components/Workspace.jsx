@@ -46,8 +46,14 @@ const Workspace = (props) => {
     linksUpdated:(e) => {
       e.link.registerListener({
         targetPortChanged:(event) => {
+          //this is to fix a bug where the edge is not created by the MFLinkModel
           event.stopPropagation()
           API.addEdge(event.entity).catch(() => {});
+        },
+        entityRemoved:(event) => {
+          //this is to fix a bug where the edge is not deleted by the MFLinkModel
+          event.stopPropagation()
+          API.deleteEdge(event.entity).catch(() => {});
         },
       })
     }

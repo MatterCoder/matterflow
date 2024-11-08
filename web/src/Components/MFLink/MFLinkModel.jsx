@@ -10,8 +10,9 @@ export default class MFLinkModel extends DefaultLinkModel {
         });
         this.registerListener({
             targetPortChanged: event => {
-                console.log(event)
-                //API.addEdge(this).catch(() => {});
+                console.log(event);
+                //we are using a listener in the workspace.jsx now
+                //API.addEdge(this).catch(() => {}); 
             },
         })
     }
@@ -31,7 +32,8 @@ export default class MFLinkModel extends DefaultLinkModel {
     remove() {
         API.deleteEdge(this)
             .catch(() => {});
-        //import to call super.remove after we have deleted as the source and target port will be erased.
-        super.remove(); 
+
+        //important to call super.remove after we have deleted as the source and target port will be erased.
+        super.remove();
     }
 }
