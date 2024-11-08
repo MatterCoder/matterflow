@@ -1,4 +1,4 @@
-import { CloseCircleFilled, SaveOutlined, DatabaseOutlined, ExportOutlined, UploadOutlined, ClearOutlined, PlayCircleOutlined } from "@ant-design/icons";
+import { CloseCircleFilled, SaveOutlined, ExportOutlined, UploadOutlined, ClearOutlined, PlayCircleOutlined, StopOutlined } from "@ant-design/icons";
 import { CanvasWidget } from "@projectstorm/react-canvas-core";
 import createEngine, { DiagramModel } from "@projectstorm/react-diagrams";
 import { Button as AntdButton, Modal as AntdModal, notification, Checkbox as AntdCheckbox } from "antd";
@@ -29,6 +29,11 @@ const Workspace = (props) => {
   const [globals, setGlobals] = useState([]);
   const [isDirty, setIsDirty] = useState(false);
   const [processId, setProcessId] = useState();
+  const [processes, setProcesses] = useState([]);
+
+  //we need to poll the process every XX seconds
+  const PROCESS_POLL_TIME = 10; // 10 seconds
+  const [pollInterval, setPollInterval] = useState(PROCESS_POLL_TIME);
 
   const engine = useRef(createEngine()).current;
   const model = useRef(new DiagramModel()).current;
@@ -64,6 +69,25 @@ const Workspace = (props) => {
 
   const [showNodeMenu, setShowNodeMenu] = useState(true);
   const [api, contextHolder] = notification.useNotification();
+
+  useEffect(() => {
+    const pollProcesses = async () => {
+      try {
+        const response = await API.getProcesses();
+        setProcesses(JSON.parse(response.data));
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    pollProcesses();
+
+    const intervalId = setInterval(pollProcesses, pollInterval);
+
+    return () => {
+      clearInterval(intervalId);
+    };
+  }, [pollInterval]);
 
   const showBannerMessage = useCallback(() => {
 
@@ -282,6 +306,14 @@ const Workspace = (props) => {
     window.location = `/new`;
   };
 
+  const flowProcesses = processes.filter((process) => process.name === processId);
+
+  var processText = 'Flow not running as a process';
+  if (flowProcesses.length > 0) {
+    // Handle the "no match" scenario, such as showing a message or handling an error
+    processText = `${processId} - ${flowProcesses[0]["statename"]}`;
+  }
+
   return (
     <>
       {contextHolder}
@@ -293,6 +325,9 @@ const Workspace = (props) => {
             flows={flows}
             diagramModel={model}
             onNewFlow={handleAddFlow}
+            processes={processes}
+            setPollInterval={setPollInterval}
+            pollInterval={pollInterval}
           />
           <ModelMenu models={models} onUpload={getAvailableModels} />
         </Col>
@@ -307,16 +342,39 @@ const Workspace = (props) => {
           >
             <div style={{ position: "relative", zIndex: 100, maxWidth: "80%" }}>
               <div style={{ position: "absolute", top: 8, left: 8 }}>
-                <AntdButton
-                  size="sm"
-                  type="primary"
-                  icon=<DatabaseOutlined />
-                  onClick={() => {
-                      alert(JSON.stringify(model.serialize()));
-                  }}
-                >
-                ShowData
-                </AntdButton>{" "}
+              <AntdButton
+                size="sm"
+                type="primary"
+                icon={flowProcesses.length > 0 && flowProcesses[0]["statename"] === "RUNNING" ? <StopOutlined /> : <PlayCircleOutlined />}
+                onClick={() => {
+                  if (flowProcesses.length > 0) {
+                    if (flowProcesses[0]["statename"] === "RUNNING") {
+                      API.stopProcess(processId)
+                        .then(() => {
+                          console.log("Stopped Process Successfully");
+                          props.setPollInterval(props.pollInterval + 1); //lets change the polling interval to force a refetch
+                        })
+                        .catch((err) => console.log(err));
+                    } else {
+                      API.startProcess(processId)
+                        .then(() => {
+                          console.log("Started Process Successfully");
+                          props.setPollInterval(props.pollInterval - 1); //lets change the polling interval to force a refetch
+                        })
+                        .catch((err) => console.log(err));
+                    }
+                  } else {
+                    API.addProcess(processId)
+                      .then(() => {
+                        console.log("Added Process Successfully");
+                        props.setPollInterval(props.pollInterval + 1); //lets change the polling interval to force a refetch
+                      })
+                      .catch((err) => console.log(err));
+                  }
+                }}
+              >
+                {flowProcesses.length > 0 && flowProcesses[0]["statename"] === "RUNNING" ? "Stop" : flowProcesses.length > 0 ? "Start" : "Create"}
+              </AntdButton>{" "}
                 <ExportButton model={model}/>{" "}
                 <FileUpload handleData={load} />{" "}
                 <AntdButton 
@@ -343,7 +401,7 @@ const Workspace = (props) => {
                   >
                   Save
                 </AntdButton>
-                <WatermarkText text={processId}/>
+                <WatermarkText text={processText}/>
               </div>
             </div>
             <CanvasWidget className="diagram-canvas" engine={engine} />

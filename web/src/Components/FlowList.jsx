@@ -14,7 +14,6 @@ import ProcessTable from "./ProcessTable";
 
 const { confirm } = AntdModal;
 
-const PROCESS_POLL_TIME = 10000; // 10 seconds
 
 const useFetch = () => {
   const [data, setData] = useState(null);
@@ -51,32 +50,11 @@ const FlowList = (props) => {
   const [renameValue, setRenameValue] = useState("");
   const selected_flow_id = props?.flow_id;
 
-  const [processes, setProcesses] = useState([]);
-  const [pollInterval, setPollInterval] = useState(PROCESS_POLL_TIME);
   const [showProcessModal, setShowProcessModal] = useState(false);
   const [loadingProcesses, setLoadingProcesses] = useState(false);
 
   // Construct the iframe source dynamically based on the current host and protocol
   const iframeSrc = `${window.location.protocol}//${window.location.hostname}:9001/`;
-
-  useEffect(() => {
-    const pollProcesses = async () => {
-      try {
-        const response = await API.getProcesses();
-        setProcesses(JSON.parse(response.data));
-      } catch (error) {
-        console.error(error);
-      }
-    };
-
-    pollProcesses();
-
-    const intervalId = setInterval(pollProcesses, pollInterval);
-
-    return () => {
-      clearInterval(intervalId);
-    };
-  }, [pollInterval]);
 
   const renderTooltip = (props) => (
     <Tooltip id="button-tooltip" {...props}>
@@ -161,10 +139,9 @@ const FlowList = (props) => {
     //returns option of "configured", "configured", "complete"
 
     //filter the processes to find the process matching this flow
-    const flowProcesses = processes.filter(
+    const flowProcesses = props.processes.filter(
       (process) => process.name == flow_name
     );
-    //const flowProcesses = processes.filter((process) => process.name == "foo");
 
     if (flowProcesses.length === 0) {
       return "";
@@ -184,7 +161,7 @@ const FlowList = (props) => {
   const handleChangeState = (flowName) => {
     //lets try to start the flow process
     //flowName = 'foo'
-    const flowProcesses = processes.filter(
+    const flowProcesses = props.processes.filter(
       (process) => process.name == flowName
     );
 
@@ -192,7 +169,7 @@ const FlowList = (props) => {
       API.addProcess(flowName)
         .then(() => {
           console.log("Added Process Successfully");
-          setPollInterval(pollInterval + 1); //lets change the polling interval to force a refetch
+          props.setPollInterval(props.pollInterval + 1); //lets change the polling interval to force a refetch
         })
         .catch((err) => console.log(err));
     } else {
@@ -200,14 +177,14 @@ const FlowList = (props) => {
         API.stopProcess(flowName)
           .then(() => {
             console.log("Stopped Process Successfully");
-            setPollInterval(pollInterval + 1); //lets change the polling interval to force a refetch
+            props.setPollInterval(props.pollInterval + 1); //lets change the polling interval to force a refetch
           })
           .catch((err) => console.log(err));
       } else {
         API.startProcess(flowName)
           .then(() => {
             console.log("Started Process Successfully");
-            setPollInterval(pollInterval - 1); //lets change the polling interval to force a refetch
+            props.setPollInterval(props.pollInterval - 1); //lets change the polling interval to force a refetch
           })
           .catch((err) => console.log(err));
       }
@@ -409,7 +386,7 @@ const FlowList = (props) => {
           destroyOnClose
         >
           {loadingProcesses && <Spin spinning />}
-          <ProcessTable processes={processes} iframeSrc={iframeSrc} setLoadingProcesses={setLoadingProcesses}/>
+          <ProcessTable processes={props.processes} iframeSrc={iframeSrc} setLoadingProcesses={setLoadingProcesses}/>
 
         </AntdModal>
       </div>
