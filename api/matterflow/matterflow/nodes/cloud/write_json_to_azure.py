@@ -4,6 +4,7 @@ import json
 import pandas as pd
 from io import StringIO  # For handling in-memory text streams
 from azure.storage.blob import BlobServiceClient, BlobClient, ContainerClient
+import jmespath
 
 class WriteJsonToAzureNode(IONode):
     """WriteJsonToAzureNode
@@ -63,10 +64,11 @@ class WriteJsonToAzureNode(IONode):
             df.to_json(json_buffer, orient='records')
 
             # Set up Azure Blob Storage client
-            connection_string = flow_vars["azure_connection_string"].get_value()
+            connection_string = flow_vars["azure_connection_string"].get_value() or ""
             blob_service_client = BlobServiceClient.from_connection_string(connection_string)
-            container_name = flow_vars["container_name"].get_value()
-            blob_client = blob_service_client.get_blob_client(container=container_name, blob=flow_vars["filename"].get_value())
+            container_name = flow_vars["container_name"].get_value() or ""
+            file_name = flow_vars["filename"].get_value() or ""
+            blob_client = blob_service_client.get_blob_client(container=container_name, blob=file_name)
 
             # Upload the JSON to Azure Blob Storage
             try:
