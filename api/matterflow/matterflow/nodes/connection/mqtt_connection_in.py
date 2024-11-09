@@ -4,8 +4,8 @@ import json
 import pandas as pd
 from matterflow.connection import *
 
-class MqttConnectionNode(ConnectionNode):
-    """MqttConnectionNode
+class MqttConnectionInNode(ConnectionNode):
+    """MqttConnectionInNode
 
     Reads from the Mqtt Broker into a workflow.
 
@@ -13,7 +13,7 @@ class MqttConnectionNode(ConnectionNode):
          NodeException: any error reading mqtt, converting
             to workflow.
     """
-    name = "MQTT Connection"
+    name = "MQTT Connection (In)"
     num_in = 0
     num_out = 1
 
@@ -63,7 +63,7 @@ class MqttConnectionNode(ConnectionNode):
 
         except Exception as e:
             print(str(e))
-            raise NodeException('MQTT Connection', str(e))
+            raise NodeException('MQTT Connection In', str(e))
         
     def validate(self):
         """Validate Node configuration

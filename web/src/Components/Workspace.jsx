@@ -1,4 +1,4 @@
-import { CloseCircleFilled, SaveOutlined, ExportOutlined, UploadOutlined, ClearOutlined, PlayCircleOutlined, StopOutlined } from "@ant-design/icons";
+import { CloseCircleFilled, SaveOutlined, ExportOutlined, UploadOutlined, ClearOutlined, PlayCircleOutlined, PlaySquareFilled, StopOutlined } from "@ant-design/icons";
 import { CanvasWidget } from "@projectstorm/react-canvas-core";
 import createEngine, { DiagramModel } from "@projectstorm/react-diagrams";
 import { Button as AntdButton, Modal as AntdModal, notification, Checkbox as AntdCheckbox } from "antd";
@@ -31,10 +31,7 @@ const Workspace = (props) => {
   const [processId, setProcessId] = useState();
   const [processes, setProcesses] = useState([]);
 
-  //we need to poll the process every XX seconds
-  const PROCESS_POLL_TIME = 10; // 10 seconds
-  const [pollInterval, setPollInterval] = useState(PROCESS_POLL_TIME);
-
+  // Set up the react-diagrams engine
   const engine = useRef(createEngine()).current;
   const model = useRef(new DiagramModel()).current;
 
@@ -64,31 +61,39 @@ const Workspace = (props) => {
     }
   });
 
-  const flow_id = props.params?.flow_id;
   //we can access the flow_id by using props.params.flow_id
+  const flow_id = props.params?.flow_id;
 
   const [showNodeMenu, setShowNodeMenu] = useState(true);
   const [api, contextHolder] = notification.useNotification();
 
-  useEffect(() => {
-    const pollProcesses = async () => {
-      try {
-        const response = await API.getProcesses();
-        setProcesses(JSON.parse(response.data));
-      } catch (error) {
-        console.error(error);
-      }
-    };
+  // Constant for poll interval (in milliseconds)
+  const PROCESS_POLL_TIME = 10000; // 10 seconds (converted to ms)
+  const [pollInterval,setPollInterval] = useState(PROCESS_POLL_TIME);
 
+  const pollProcesses = useCallback(async () => {
+    try {
+      const response = await API.getProcesses();
+      setProcesses(JSON.parse(response.data));
+    } catch (error) {
+      console.error(error);
+    }
+  }, []); // No dependencies needed unless `API.getProcesses` or `setProcesses` change
+
+  useEffect(() => {
+    // Run the function once immediately.
     pollProcesses();
 
+    // Set up the interval.
     const intervalId = setInterval(pollProcesses, pollInterval);
 
+    // Clean up the interval when the component unmounts or when the effect re-runs.
     return () => {
       clearInterval(intervalId);
     };
-  }, [pollInterval]);
-
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pollProcesses, pollInterval]); // Only include `pollProcesses` and not `pollInterval`.
+  
   const showBannerMessage = useCallback(() => {
 
     // Get screen width
@@ -352,14 +357,14 @@ const Workspace = (props) => {
                       API.stopProcess(processId)
                         .then(() => {
                           console.log("Stopped Process Successfully");
-                          props.setPollInterval(props.pollInterval + 1); //lets change the polling interval to force a refetch
+                          setPollInterval(pollInterval + 1); //lets change the polling interval to force a refetch
                         })
                         .catch((err) => console.log(err));
                     } else {
                       API.startProcess(processId)
                         .then(() => {
                           console.log("Started Process Successfully");
-                          props.setPollInterval(props.pollInterval - 1); //lets change the polling interval to force a refetch
+                          setPollInterval(pollInterval - 1); //lets change the polling interval to force a refetch
                         })
                         .catch((err) => console.log(err));
                     }
@@ -367,13 +372,13 @@ const Workspace = (props) => {
                     API.addProcess(processId)
                       .then(() => {
                         console.log("Added Process Successfully");
-                        props.setPollInterval(props.pollInterval + 1); //lets change the polling interval to force a refetch
+                        setPollInterval(pollInterval + 1); //lets change the polling interval to force a refetch
                       })
                       .catch((err) => console.log(err));
                   }
                 }}
               >
-                {flowProcesses.length > 0 && flowProcesses[0]["statename"] === "RUNNING" ? "Stop" : flowProcesses.length > 0 ? "Start" : "Create"}
+                {flowProcesses.length > 0 && flowProcesses[0]["statename"] === "RUNNING" ? "Stop" : flowProcesses.length > 0 ? "Restart" : "Start"}
               </AntdButton>{" "}
                 <ExportButton model={model}/>{" "}
                 <FileUpload handleData={load} />{" "}
@@ -389,7 +394,7 @@ const Workspace = (props) => {
                   size="sm" 
                   onClick={execute}
                   type="primary"
-                  icon=<PlayCircleOutlined />  
+                  icon=<PlaySquareFilled />  
                 >
                   Test
                 </AntdButton>{" "}

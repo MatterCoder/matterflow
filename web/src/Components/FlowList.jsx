@@ -144,7 +144,7 @@ const FlowList = (props) => {
     );
 
     if (flowProcesses.length === 0) {
-      return "";
+      return "unconfigured";
     } else if (flowProcesses.length > 1) {
       console.log("Multiple processes found for flow: " + flow_name);
       return "unconfigured";
@@ -264,9 +264,11 @@ const FlowList = (props) => {
                       onClick={() => (window.location = `/`)}
                     />
                   </AntdTooltip>
-                  <Button variant="link" size="sm">
-                    <StatusLight />
-                  </Button>
+                  <AntdTooltip title="Click to Start/Stop">
+                    <Button variant="link" size="sm">
+                      <StatusLight />
+                    </Button>
+                  </AntdTooltip>
                 </div>
               </div>
             </ListGroup.Item>
@@ -344,14 +346,16 @@ const FlowList = (props) => {
                       danger
                     />
                   </AntdTooltip>
-                  <Button
-                    variant="link"
-                    size="sm"
-                    // className="me-2"
-                    onClick={() => handleChangeState(flow.name)}
-                  >
-                    <StatusLight status={getFlowStatus(flow.name)} />
-                  </Button>
+                  <AntdTooltip title="Click to Start/Stop">
+                    <Button
+                      variant="link"
+                      size="sm"
+                      // className="me-2"
+                      onClick={() => handleChangeState(flow.name)}
+                    >
+                      <StatusLight status={getFlowStatus(flow.name)} />
+                    </Button>
+                  </AntdTooltip>
                 </div>
               </div>
             </ListGroup.Item>

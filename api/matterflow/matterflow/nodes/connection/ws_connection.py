@@ -26,7 +26,7 @@ class WsConnectionNode(ConnectionNode):
          NodeException: any error reading web socket, converting
             to workflow.
     """
-    name = "Matter WS Connection"
+    name = "Matter WS Connection (In)"
     num_in = 0
     num_out = 1
 

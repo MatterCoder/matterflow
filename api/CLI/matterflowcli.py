@@ -2,7 +2,7 @@ import click
 import json
 from matterflow import Workflow, WorkflowException
 from matterflow import NodeException
-from matterflow.nodes import ReadCsvNode, WriteCsvNode, ReadJsonNode, WriteJsonNode, WsConnectionNode, WriteJsonToS3Node, BatchPutToSitewiseNode, MqttConnectionNode
+from matterflow.nodes import ReadCsvNode, WriteCsvNode, ReadJsonNode, WriteJsonNode, WsConnectionNode, WriteJsonToS3Node, BatchPutToSitewiseNode, MqttConnectionInNode
 import asyncio
 import time
 import io
@@ -120,7 +120,7 @@ async def run_all_ws_flows(filenames, verbose):
                 execution_order = workflow.execution_order()
                 node_to_execute = workflow.get_node(execution_order[0])
 
-                if node_to_execute.name == 'Matter WS Connection':
+                if node_to_execute.name == 'Matter WS Connection (In)':
     #                connection_settings = json.loads(node_to_execute.option_values["connection"])
     #                input_settings = json.loads(node_to_execute.option_values["input"])
 
@@ -156,7 +156,7 @@ async def run_all_ws_flows(filenames, verbose):
                     ##create the tasks
                     tasks.create_task(useWsConnectionForConsuming(filenames, verbose, connection_settings, input_settings, output_settings))
                     tasks.create_task(useWsConnectionForReading(filenames, verbose, connection_settings, input_settings, output_settings))
-                elif node_to_execute.name == 'MQTT Connection':
+                elif node_to_execute.name == 'MQTT Connection (In)':
                     connection_settings = json.loads(node_to_execute.option_values["connection"])
                     input_settings  = json.loads(node_to_execute.option_values["input"])
                     output_settings = {"Topic": "sensors/response","QoS": 1,"Named Root": "sensor_data","Retain": False,"Breakup Arrays": False,"Template": "{temperature}","AWS IoT Core": False}    
@@ -293,7 +293,7 @@ def pre_execute(workflow, node_to_execute, log):
         return None
     elif type(node_to_execute) is WsConnectionNode and not stdin.isatty():
         new_file_location = stdin
-    elif type(node_to_execute) is MqttConnectionNode and not stdin.isatty():
+    elif type(node_to_execute) is MqttConnectionInNode and not stdin.isatty():
         new_file_location = stdin
     else:
         # No file redirection needed

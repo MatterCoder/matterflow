@@ -1,6 +1,5 @@
 import * as _ from 'lodash';
 import '../styles/StatusLight.css';
-import { Tooltip as AntdTooltip } from "antd";
 
 function StatusLight(props) {
     const statuses = {
@@ -12,11 +11,9 @@ function StatusLight(props) {
         <StatusLightItem color={statuses[s]} active={props.status === s} key={s} />
     );
     return (
-        <AntdTooltip title="Click to Start/Stop">
         <div className="StatusLight">
             { items }
         </div>
-        </AntdTooltip>            
     )
 }
 
