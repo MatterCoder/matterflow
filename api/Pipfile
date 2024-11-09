@@ -28,6 +28,8 @@ websockets = "*"
 jmespath = "*"
 boto3 = "*"
 supervisor = "*"
+google-cloud-storage = "*"
+azure-storage-blob = "*"
 
 [requires]
 python_version = "3.12"

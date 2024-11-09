@@ -95,8 +95,12 @@ def visualization_node(node_key, node_info):
 def cloud_node(node_key, node_info):
     if node_key == 'WriteJsonToS3Node':
         return WriteJsonToS3Node(node_info)
-    if node_key == 'BatchPutToSitewiseNode':
+    elif node_key == 'BatchPutToSitewiseNode':
         return BatchPutToSitewiseNode(node_info)
+    elif node_key == 'WriteJsonToGCPNode':
+        return WriteJsonToGCPNode(node_info)
+    elif node_key == 'WriteJsonToAzureNode':
+        return WriteJsonToAzureNode(node_info)
     else:
         return None
 
