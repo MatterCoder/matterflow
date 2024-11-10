@@ -22,14 +22,17 @@ class WriteJsonToAzureNode(IONode):
     OPTIONS = {
         "azure_connection_string": StringParameter(
             "Azure_Connection_String",
+            default="",
             docstring="Azure Storage connection string for Blob Storage"
         ),
         "container_name": StringParameter(
             "Container_Name",
+            default="",
             docstring="Container name in Azure Blob Storage"
         ),
         "filename": StringParameter(
             "Filename",
+            default="",
             docstring="Filename for the blob in the Azure container"
         ),
         "write_mode": SelectParameter(
