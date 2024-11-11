@@ -1,3 +1,4 @@
 from .ws_connection import WsConnectionNode
 from .mqtt_connection_in import MqttConnectionInNode
 from .mqtt_connection_out import MqttConnectionOutNode
+from .file_watcher_connection import FileWatcherConnectionNode

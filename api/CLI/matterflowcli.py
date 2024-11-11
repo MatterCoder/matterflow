@@ -2,7 +2,7 @@ import click
 import json
 from matterflow import Workflow, WorkflowException
 from matterflow import NodeException
-from matterflow.nodes import ReadCsvNode, WriteCsvNode, ReadJsonNode, WriteJsonNode, WsConnectionNode, WriteJsonToS3Node, BatchPutToSitewiseNode, MqttConnectionInNode
+from matterflow.nodes import ReadCsvNode, WriteCsvNode, ReadJsonNode, WriteJsonNode, WsConnectionNode, WriteJsonToS3Node, BatchPutToSitewiseNode, MqttConnectionInNode, FileWatcherConnectionNode
 import asyncio
 import time
 import io
@@ -57,6 +57,19 @@ async def useWsConnectionForReading(filenames, verbose, websocket_connection_set
         sys.stdin = io.TextIOWrapper(in_stream, encoding='utf-8')        
         await execute_async(filenames, verbose)
         await asyncio.sleep(0.1)
+
+async def useFileWatcherConnectionForReading(filenames, verbose, connection_settings, input_settings, output_settings):
+    filewatcher_connection = ConnectionFactory.create_connection("FileWatcher", connection_settings, input_settings, output_settings)
+    print("started useFileWatcherConnectionForReading")
+
+    while True:
+        message = await filewatcher_connection.read_input()
+        input = json.dumps(message)
+        in_stream = io.BytesIO(input.encode('utf-8'))
+        sys.stdin = io.TextIOWrapper(in_stream, encoding='utf-8')        
+        await execute_async(filenames, verbose)
+        await asyncio.sleep(0.1)
+
 
 async def usePeriodicTask(filenames, verbose, interval=5):
     """This task runs periodically every `0.1` seconds."""
@@ -164,6 +177,14 @@ async def run_all_ws_flows(filenames, verbose):
                     ##create the tasks
                     tasks.create_task(useMqttConnectionForConsuming(filenames, verbose, connection_settings, input_settings, output_settings))
                     tasks.create_task(useMqttConnectionForReading(filenames, verbose, connection_settings, input_settings, output_settings))
+
+                elif node_to_execute.name == 'FileWatcher Connection (In)':
+                    connection_settings = json.loads(node_to_execute.option_values["connection"])
+                    input_settings  = json.loads(node_to_execute.option_values["input"])
+                    output_settings = {}    
+                    ##create the tasks
+                    tasks.create_task(useFileWatcherConnectionForReading(filenames, verbose, connection_settings, input_settings, output_settings))
+                    pass
 
             except OSError as e:
                 click.echo(f"Issues loading workflow file: {e}", err=True)
@@ -294,6 +315,8 @@ def pre_execute(workflow, node_to_execute, log):
     elif type(node_to_execute) is WsConnectionNode and not stdin.isatty():
         new_file_location = stdin
     elif type(node_to_execute) is MqttConnectionInNode and not stdin.isatty():
+        new_file_location = stdin
+    elif type(node_to_execute) is FileWatcherConnectionNode and not stdin.isatty():
         new_file_location = stdin
     else:
         # No file redirection needed
