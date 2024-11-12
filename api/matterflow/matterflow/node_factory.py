@@ -32,8 +32,6 @@ def connection_node(node_key, node_info):
         return MqttConnectionInNode(node_info)
     elif node_key == 'MqttConnectionOutNode':
         return MqttConnectionOutNode(node_info)
-    elif node_key == 'FileWatcherConnectionNode':
-        return FileWatcherConnectionNode(node_info) 
     else:
         return None
 

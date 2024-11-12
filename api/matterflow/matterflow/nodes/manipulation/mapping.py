@@ -123,15 +123,6 @@ class MappingNode(ManipulationNode):
     num_in = 1
     num_out = 1
 
-    '''
-    OPTIONS = {
-        "modelmapping": StringParameter(
-            "ModelMapping",
-            default='[]',
-            docstring="Model mapping for this instance"
-        )
-    }
-    '''
     OPTIONS = {
         "modelmapping": InstanceSelectParameter(
             "ModelMapping"

@@ -46,11 +46,11 @@ const FileUploadInput = (props) => {
     const btnText = status === "ready" ? "Choose Different File" : "Choose File";
     let content;
     if (status === "ready") {
-        const rxp = new RegExp(props.node.options.id + '-');
+        //const rxp = new RegExp(props.node.options.id + '-');
         content = (
             <div>
-                <b style={{color: 'green'}}>File loaded:</b>&nbsp;
-                {fileName.replace(rxp, '')}
+                <b style={{color: 'green'}}>File loaded:</b>&nbsp;<br/>
+                {fileName}
             </div>
         )
     } else if (status === "failed") {

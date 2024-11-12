@@ -2,7 +2,14 @@ import click
 import json
 from matterflow import Workflow, WorkflowException
 from matterflow import NodeException
-from matterflow.nodes import ReadCsvNode, WriteCsvNode, ReadJsonNode, WriteJsonNode, WsConnectionNode, WriteJsonToS3Node, BatchPutToSitewiseNode, MqttConnectionInNode, FileWatcherConnectionNode
+from matterflow.nodes import ReadCsvNode
+from matterflow.nodes import WriteCsvNode
+from matterflow.nodes import ReadJsonNode
+from matterflow.nodes import WriteJsonNode
+from matterflow.nodes import WsConnectionNode
+from matterflow.nodes import WriteJsonToS3Node
+from matterflow.nodes import BatchPutToSitewiseNode
+from matterflow.nodes import MqttConnectionInNode
 import asyncio
 import time
 import io
@@ -77,6 +84,21 @@ async def usePeriodicTask(filenames, verbose, interval=5):
         # Your periodic action here
         print("Periodic task is running...")
         await execute_async(filenames, verbose)
+        
+        # Sleep for the specified interval before running again
+        await asyncio.sleep(interval)
+
+async def useFileWatcherTask(file_path, filenames, verbose, interval=0.1):
+    last_modified_time = None
+    """This task runs whenever the file changes."""
+    while True:
+        ##We need to check if file has changed
+        current_modified_time = os.path.getmtime(file_path)
+        if current_modified_time != last_modified_time:
+            last_modified_time = current_modified_time
+            ##create the task
+            print("Task is running...")
+            await execute_async(filenames, verbose)                            
         
         # Sleep for the specified interval before running again
         await asyncio.sleep(interval)
@@ -185,6 +207,21 @@ async def run_all_ws_flows(filenames, verbose):
                     ##create the tasks
                     tasks.create_task(useFileWatcherConnectionForReading(filenames, verbose, connection_settings, input_settings, output_settings))
                     pass
+
+                elif node_to_execute.name == 'Read Json':
+                    interval = node_to_execute.option_values["pollingTime"]
+                    #If polling time set then the file will be polled every X seconds. If < 0, the flow will only run when file changes.
+                    if (interval > 0):
+                        ##create the periodic task
+                        tasks.create_task(usePeriodicTask(filenames, verbose, interval))  # Runs every X seconds
+                    elif (interval < 0):
+                        ##create the file watcher task
+                        file_path = node_to_execute.option_values["file"]
+                        tasks.create_task(useFileWatcherTask(file_path, filenames, verbose))  # Runs every X seconds
+                    else:
+                        pass
+
+
 
             except OSError as e:
                 click.echo(f"Issues loading workflow file: {e}", err=True)
@@ -301,7 +338,7 @@ def pre_execute(workflow, node_to_execute, log):
     elif type(node_to_execute) is WriteCsvNode and not log:
         new_file_location = click.get_text_stream('stdout')
     elif type(node_to_execute) is ReadJsonNode and not stdin.isatty():
-        #new_file_location = stdin
+        new_file_location = stdin
         return None
     elif type(node_to_execute) is WriteJsonNode and not log:
         #this is important as we dont want to use stdin for files that are writing out to the file system
@@ -315,8 +352,6 @@ def pre_execute(workflow, node_to_execute, log):
     elif type(node_to_execute) is WsConnectionNode and not stdin.isatty():
         new_file_location = stdin
     elif type(node_to_execute) is MqttConnectionInNode and not stdin.isatty():
-        new_file_location = stdin
-    elif type(node_to_execute) is FileWatcherConnectionNode and not stdin.isatty():
         new_file_location = stdin
     else:
         # No file redirection needed

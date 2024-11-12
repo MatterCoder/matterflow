@@ -26,6 +26,11 @@ class ReadJsonNode(IONode):
             default=False,
             docstring="Set multiline to True if the file contains multiple JSON objects, each on a separate line; otherwise, leave it as False for a single JSON object."
         ),
+        "pollingTime": IntegerParameter(
+            "Poll file every X seconds",
+            default=0,
+            docstring="If polling time set then the file will be polled every X seconds. If < 0, the flow will only run when file changes."
+        ),
     }
 
     def execute(self, predecessor_data, flow_vars):
