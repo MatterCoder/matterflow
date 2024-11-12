@@ -9,7 +9,6 @@ import aiomqtt
 import sys
 import random
 import os
-import aiofiles
 
 class InputQueue(asyncio.PriorityQueue):
     def _put(self, item):
@@ -88,37 +87,6 @@ class BaseConnection(ABC):
     def set_output_settings(self, settings):
         self.output_settings.update(settings)
 
-class FileWatcherConnection(BaseConnection):
-    def __init__(self, connection_settings, input_settings, output_settings):
-        super().__init__(connection_settings, input_settings, output_settings)
-        self.file_path = connection_settings.get('file_path')
-        self.last_modified_time = None
-
-    async def connect(self):
-        if not self.file_path or not os.path.isfile(self.file_path):
-            raise FileNotFoundError(f"File not found: {self.file_path}")
-        self.last_modified_time = os.path.getmtime(self.file_path)
-        print(f"Monitoring file: {self.file_path}")
-
-    async def disconnect(self):
-        print("Stopped monitoring the file.")
-
-    async def read_input(self):
-        while True:
-            current_modified_time = os.path.getmtime(self.file_path)
-            if current_modified_time != self.last_modified_time:
-                self.last_modified_time = current_modified_time
-                async with aiofiles.open(self.file_path, 'r', encoding='utf-8') as file:
-                    contents = await file.read()
-                    print("File change detected, reading new contents.")
-
-                    return contents
-
-            # Wait for a short period before checking again
-            await asyncio.sleep(1)
-
-    async def send_output(self, data):
-        print("FileWatcherConnection does not support sending output.")
 
 class WebhookConnection(BaseConnection):
     def connect(self):
@@ -368,12 +336,8 @@ class ConnectionFactory:
             return WebsocketConnection(connection_settings, input_settings, output_settings)
         elif connection_type == "Mqtt":
             return MQTTConnection(connection_settings, input_settings, output_settings)
-        elif connection_type == "FileWatcher":
-            return FileWatcherConnection(connection_settings, input_settings, output_settings)
         else:
             raise ValueError(f"Unknown connection type: {connection_type}")
-
-
 
 
 async def useWsConnectionForConsuming(websocket_connection_settings, websocket_input_settings, websocket_output_settings):

@@ -82,6 +82,8 @@ def manipulation_node(node_key, node_info):
         return MergeJsonNode(node_info)
     elif node_key == 'TranslateAttributesNode':
         return TranslateAttributesNode(node_info)
+    elif node_key == 'JsonToCsvNode':
+        return JsonToCsvNode(node_info)
     else:
         return None
 

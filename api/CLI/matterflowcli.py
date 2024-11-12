@@ -65,19 +65,6 @@ async def useWsConnectionForReading(filenames, verbose, websocket_connection_set
         await execute_async(filenames, verbose)
         await asyncio.sleep(0.1)
 
-async def useFileWatcherConnectionForReading(filenames, verbose, connection_settings, input_settings, output_settings):
-    filewatcher_connection = ConnectionFactory.create_connection("FileWatcher", connection_settings, input_settings, output_settings)
-    print("started useFileWatcherConnectionForReading")
-
-    while True:
-        message = await filewatcher_connection.read_input()
-        input = json.dumps(message)
-        in_stream = io.BytesIO(input.encode('utf-8'))
-        sys.stdin = io.TextIOWrapper(in_stream, encoding='utf-8')        
-        await execute_async(filenames, verbose)
-        await asyncio.sleep(0.1)
-
-
 async def usePeriodicTask(filenames, verbose, interval=5):
     """This task runs periodically every `0.1` seconds."""
     while True:
@@ -199,14 +186,6 @@ async def run_all_ws_flows(filenames, verbose):
                     ##create the tasks
                     tasks.create_task(useMqttConnectionForConsuming(filenames, verbose, connection_settings, input_settings, output_settings))
                     tasks.create_task(useMqttConnectionForReading(filenames, verbose, connection_settings, input_settings, output_settings))
-
-                elif node_to_execute.name == 'FileWatcher Connection (In)':
-                    connection_settings = json.loads(node_to_execute.option_values["connection"])
-                    input_settings  = json.loads(node_to_execute.option_values["input"])
-                    output_settings = {}    
-                    ##create the tasks
-                    tasks.create_task(useFileWatcherConnectionForReading(filenames, verbose, connection_settings, input_settings, output_settings))
-                    pass
 
                 elif node_to_execute.name == 'Read Json':
                     interval = node_to_execute.option_values["pollingTime"]

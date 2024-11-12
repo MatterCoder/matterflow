@@ -30,7 +30,6 @@ boto3 = "*"
 supervisor = "*"
 google-cloud-storage = "*"
 azure-storage-blob = "*"
-aiofiles = "*"
 
 [requires]
 python_version = "3.12"
