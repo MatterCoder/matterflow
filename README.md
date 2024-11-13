@@ -55,6 +55,13 @@ pipenv install
 echo "SECRET_KEY='TEMPORARY SECRET KEY'" > mf/.environment
 ```
 
+4.1. (Optionally) set location of db-sqlite3 file
+
+- Create environment variable your specific db path 
+```
+echo "DB_DIR_PATH='/tmp'" >> mf/.environment
+```
+
 5. Start dev server from app root
 ```
 cd mf
