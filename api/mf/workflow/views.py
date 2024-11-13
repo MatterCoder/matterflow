@@ -264,7 +264,8 @@ def save_workflow_to_server(request):
 
         #2. Add the file to the supervisord in supervisor_confs folder       
         dir_path = os.path.dirname(os.path.realpath(__file__))
-        supervisord_filename = f"{dir_path}/../../supervisor_confs/{request.matterflow.filename}.conf"
+        #supervisord_filename = f"{dir_path}/../../supervisor_confs/{request.matterflow.filename}.conf"
+        supervisord_filename = f"/tmp/{request.matterflow.filename}.conf"
         f = open(supervisord_filename, "w")
         f.write(f'''[program:{request.matterflow.name}]
 command=/bin/bash -c "source {dir_path}/../../venv/bin/activate && matterflow execute {workflow_filename} --verbose"

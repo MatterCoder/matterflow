@@ -153,7 +153,8 @@ def handle_flow(request, flow_id):
 
                 #2. Delete the file to the supervisord in supervisor_confs folder       
                 dir_path = os.path.dirname(os.path.realpath(__file__))
-                supervisord_filename = f"{dir_path}/../../supervisor_confs/{flow_name}.conf"
+                #supervisord_filename = f"{dir_path}/../../supervisor_confs/{flow_name}.conf"
+                supervisord_filename = f"/tmp/{flow_name}.conf"
                 os.remove(supervisord_filename)
             except:
                 pass
