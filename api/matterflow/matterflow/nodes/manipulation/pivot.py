@@ -56,7 +56,7 @@ class PivotNode(ManipulationNode):
     def execute(self, predecessor_data, flow_vars):
         try:
             input_df = pd.DataFrame.from_dict(predecessor_data[0])
-            output_df = pd.DataFrame.pivot_table(input_df, **self.options)
+            output_df = pd.DataFrame.pivot_table(input_df, **self.options) 
             return output_df.to_json()
         except Exception as e:
             raise NodeException('pivot', str(e))
