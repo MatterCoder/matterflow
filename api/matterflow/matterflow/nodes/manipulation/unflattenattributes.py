@@ -25,7 +25,8 @@ def transform_json_data(input_json):
             keys_to_remove = []
             for key, value in data.items():
                 parts = key.split('/')
-                if len(parts) == 3 and all(part.isdigit() for part in parts):
+                #if len(parts) == 3 and all(part.isdigit() for part in parts):
+                if len(parts) == 3:
                     transformed_data[parts[0]][parts[1]][parts[2]] = value
                     keys_to_remove.append(key)
                 else:
@@ -40,7 +41,8 @@ def transform_json_data(input_json):
         elif isinstance(data, list):
             if len(data) == 3 and isinstance(data[1], str):
                 parts = data[1].split('/')
-                if len(parts) == 3 and all(part.isdigit() for part in parts):
+                #if len(parts) == 3 and all(part.isdigit() for part in parts):
+                if len(parts) == 3:
                     transformed_data = nested_dict()
                     transformed_data[parts[0]][parts[1]][parts[2]] = data[2]
                     return [data[0], convert_to_regular_dict(transformed_data)]
@@ -82,8 +84,8 @@ def transform_json_data(input_json):
 #######################
 
 
-class UnflattenNode(ManipulationNode):
-    name = "Unflatten"
+class UnflattenAttributesNode(ManipulationNode):
+    name = "UnflattenAttributes"
     num_in = 1
     num_out = 1
 
@@ -100,4 +102,4 @@ class UnflattenNode(ManipulationNode):
             return json_string
 
         except Exception as e:
-            raise NodeException('unflatten', str(e))
+            raise NodeException('unflatten abbributes', str(e))

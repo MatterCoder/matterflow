@@ -102,20 +102,104 @@ test_data_with_endpoint_non_flattened = {
     }
 }
 
+def flatten_data(y):
+    out = {}
+
+    def flatten(x, name=''):
+        if type(x) is dict:
+            for a in x:
+                flatten(x[a], name + a + '/')
+        elif type(x) is list:
+            i = 0
+            for a in x:
+                flatten(a, name + str(i) + '/')
+                i += 1
+        else:
+            out[name[:-1]] = x
+
+    flatten(y)
+    return out
+
+def unflatten_data(flat_dict):
+    nested_dict = {}
+
+    for path, value in flat_dict.items():
+        keys = path.split('/')
+        current = nested_dict
+        
+        for i, key in enumerate(keys):
+            if key.isdigit():  # Convert numeric keys to integers for lists
+                key = int(key)
+            
+            if i == len(keys) - 1:
+                # We're at the end of the path; set the value
+                current[key] = value
+            else:
+                # We're in the middle of the path; create dicts or lists as needed
+                if key not in current:
+                    if keys[i + 1].isdigit():  # Next key is a number, so use a list
+                        current[key] = []
+                    else:  # Next key is a string, so use a dict
+                        current[key] = {}
+                
+                # Move deeper into the structure
+                current = current[key]
+
+                # Ensure lists have enough space to accommodate the index
+                if isinstance(current, list) and len(current) <= key:
+                    current.extend([None] * (key - len(current) + 1))
+
+    return nested_dict
+
 def process_json(data):
     if isinstance(data, list):
         return [process_json(item) for item in data]
     elif isinstance(data, dict):
         if 'data' in data:
+            #check if this is just a node_id from a node_event
+            if isinstance(data['data'], int):
+                return data
             #check if the attributes are nested
             if 'attributes' in data['data']:
                 data['data']['attributes'] = translate_attributes_with_endpoint(data['data']['attributes'], clusters)
             else:
+                node_id = data['data'][0]  # Extract the node ID
                 if len(data['data']) == 3 and isinstance(data['data'][1], str):
-                  attributeData = {data['data'][1] : data['data'][2]}
+                    attributeData = {data['data'][1] : data['data'][2]}
+                    translated_attributes = translate_attributes_with_endpoint(attributeData, clusters)
+                    # Include the node ID in the result
+                    key_variable = list(translated_attributes.keys())[0]
+                    value_variable = list(translated_attributes.values())[0]
+                    data['data'] = [
+                        node_id,
+                        key_variable, # Merge the unflattened translated attributes
+                        value_variable
+                    ]
+                elif isinstance(data['data'], list) and len(data['data']) == 2 and isinstance(data['data'][1], dict):
+                    # Handle the case where data is a list with 2 items (unflattened format)
+                    attribute_path_unflattened = data['data'][1]
+
+                    #flatten the data so we can map it
+                    attribute_path = flatten_data(attribute_path_unflattened)  
+                    
+                    # Translate the attribute path and construct the new data structure
+                    translated_attributes = translate_attributes_with_endpoint(attribute_path, clusters)
+                    
+                    # Unflatten the translated data again
+                    unflattened_translated_attributes = unflatten_data(translated_attributes)
+                    # Include the node ID in the result
+                    data['data'] = [
+                        node_id,
+                        unflattened_translated_attributes# Merge the unflattened translated attributes
+                    ]
                 else:
-                  attributeData = data['data'][1]
-                data['data'] = translate_attributes_with_endpoint(attributeData, clusters)
+                    attributeData = data['data'][1]
+                    translated_attributes = translate_attributes_with_endpoint(attributeData, clusters)
+                    # Include the node ID in the result
+                    data['data'] = {
+                        "node_id": node_id,
+                        **translated_attributes  # Merge the translated attributes
+                    }                
         if 'result' in data:
             for result in data['result']:
                 if 'attributes' in result:
@@ -147,16 +231,6 @@ class TranslateAttributesNode(ManipulationNode):
 
             # Convert JSON data to string
             json_string = json.dumps(json_data)
-
-            '''
-            # Translate the flattened data with endpoints
-            translated_flattened = translate_attributes_with_endpoint(test_data_with_endpoint_flattened, clusters)
-            print("Flattened with Endpoint Translation:", translated_flattened)
-
-            # Translate the non-flattened data with endpoints
-            translated_non_flattened = translate_attributes_with_endpoint(test_data_with_endpoint_non_flattened, clusters)
-            print("Non-Flattened with Endpoint Translation:", translated_non_flattened)
-            '''
 
             return json_string
 
