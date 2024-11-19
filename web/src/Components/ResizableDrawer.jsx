@@ -70,7 +70,13 @@ const ResizableDrawer = (props) => {
       {...drawerProps}
     >
       <div className="resizable-line" onMouseDown={onMouseDown} />
-      <div className="drawer-contents">{props.children}</div>
+      <div 
+        className="drawer-contents" 
+        onMouseDown={document.body.style.overflow = "hidden" } //this prevents the canvas items moving 
+        onWheel={document.body.style.overflow = "hidden"} //this prevents the canvas items moving
+      >
+        {props.children}
+      </div>
     </Drawer>
   );
 };

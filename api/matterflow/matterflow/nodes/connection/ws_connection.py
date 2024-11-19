@@ -41,7 +41,7 @@ class WsConnectionNode(ConnectionNode):
         ),
         "accept_events": SelectParameter(
             "Accepted Events",
-            options=["*","fabric_id", "result", "event == 'attribute_updated'", "event == 'node_added'", "event == 'node_updated'", "event == 'node_event'", "event == 'node_removed'", "event == 'node_updated'"],
+            options=["*","fabric_id", "result", "event == 'attribute_updated'", "event == 'node_added'", "event == 'node_updated'", "event == 'node_event'", "event == 'node_removed'"],
             default="*",
             docstring="Which events are accepted from Matter Websocket"
         ),

@@ -177,6 +177,11 @@ const ModelList = () => {
                     <FormControl
                       value={renameValue}
                       onChange={(e) => setRenameValue(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          handleRenameConfirm(item.id);
+                        }
+                      }}                       
                     />
                     <Button
                       variant="outline-success"

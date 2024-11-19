@@ -97,7 +97,7 @@ const EnvUploadModal = ({ visible, onClose, possibleNodes, onUpdate }) => {
 
   return (
     <Modal
-      visible={visible}
+      open={visible}
       title="Upload Environment Variables"
       onCancel={onClose}
       footer={[
