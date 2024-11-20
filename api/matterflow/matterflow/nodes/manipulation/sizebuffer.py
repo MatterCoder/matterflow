@@ -5,6 +5,15 @@ import pandas as pd
 import json
 
 class SizeBufferNode(ManipulationNode):
+    """SizeBuffer
+
+    Buffers the incoming json into a buffer until the size of file to buffer (Bytes) is reached.
+
+    Raises:
+        NodeException: any error buffering Json files, converting
+            from json data.
+    """
+
     name = "SizeBuffer"
     num_in = 1
     num_out = 1
