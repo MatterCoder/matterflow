@@ -134,7 +134,20 @@ impact the functionality of the front end.
 It is possible to run this application as a docker container on amd64 using
 
 ```
-docker run --rm   -p 4173:4173 -p 5173:5173 -p 8000:8000 -p 9001:9001   -v /path/to/all_addon_configs:/path/in/container:rw   -v /data:/tmp:rw   oideibrett/matterflow:amd64
+docker run --rm  -p 4173:4173 -p 5173:5173 -p 8000:8000 -p 9001:9001  -v /data:/tmp:rw   oideibrett/matterflow:amd64
+```
+
+Its essential that you have a Matter Server running and this can be run in Docker using
+
+```
+docker run -d \
+  --name matter-server \
+  --restart=unless-stopped \
+  --security-opt apparmor=unconfined \
+  -v /data:/data \
+  -v /run/dbus:/run/dbus:ro \
+  --network=host \
+  ghcr.io/home-assistant-libs/python-matter-server:stable --storage-path /data --paa-root-cert-dir /data/credentials --bluetooth-adapter 0
 ```
 
 It is also possible to run this as a Home Assistant Addon

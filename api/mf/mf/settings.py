@@ -34,7 +34,7 @@ default_allowed_hosts = ['back-end:8000',
                  'homeassistant.local']
 
 # Get the ALLOWED_HOSTS environment variable, or use an empty list if it's not set
-env_allowed_host = os.getenv('ALLOWED_HOSTS', '')
+env_allowed_host = os.getenv('LOCAL_IP', '')
 
 # Add the environment variable value to the default list, if it's set
 if env_allowed_host:
