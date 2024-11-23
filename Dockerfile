@@ -1,6 +1,6 @@
 # Accept the platform as an argument
 ARG TARGETPLATFORM
-ARG BUILD_FROM="ghcr.io/home-assistant/${TARGETPLATFORM}-base:3.15"
+ARG BUILD_FROM="ghcr.io/home-assistant/${TARGETPLATFORM}-base"
 
 # Use the dynamically constructed base image
 FROM ${BUILD_FROM} AS base
@@ -10,33 +10,7 @@ RUN echo "Using base image: ${BUILD_FROM}"
 
 RUN echo "Resolved TARGETPLATFORM: ${TARGETPLATFORM}"
 
-ENV LANG C.UTF-8
-
-RUN echo "Installing Python 3.12"
-
-# Install Python 3.12 from source
-RUN apk add --no-cache \
-        gcc \
-        musl-dev \
-        libffi-dev \
-        openssl-dev \
-        zlib-dev \
-        bzip2-dev \
-        xz-dev \
-        sqlite-dev \
-        readline-dev \
-        make && \
-    wget https://www.python.org/ftp/python/3.12.0/Python-3.12.0.tgz && \
-    tar xzf Python-3.12.0.tgz && \
-    cd Python-3.12.0 && \
-    ./configure --enable-optimizations && \
-    make -j$(nproc) && \
-    make altinstall && \
-    cd .. && \
-    rm -rf Python-3.12.0 Python-3.12.0.tgz
-
-# Set Python 3.12 as default
-RUN python3.12 --version && ln -sf /usr/local/bin/python3.12 /usr/bin/python3
+ENV LANG=C.UTF-8
 
 WORKDIR /matterflow
 
@@ -51,12 +25,13 @@ RUN git clone https://github.com/MatterCoder/matterflow.git /matterflow && \
 WORKDIR /matterflow/api
 
 # Install build tools and Python dependencies
-RUN apk add --update --no-cache npm dumb-init python3 py3-pip python3-dev python3 py3-pip python3-dev gcc musl-dev libffi-dev openssl-dev && \
+RUN apk add --update --no-cache npm dumb-init python3 py3-pip python3-dev gcc musl-dev libffi-dev openssl-dev && \
     python3 --version && \
     python3 -m venv /matterflow/api/venv && \
     /matterflow/api/venv/bin/python -m pip install --upgrade pip setuptools wheel && \
     /matterflow/api/venv/bin/pip install pipenv && \
-    /matterflow/api/venv/bin/pipenv install --deploy
+    . /matterflow/api/venv/bin/activate && \
+    pipenv install --deploy
 
 # Install supervisord:
 RUN /matterflow/api/venv/bin/pip install supervisor
