@@ -12,7 +12,6 @@ v = {editable = true,version = "*"}
 autopep8 = "*"
 django = "*"
 pandas = "*"
-python-dotenv = "~=1.0.1"
 networkx = "*"
 matterflow = {path = "./matterflow",editable = true}
 djangorestframework = "*"
@@ -30,6 +29,7 @@ boto3 = "*"
 supervisor = "*"
 google-cloud-storage = "*"
 azure-storage-blob = "*"
+python-dotenv = "*"
 
 [requires]
 python_version = "3.12"

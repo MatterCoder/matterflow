@@ -129,4 +129,22 @@ npm run storybook
 Note: it is not recommended to run as storybook as the lack of backend functionality will 
 impact the functionality of the front end.
 
+### Docker
 
+It is possible to run this application as a docker container on amd64 using
+
+```
+docker run --rm   -p 4173:4173 -p 5173:5173 -p 8000:8000 -p 9001:9001   -v /path/to/all_addon_configs:/path/in/container:rw   -v /data:/tmp:rw   oideibrett/matterflow:amd64
+```
+
+It is also possible to run this as a Home Assistant Addon
+
+#### Add the Repository
+
+1. Go to the **Add-on store** in Home Assistant.
+2. Click **⋮ → Repositories**, and paste the following URL:
+   
+[https://github.com/MatterCoder/addon-matterflow](https://github.com/MatterCoder/addon-matterflow)
+
+Click **Add → Close**, or click the button below to add the repository directly:  
+[![Add Repository](https://my.home-assistant.io/badges/supervisor_add_addon_repository.svg)](https://my.home-assistant.io/redirect/supervisor_add_addon_repository/?repository_url=https%3A%2F%2Fgithub.com%2FMattercoder%2Faddon-matterflow)
