@@ -6,9 +6,6 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        platform: [amd64, arm64]  # Define the platforms to build for
     
     steps:
       - name: Checkout repository
@@ -28,14 +25,26 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Build and push multi-platform image
+      - name: Build and push amd64 image
         uses: docker/build-push-action@v4
         with:
           push: true
-          platforms: ${{ matrix.platform }}  # Reference the current platform from matrix
+          platforms: linux/amd64  # Reference the current platform from matrix
           build-args: |
-            TARGETPLATFORM=${{ matrix.platform }}  # Pass the correct platform
-            BUILD_FROM=ghcr.io/home-assistant/${{ matrix.platform }}-base-python  # Set the base image dynamically based on platform
+            TARGETPLATFORM=amd64  # Pass the correct platform
+            BUILD_FROM=ghcr.io/home-assistant/amd64-base-python
           tags: |
-            oideibrett/matterflow:latest
-            oideibrett/matterflow:${{ github.sha }}
+            oideibrett/matterflow-amd64:latest
+            oideibrett/matterflow-amd64:${{ github.sha }}
+
+      - name: Build and push arm64 image
+        uses: docker/build-push-action@v4
+        with:
+          push: true
+          platforms: linux/arm64  # Reference the current platform from matrix
+          build-args: |
+            TARGETPLATFORM=arm64  # Pass the correct platform
+            BUILD_FROM=ghcr.io/home-assistant/arm64-base-python  # Set the base image dynamically based on platform
+          tags: |
+            oideibrett/matterflow-arm64:latest
+            oideibrett/matterflow-arm64:${{ github.sha }}
