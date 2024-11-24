@@ -27,15 +27,16 @@ python3 manage.py migrate
 PYTHONWARNINGS="ignore" python3 manage.py runserver &
 echo "==> Matterflow API backend started!"
 
-#Start the web interface
-echo "==> Starting Matterflow Web application"
-cd /matterflow/web
-npm run preview &
-echo "==> Matterflow Web application started!"
-
 #Start the Matter Server Dashboard
 cd /python-matter-server/dashboard
 ./script/setup
 ./script/develop &
 
 echo "==> Matter Server Dashboard started - The Matter Server Docker container needs to be started before the dashboard can be accessed"
+
+#Start the web interface
+echo "==> Starting Matterflow Web application"
+cd /matterflow/web
+npm run preview 
+echo "==> Matterflow Web application started!"
+
