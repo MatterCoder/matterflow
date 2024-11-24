@@ -33,5 +33,5 @@ jobs:
             oideibrett/matterflow:latest
             oideibrett/matterflow:${{ github.sha }}
           build-args: |
-            BUILD_FROM=ghcr.io/home-assistant/${{ matrix.platform }}-base-python
+            BUILD_FROM=ghcr.io/home-assistant/amd64-base-python
 
