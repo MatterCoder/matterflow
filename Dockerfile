@@ -1,20 +1,15 @@
-# Accept the platform as an argument
-ARG TARGETPLATFORM="linux/amd64"
-ARG BUILD_FROM=""
+# Accept platform as an argument
+ARG TARGETPLATFORM
 
-# Dynamically determine the base image based on the platform
-RUN if [ -z "$BUILD_FROM" ]; then \
-      case "$TARGETPLATFORM" in \
-        "linux/amd64") BUILD_FROM="ghcr.io/home-assistant/amd64-base-python" ;; \
-        "linux/arm/v7") BUILD_FROM="ghcr.io/home-assistant/armv7-base-python" ;; \
-        *) echo "Unsupported platform: $TARGETPLATFORM" && exit 1 ;; \
-      esac; \
-    fi
+# Allow overriding of the base image
+ARG BUILD_FROM
 
+# Dynamically set the base image based on TARGETPLATFORM
 FROM ${BUILD_FROM} AS base
 
-# Debug: Print the resolved variables
-RUN echo "Using base image: ${BUILD_FROM}" && echo "Resolved TARGETPLATFORM: ${TARGETPLATFORM}"
+# Debugging
+RUN echo "Using base image: ${BUILD_FROM}" && \
+    echo "TARGETPLATFORM: ${TARGETPLATFORM}"
 
 ENV LANG=C.UTF-8
 

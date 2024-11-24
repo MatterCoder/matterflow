@@ -1,9 +1,14 @@
+name: Build and Push Multi-Platform Docker Image
+
+on:
+  workflow_dispatch:
+
 jobs:
   build:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        platform: [linux/arm/v7]
+        platform: [linux/armv7]
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
