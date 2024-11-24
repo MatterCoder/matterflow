@@ -1,6 +1,6 @@
 # Accept the platform as an argument
 ARG TARGETPLATFORM
-ARG BUILD_FROM="ghcr.io/home-assistant/${TARGETPLATFORM}-base"
+ARG BUILD_FROM="ghcr.io/home-assistant/${TARGETPLATFORM}-base-python"
 
 # Use the dynamically constructed base image
 FROM ${BUILD_FROM} AS base
@@ -25,16 +25,29 @@ RUN git clone https://github.com/MatterCoder/matterflow.git /matterflow && \
 WORKDIR /matterflow/api
 
 # Install build tools and Python dependencies
-RUN apk add --update --no-cache npm dumb-init python3 py3-pip python3-dev gcc musl-dev libffi-dev openssl-dev && \
-    python3 --version && \
-    python3 -m venv /matterflow/api/venv && \
-    /matterflow/api/venv/bin/python -m pip install --upgrade pip setuptools wheel && \
+RUN apk add --update --no-cache npm dumb-init python3 py3-pip python3-dev && \
+    /usr/bin/python3.12 --version && \
+    /usr/bin/python3.12 -m venv /matterflow/api/venv && \
     /matterflow/api/venv/bin/pip install pipenv && \
     . /matterflow/api/venv/bin/activate && \
     pipenv install --deploy
 
 # Install supervisord:
 RUN /matterflow/api/venv/bin/pip install supervisor
+
+# Download the latest python matter server dashboard - note 
+# we still require the python matter server to run as a separate docker container
+RUN echo "Installing Python Matter Server Dashboard"
+
+# Git clone the python matter server
+RUN git clone https://github.com/home-assistant-libs/python-matter-server.git /python-matter-server && \
+    mkdir /python-matter-server/dist && \
+    jq -n --arg commit $(eval cd /python-matter-server;git rev-parse --short HEAD) '$commit' > /python-matter-server/dist/.hash ; \
+    echo "Installed Python-matter-server @ version $(cat /python-matter-server/dist/.hash)"
+
+# Install the python matter server
+WORKDIR /python-matter-server
+RUN /matterflow/api/venv/bin/pip install python-matter-server
 
 # Set up not so Secret Key
 RUN echo "SECRET_KEY=tmp" > mf/.environment
