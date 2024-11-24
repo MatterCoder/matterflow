@@ -6,16 +6,17 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+
     strategy:
       matrix:
-        platform: [armv7] # Specify the platforms you want to build for
+        platform:
+          - linux/amd64
+          - linux/arm/v7
         include:
-          - platform: amd64
+          - platform: linux/amd64
             build_from: ghcr.io/home-assistant/amd64-base-python
-            target_platform: amd64
-          - platform: armv7
+          - platform: linux/arm/v7
             build_from: ghcr.io/home-assistant/armv7-base-python
-            target_platform: armv7
 
     steps:
       - name: Checkout repository
@@ -45,4 +46,4 @@ jobs:
             TARGETPLATFORM=${{ matrix.platform }}
           tags: |
             oideibrett/matterflow:latest
-            oideibrett/matterflow:${{ matrix.platform }}-${{ github.sha }}
+            oideibrett/matterflow:${{ github.sha }}
