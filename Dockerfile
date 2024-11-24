@@ -1,6 +1,6 @@
 # Accept the platform as an argument
-ARG TARGETPLATFORM=amd64
-ARG BUILD_FROM=ghcr.io/home-assistant/${TARGETPLATFORM}-base-python
+ARG TARGETPLATFORM
+ARG BUILD_FROM
 
 # Use the dynamically constructed base image
 FROM ${BUILD_FROM} AS base
