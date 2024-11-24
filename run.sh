@@ -30,7 +30,7 @@ echo "==> Matterflow API backend started!"
 #Start the web interface
 echo "==> Starting Matterflow Web application"
 cd /matterflow/web
-npm run preview
+npm run preview &
 echo "==> Matterflow Web application started!"
 
 #Start the Matter Server Dashboard
