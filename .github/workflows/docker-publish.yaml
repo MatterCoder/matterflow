@@ -8,7 +8,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        platform: [linux/amd64, linux/armv7] # Specify the platforms you want to build for
+        platform: [linux/armv7] # Specify the platforms you want to build for
         include:
           - platform: linux/amd64
             build_from: ghcr.io/home-assistant/amd64-base-python
