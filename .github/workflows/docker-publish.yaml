@@ -41,10 +41,10 @@ jobs:
         uses: docker/build-push-action@v4
         with:
           push: true
-          platforms: linux/arm64  # Reference the current platform from matrix
+          platforms: linux/armv7  # Reference the current platform from matrix
           build-args: |
-            TARGETPLATFORM=arm64  # Pass the correct platform
-            BUILD_FROM=ghcr.io/home-assistant/arm64-base-python  # Set the base image dynamically based on platform
+            TARGETPLATFORM=arm7 # Pass the correct platform
+            BUILD_FROM=ghcr.io/home-assistant/armv7-base-python  # Set the base image dynamically based on platform
           tags: |
-            oideibrett/matterflow-arm64:latest
-            oideibrett/matterflow-arm64:${{ github.sha }}
+            oideibrett/matterflow-armv7:latest
+            oideibrett/matterflow-armv7:${{ github.sha }}
