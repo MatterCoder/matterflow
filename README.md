@@ -132,10 +132,13 @@ impact the functionality of the front end.
 ### Docker
 
 It is possible to run this application as a docker container on amd64 using
+but you will need to know the IP address of your main docker interface
+Find the docker0 ip address using  ip a | grep docker0
 
 ```
-docker run --rm  -p 4173:4173 -p 5173:5173 -p 8000:8000 -p 9001:9001  -v /data:/tmp:rw   oideibrett/matterflow:amd64
+docker run --rm --add-host="localhost:<DOCKERIP>" -p 4173:4173 -p 5173:5173 -p 8000:8000 -p 9001:9001  -v /data:/tmp:rw   oideibrett/matterflow:amd64
 ```
+
 
 Its essential that you have a Matter Server running and this can be run in Docker using
 
