@@ -49,11 +49,13 @@ RUN git clone https://github.com/home-assistant-libs/python-matter-server.git /p
 WORKDIR /python-matter-server
 RUN /matterflow/api/venv/bin/pip install python-matter-server
 
+WORKDIR /matterflow/api
+
 # Set up not so Secret Key
 RUN echo "SECRET_KEY=tmp" > mf/.environment
 
 # Set up the address for the Matter python server websocket
-RUN echo "MATTER_SERVER=127.0.0.1" >> mf/.environment
+RUN echo "MATTER_SERVER=localhost" >> mf/.environment
 
 # Set up the path for the sqlite3 db to be the tmp which we have mapped to /config 
 RUN echo "DB_DIR_PATH='/tmp'" >> mf/.environment
