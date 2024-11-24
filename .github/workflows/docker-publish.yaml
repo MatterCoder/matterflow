@@ -29,9 +29,9 @@ jobs:
         with:
           push: true
           platforms: linux/arm64,linux/amd64,linux/arm/v7
+          build-args: |
+            TARGETPLATFORM=${{ matrix.platform }}
+            BUILD_FROM=ghcr.io/home-assistant/${{ matrix.platform }}-base-python
           tags: |
             oideibrett/matterflow:latest
             oideibrett/matterflow:${{ github.sha }}
-          build-args: |
-            BUILD_FROM=ghcr.io/home-assistant/amd64-base-python
-
