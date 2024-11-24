@@ -136,7 +136,7 @@ but you will need to know the IP address of your main docker interface
 Find the docker0 ip address using  ip a | grep docker0
 
 ```
-docker run --rm --add-host="localhost:<DOCKERIP>" -p 4173:4173 -p 5173:5173 -p 8000:8000 -p 9001:9001  -v /data:/tmp:rw   oideibrett/matterflow:latest
+docker run --rm --add-host="localhost:<DOCKERIP>" -p 4173:4173 -p 5173:5173 -p 8000:8000 -p 9001:9001  -v /data:/tmp:rw   oideibrett/matterflow-amd64:latest
 ```
 
 

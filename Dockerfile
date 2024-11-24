@@ -6,9 +6,7 @@ ARG BUILD_FROM="ghcr.io/home-assistant/amd64-base-python"
 FROM ${BUILD_FROM} AS base
 
 # Debug: Print the resolved variables
-RUN echo "Using base image: ${BUILD_FROM}"
-
-RUN echo "Resolved TARGETPLATFORM: ${TARGETPLATFORM}"
+RUN echo "Using base image: ${BUILD_FROM}" && echo "Resolved TARGETPLATFORM: ${TARGETPLATFORM}"
 
 ENV LANG=C.UTF-8
 
