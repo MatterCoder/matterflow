@@ -1,9 +1,6 @@
 name: Build and Push Multi-Platform Docker Image
 
 on:
-  push:
-    branches:
-      - main  # Build on pushes to the main branch
   workflow_dispatch:
 
 jobs:
