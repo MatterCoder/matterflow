@@ -55,7 +55,9 @@ WORKDIR /matterflow/api
 RUN echo "SECRET_KEY=tmp" > mf/.environment
 
 # Set up the address for the Matter python server websocket
-RUN echo "MATTER_SERVER=localhost" >> mf/.environment
+# Retrieve the docker ip address
+RUN myaddr=$(ip addr show docker0 | awk '$1 == "inet" {print $2}' | cut -f1 -d/) && \
+    echo "MATTER_SERVER=$(ip addr show eth0 | awk '$1 == "inet" {print $2}' | cut -f1 -d/)" >> /matterflow/api/mf/.environment
 
 # Set up the path for the sqlite3 db to be the tmp which we have mapped to /config 
 RUN echo "DB_DIR_PATH='/tmp'" >> mf/.environment

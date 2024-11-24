@@ -152,7 +152,7 @@ async def run_all_ws_flows(filenames, verbose):
                         "Client ID": "client123",
                         "Connection Timeout": 60,
                         "Keep Alive": 120,
-                        "host": "127.0.0.1",
+                        "host": "localhost",
                         "port": 5580,
                         "Clean Session": True
                     }
@@ -161,6 +161,9 @@ async def run_all_ws_flows(filenames, verbose):
                     if 'HASSIO_TOKEN' in os.environ:
                         connection_settings["host"] = 'local-matterflow'
 
+                    if 'MATTER_SERVER' in os.environ:                            
+                        connection_settings["host"] = os.environ['MATTER_SERVER']
+                                      
                     input_settings = {
                         "Topic": "#",
                         "Include Topic": True,
