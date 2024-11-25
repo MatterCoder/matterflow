@@ -24,13 +24,13 @@
 
 ## Overview
 
-Matterflow is a powerful no-code data science tool that simplifies working with data from **Matter-enabled IoT devices**. With Matterflow, you can **Transform** and **Stream** IoT Data to Cloud and AI Applications. It seamlessly integrates with your Home Assistant setup to:
+Matterflow is a powerful no-code data science tool that simplifies working with data from **Matter-enabled IoT devices**. With Matterflow, you can **Transform** and **Stream** IoT Data to Cloud and AI Applications. Matterflow can be deployed as a Home Assistant addon or a standalone Docker container. It provides functionality to:
 
 - Automatically **receive and process IoT data**.
 - Transform and model data for use in various formats like **CSV** or **JSON**.
 - Send processed data to the **Cloud** and **AI applications** or store it locally for further analysis.
 
-This add-on is ideal for developers, data scientists, and IoT enthusiasts looking to unlock the full potential of their smart devices.
+Matterflow is ideal for developers, data scientists, and IoT enthusiasts looking to unlock the full potential of their smart devices.
 
 ---
 
