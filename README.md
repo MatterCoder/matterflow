@@ -167,7 +167,7 @@ npm run storybook
 Note: it is not recommended to run as storybook as the lack of backend functionality will 
 impact the functionality of the front end.
 
-### Docker
+### Standalone Docker
 
 It is possible to run this application as a docker container on amd64 using
 but you will need to know the IP address of your main docker interface
@@ -190,6 +190,8 @@ docker run -d \
   --network=host \
   ghcr.io/home-assistant-libs/python-matter-server:stable --storage-path /data --paa-root-cert-dir /data/credentials --bluetooth-adapter 0
 ```
+
+### Home Assistant Addon
 
 It is also possible to run this as a Home Assistant Addon
 
