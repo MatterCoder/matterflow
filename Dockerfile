@@ -69,6 +69,15 @@ RUN echo "MATTER_SERVER=localhost" >> mf/.environment
 # Set up the path for the sqlite3 db to be the tmp which we have mapped to /config 
 RUN echo "DB_DIR_PATH='/tmp'" >> mf/.environment
 
+# Install Node.js and npm
+RUN apt-get update && apt-get install -y curl && \
+    curl -fsSL https://deb.nodesource.com/setup_18.x | bash - && \
+    apt-get install -y nodejs && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# Verify Node.js and npm installation
+RUN node --version && npm --version
+
 # Install Web front end
 WORKDIR /matterflow/web
 
