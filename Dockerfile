@@ -34,7 +34,12 @@ RUN apk add --update --no-cache npm dumb-init python3 py3-pip python3-dev build-
     /usr/bin/python3.12 -m venv /matterflow/api/venv && \
     /matterflow/api/venv/bin/pip install pipenv && \
     . /matterflow/api/venv/bin/activate && \
-    pipenv install --deploy
+    pipenv install --deploy --ignore-pipfile \
+    && find /matterflow/api -type d -name '__pycache__' -exec rm -r {} + \
+    && find /matterflow/api -name '*.pyc' -delete \
+    && rm -rf /matterflow/api/venv/lib/python*/site-packages/*.egg-info
+
+RUN rm -rf /root/.cache/pip /usr/local/lib/python*/dist-packages/*.egg-info /usr/local/lib/python*/site-packages/*.egg-info
 
 # Install supervisord:
 RUN /matterflow/api/venv/bin/pip install supervisor
