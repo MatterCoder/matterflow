@@ -70,10 +70,9 @@ RUN echo "MATTER_SERVER=localhost" >> mf/.environment
 RUN echo "DB_DIR_PATH='/tmp'" >> mf/.environment
 
 # Install Node.js and npm
-RUN apt-get update && apt-get install -y curl && \
+RUN apk add --no-cache curl && \
     curl -fsSL https://deb.nodesource.com/setup_18.x | bash - && \
-    apt-get install -y nodejs && \
-    apt-get clean && rm -rf /var/lib/apt/lists/*
+    apk add --no-cache nodejs npm
 
 # Verify Node.js and npm installation
 RUN node --version && npm --version
