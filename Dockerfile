@@ -29,16 +29,18 @@ WORKDIR /matterflow/api
 ENV CFLAGS="-D_FORTIFY_SOURCE=0"
 
 # Install build tools and Python dependencies
-RUN apk add --update npm dumb-init git python3 py3-pip python3-dev && \
+RUN apk add --update npm dumb-init git python3 py3-pip python3-dev build-base g++ meson ninja libffi-dev cargo musl-dev libc-dev openssl openssl-dev && \
     /usr/bin/python3.12 --version && \
     /usr/bin/python3.12 -m venv /matterflow/api/venv && \
     /matterflow/api/venv/bin/pip install pipenv
 
 # Install wheel
-RUN /matterflow/api/venv/bin/pip install wheel
+RUN . /matterflow/api/venv/bin/activate && \
+    pipenv install --verbose wheel
 
 # Explicitly install dependencies that require compilation 
-RUN /matterflow/api/venv/bin/pip install numpy pandas cryptography --only-binary=:all:
+RUN . /matterflow/api/venv/bin/activate && \
+    pipenv install numpy pandas==1.5.3 cryptography --only-binary=:all:
 
 # Now install our python dependencies 
 RUN . /matterflow/api/venv/bin/activate && \
