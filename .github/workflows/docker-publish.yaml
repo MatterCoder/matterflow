@@ -15,7 +15,7 @@ jobs:
           # - platform: linux/amd64
           #  build_from: ghcr.io/home-assistant/amd64-base-python
           - platform: linux/arm/v7
-            build_from: ghcr.io/home-assistant/armv7-base-python
+            build_from: ghcr.io/home-assistant/armv7-base
 
     steps:
       - name: Checkout repository
