@@ -1,4 +1,42 @@
-This is a research project to build data flows for Matter based IoT devices. The project builds on the work from the [Visual Programming project](https://github.com/PyWorkflowApp/visual-programming) and is based on React, React Bootstrap and [react-diagrams](https://github.com/projectstorm/react-diagrams)
+<div align="center">
+    <a href="https://github.com/MatterCoder/Matterflow">
+        <img width="200" height="150" src="/docs/logo.png">
+    </a>
+    <div style="display: flex;"><h1>Matterflow</h1></div>
+    <br>
+    <br>
+    <div style="display: flex;">
+        <a href="https://github.com/MatterCoder/Matterflow/releases">
+            <img src="https://img.shields.io/github/release/MatterCoder/Matterflow.svg">
+        </a>
+        <a href="https://github.com/MatterCoder/Matterflow/stargazers">
+            <img alt="GitHub Repo stars" src="https://img.shields.io/github/stars/Mattercoder/Matterflow">
+        </a>
+        <a href="https://matterflow.slack.com">
+            <img src="https://img.shields.io/badge/Slack-channel-red?logo=slack">
+        </a>
+        <a href="https://matterflow.cloud">
+        <img src="https://img.shields.io/badge/Docusaurus-3ECC5F?logo=docusaurus&logoColor=fff"/>    
+        </a>           
+    </div>
+    <h1>Matter IoT Data Pipelines</h1>
+</div>
+
+## Overview
+
+Matterflow is a powerful no-code data science tool that simplifies working with data from **Matter-enabled IoT devices**. With Matterflow, you can **Transform** and **Stream** IoT Data to Cloud and AI Applications. It seamlessly integrates with your Home Assistant setup to:
+
+- Automatically **receive and process IoT data**.
+- Transform and model data for use in various formats like **CSV** or **JSON**.
+- Send processed data to the **Cloud** and **AI applications** or store it locally for further analysis.
+
+This add-on is ideal for developers, data scientists, and IoT enthusiasts looking to unlock the full potential of their smart devices.
+
+---
+
+## Tutorial
+A great place to start is to follow the "Getting Started Tutorial" on our documentation website: https://matterflow.cloud/docs/intro
+
 
 # User Interface Example
 
@@ -164,3 +202,7 @@ It is also possible to run this as a Home Assistant Addon
 
 Click **Add → Close**, or click the button below to add the repository directly:  
 [![Add Repository](https://my.home-assistant.io/badges/supervisor_add_addon_repository.svg)](https://my.home-assistant.io/redirect/supervisor_add_addon_repository/?repository_url=https%3A%2F%2Fgithub.com%2FMattercoder%2Faddon-matterflow)
+
+
+### Credits
+The project builds on the work from the [Visual Programming project](https://github.com/PyWorkflowApp/visual-programming) and is based on React, React Bootstrap and [react-diagrams](https://github.com/projectstorm/react-diagrams)
