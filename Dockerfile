@@ -1,5 +1,5 @@
 # Accept platform as an argument
-ARG TARGETPLATFORM="linux/amd64"
+ARG TARGETPLATFORM="linux/arm/v7"
 
 # Allow overriding of the base image
 ARG BUILD_FROM="ghcr.io/home-assistant/amd64-base-python"
@@ -33,6 +33,8 @@ RUN apk add --update npm dumb-init git python3 py3-pip python3-dev build-base g+
     /usr/bin/python3.12 --version && \
     /usr/bin/python3.12 -m venv /matterflow/api/venv && \
     /matterflow/api/venv/bin/pip install pipenv
+
+RUN /matterflow/api/venv/bin/pip install --index-url=https://www.piwheels.org/simple --no-cache-dir numpy pandas cryptography
 
 # Conditional installation based on TARGETPLATFORM
 #RUN if [ "${TARGETPLATFORM}" = "linux/arm/v7" ] ; then \ 
