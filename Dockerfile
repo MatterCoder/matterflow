@@ -19,37 +19,32 @@ RUN apk add --update --no-cache git && \
     echo "Installing MatterFlow"
 
 RUN git clone https://github.com/MatterCoder/matterflow.git /matterflow && \
+    git checkout pip_not_pipenv && \
     mkdir /matterflow/dist && \
     jq -n --arg commit $(eval cd /matterflow;git rev-parse --short HEAD) '$commit' > /matterflow/dist/.hash ; \
     echo "Installed MatterFlow @ version $(cat /matterflow/dist/.hash)" 
 
 WORKDIR /matterflow/api
 
-# Disable fortify during build (if required)
-ENV CFLAGS="-D_FORTIFY_SOURCE=0"
-
-# Install build tools and Python dependencies
-RUN apk add --update npm dumb-init git python3 py3-pip python3-dev build-base g++ meson ninja libffi-dev cargo musl-dev libc-dev openssl openssl-dev && \
+# Install build tools and create venv
+RUN echo "Installing build tools and create venv" 
+RUN apk add --update npm dumb-init git python3 py3-pip python3-dev && \
     /usr/bin/python3.12 --version && \
-    /usr/bin/python3.12 -m venv /matterflow/api/venv && \
-    /matterflow/api/venv/bin/pip install pipenv
+    /usr/bin/python3.12 -m venv /matterflow/api/venv
 
-RUN /matterflow/api/venv/bin/pip install --index-url=https://www.piwheels.org/simple --no-cache-dir numpy pandas cryptography
+# Install precompiled Python dependencies
+RUN echo "Install precompiled Python dependencies" 
+RUN /matterflow/api/venv/bin/pip install --index-url=https://www.piwheels.org/simple --no-cache-dir numpy pandas cryptography 
+
+# Install all other Python dependencies
+RUN echo "Install Python dependencies" 
+RUN /matterflow/api/venv/bin/pip install -r requirements.txt
 
 # Conditional installation based on TARGETPLATFORM
 #RUN if [ "${TARGETPLATFORM}" = "linux/arm/v7" ] ; then \ 
 #    /matterflow/api/venv/bin/pip install --index-url=https://www.piwheels.org/simple --no-cache-dir wheel && \
 #    /matterflow/api/venv/bin/pip install --index-url=https://www.piwheels.org/simple --no-cache-dir numpy pandas cryptography; \
 #    fi
-
-# Now install our python dependencies 
-RUN . /matterflow/api/venv/bin/activate && \
-    pipenv install --verbose && \
-    find /matterflow/api -type d -name '__pycache__' -exec rm -r {} + && \
-    find /matterflow/api -name '*.pyc' -delete && \
-    rm -rf /matterflow/api/venv/lib/python*/site-packages/*.egg-info
-
-RUN rm -rf /root/.cache/pip /usr/local/lib/python*/dist-packages/*.egg-info /usr/local/lib/python*/site-packages/*.egg-info
 
 # Install supervisord:
 RUN /matterflow/api/venv/bin/pip install supervisor
