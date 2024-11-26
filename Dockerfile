@@ -37,7 +37,7 @@ RUN echo "Conditionally Install Python dependencies" && \
     if [ "$TARGETPLATFORM" = "linux/arm/v7" ] ; then \ 
         venv/bin/pip install --index-url=https://www.piwheels.org/simple --no-cache-dir -r requirements.txt; \
     else \
-        echo "Not using Target platform of $TARGETPLATFORM"; \
+    venv/bin/pip install --no-cache-dir -r requirements.txt; \
     fi
 
 # Verify Python dependencies
