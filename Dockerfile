@@ -26,7 +26,6 @@ WORKDIR /matterflow/
 
 # Clone the matterflow repository
 RUN git clone https://github.com/MatterCoder/matterflow.git . && \
-    git checkout pip_not_pipenv && \
     mkdir dist && \
     jq -n --arg commit $(eval git rev-parse --short HEAD) '$commit' > dist/.hash && \
     echo "Installed MatterFlow @ version $(cat dist/.hash)" 
