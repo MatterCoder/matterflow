@@ -88,9 +88,11 @@ RUN node --version && npm --version
 
 # Install Web front end
 WORKDIR /matterflow/web
-
-RUN npm ci --production
+RUN npm ci
 RUN npm run build
+
+# Remove devDependencies to reduce the size of the final image
+RUN npm prune --production
 
 # Delete the node_modules directory
 RUN rm -rf node_modules
