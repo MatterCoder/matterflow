@@ -1,55 +1,56 @@
-# Accept platform as an argument
-ARG TARGETPLATFORM="linux/arm/v7"
-
 # Allow overriding of the base image
 ARG BUILD_FROM="ghcr.io/home-assistant/amd64-base-python"
 
-# Dynamically set the base image based on TARGETPLATFORM
-FROM ${BUILD_FROM} AS base
+FROM --platform=$BUILDPLATFORM ${BUILD_FROM} AS build
+ARG TARGETPLATFORM
+ARG BUILDPLATFORM
+# Build arguments
+ARG BUILD_ARCH
+ARG BUILD_DATE
+ARG BUILD_DESCRIPTION
+ARG BUILD_NAME
+ARG BUILD_REF
+ARG BUILD_REPOSITORY
+ARG BUILD_VERSION
 
-# Debugging
-RUN echo "Using base image: ${BUILD_FROM}" && \
-    echo "TARGETPLATFORM: ${TARGETPLATFORM}"
+RUN echo "Docker buildx running on $BUILDPLATFORM, building for $TARGETPLATFORM"
 
 ENV LANG=C.UTF-8
 
-WORKDIR /matterflow
-
-RUN apk add --update --no-cache git && \
+# Install build tools and create venv
+RUN echo "Installing Build tools" 
+RUN apk add --update --no-cache git jq cargo npm dumb-init && \
     echo "Installing MatterFlow"
 
-RUN git clone https://github.com/MatterCoder/matterflow.git /matterflow && \
-    mkdir /matterflow/dist && \
-    jq -n --arg commit $(eval cd /matterflow;git rev-parse --short HEAD) '$commit' > /matterflow/dist/.hash ; \
-    echo "Installed MatterFlow @ version $(cat /matterflow/dist/.hash)" 
+WORKDIR /matterflow/
+
+# Clone the matterflow repository
+RUN git clone https://github.com/MatterCoder/matterflow.git . && \
+    git checkout pip_not_pipenv && \
+    mkdir dist && \
+    jq -n --arg commit $(eval git rev-parse --short HEAD) '$commit' > dist/.hash && \
+    echo "Installed MatterFlow @ version $(cat dist/.hash)" 
 
 WORKDIR /matterflow/api
 
-# Disable fortify during build (if required)
-ENV CFLAGS="-D_FORTIFY_SOURCE=0"
+# Create venv and install Python dependencies
+RUN echo "Install Python dependencies" && \
+    python3 -m venv venv
 
-# Install build tools and Python dependencies
-RUN apk add --update npm dumb-init git python3 py3-pip python3-dev build-base g++ meson ninja libffi-dev cargo musl-dev libc-dev openssl openssl-dev && \
-    /usr/bin/python3.12 --version && \
-    /usr/bin/python3.12 -m venv /matterflow/api/venv && \
-    /matterflow/api/venv/bin/pip install pipenv
 
-RUN /matterflow/api/venv/bin/pip install --index-url=https://www.piwheels.org/simple --no-cache-dir numpy pandas cryptography
+# Debug TARGETPLATFORM
+RUN echo "Target platform is $TARGETPLATFORM"
 
 # Conditional installation based on TARGETPLATFORM
-#RUN if [ "${TARGETPLATFORM}" = "linux/arm/v7" ] ; then \ 
-#    /matterflow/api/venv/bin/pip install --index-url=https://www.piwheels.org/simple --no-cache-dir wheel && \
-#    /matterflow/api/venv/bin/pip install --index-url=https://www.piwheels.org/simple --no-cache-dir numpy pandas cryptography; \
-#    fi
+RUN echo "Conditionally Install Python dependencies" && \ 
+    if [ "$TARGETPLATFORM" = "linux/arm/v7" ] || [ "$TARGETPLATFORM" = "linux/arm64" ] || [ "$TARGETPLATFORM" = "linux/arm/v6" ]; then \ 
+        venv/bin/pip install --index-url=https://www.piwheels.org/simple --no-cache-dir -r requirements.txt; \
+    else \
+        venv/bin/pip install --no-cache-dir -r requirements.txt; \
+    fi
 
-# Now install our python dependencies 
-RUN . /matterflow/api/venv/bin/activate && \
-    pipenv install --verbose && \
-    find /matterflow/api -type d -name '__pycache__' -exec rm -r {} + && \
-    find /matterflow/api -name '*.pyc' -delete && \
-    rm -rf /matterflow/api/venv/lib/python*/site-packages/*.egg-info
-
-RUN rm -rf /root/.cache/pip /usr/local/lib/python*/dist-packages/*.egg-info /usr/local/lib/python*/site-packages/*.egg-info
+# Verify Python dependencies
+RUN /matterflow/api/venv/bin/pip show numpy pandas cryptography
 
 # Install supervisord:
 RUN /matterflow/api/venv/bin/pip install supervisor
@@ -87,14 +88,35 @@ RUN node --version && npm --version
 
 # Install Web front end
 WORKDIR /matterflow/web
-
-RUN npm install
+RUN npm ci
 RUN npm run build
+
+# Remove devDependencies to reduce the size of the final image
+RUN npm prune --production
+
+# Delete the node_modules directory
+RUN rm -rf node_modules
 
 # Copy data for add-on
 COPY run.sh .
 RUN chmod +x run.sh
 
+# Labels
+LABEL \
+    io.hass.name="${BUILD_NAME}" \
+    io.hass.description="${BUILD_DESCRIPTION}" \
+    io.hass.arch="${BUILD_ARCH}" \
+    io.hass.type="addon" \
+    io.hass.version=${BUILD_VERSION} \
+    org.opencontainers.image.title="${BUILD_NAME}" \
+    org.opencontainers.image.description="${BUILD_DESCRIPTION}" \
+    org.opencontainers.image.vendor="Home Assistant Community Add-ons" \
+    org.opencontainers.image.licenses="MIT" \
+    org.opencontainers.image.source="https://github.com/${BUILD_REPOSITORY}" \
+    org.opencontainers.image.documentation="https://github.com/${BUILD_REPOSITORY}/blob/main/README.md" \
+    org.opencontainers.image.created=${BUILD_DATE} \
+    org.opencontainers.image.revision=${BUILD_REF} \
+    org.opencontainers.image.version=${BUILD_VERSION}
+    
 CMD ["./run.sh"]
-
 

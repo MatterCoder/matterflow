@@ -188,7 +188,7 @@ body, td, input, select, textarea, a {
     line-height: 1.4em;
   }
   .statusnominal {
-    background-image: url("/state0.gif");
+    background-image: url("/state1.gif");
   }
   .statusrunning {
     background-image: url("/state2.gif");

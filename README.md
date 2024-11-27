@@ -73,43 +73,33 @@ Ensure you use the correct python binary path when activating the environment
 /usr/local/bin/python3 -m venv ./venv
 source venv/bin/activate
 ```
-
-2. Install `pipenv`
-       
-- **pip**
-    
+        
+2. Install dependencies
+In the `api` directory with `requirements.txt`.
 ```
-pip install pipenv OR pip3 install pipenv
-```        
-3. Install dependencies
-In the `api` directory with `Pipfile` and `Pipfile.lock`.
+pip install -r requirements.txt
 ```
-pipenv install
-```
-4. Setup your local environment
+3. Setup your local environment
 
 - Create environment file with app secret 
 ```
 echo "SECRET_KEY='TEMPORARY SECRET KEY'" > mf/.environment
 ```
 
-4.1. (Optionally) set location of db-sqlite3 file
+3.1. (Optionally) set location of db-sqlite3 file
 
 - Create environment variable your specific db path 
 ```
 echo "DB_DIR_PATH='/tmp'" >> mf/.environment
 ```
 
-5. Start dev server from app root
+4. Start dev server from app root
 ```
 cd mf
-pipenv run python3 manage.py migrate
-pipenv run python3 manage.py runserver
+python manage.py migrate
+python manage.py runserver
 ```
     
-If you have trouble running commands individually, you can also enter the
-virtual environment created by `pipenv` by running `pipenv shell`.
-
 ### Supervisor
 This project requires supervisord to control unix based processes which run the flows in the background. To install supervisor follow these steps:
 
@@ -152,9 +142,9 @@ By default, your default browser should open on the main
 application page. If not, you can go to [http://localhost:5173/](http://localhost:5173/)
 in your browser.
 
-### Storybook
+### Testing with Storybook
 
-It is possible to run the react components in Storybook. The backend is mocked in that case.
+It is possible to locally test the react components in Storybook. The backend is mocked in that case.
 If running as Storybook, then the backend API will only provide static information and the
 functionality of adding, deleting, modifying, saving etc will not be saved to the backend
 
@@ -174,7 +164,7 @@ but you will need to know the IP address of your main docker interface
 Find the docker0 ip address using  ip a | grep docker0
 
 ```
-docker run --rm --add-host="localhost:<DOCKERIP>" -p 4173:4173 -p 5173:5173 -p 8000:8000 -p 9001:9001  -v /data:/tmp:rw   oideibrett/matterflow:latest
+docker run --rm --add-host="localhost:<DOCKERIP>" -p 4173:4173 -p 5173:5173 -p 8000:8000 -p 9001:9001  -v /data:/tmp:rw  oideibrett/image-amd64-matterflow:latest
 ```
 
 

@@ -1,8 +1,9 @@
 name: Build and Push Multi-Platform Docker Image
 
 on:
+  release:
+    types: [published]
   workflow_dispatch:
-
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -10,13 +11,24 @@ jobs:
     strategy:
       matrix:
         platform:
+          - linux/amd64
           - linux/arm/v7
+          - linux/arm64
+          - linux/arm/v6
+          - linux/386          
         include:
-          # - platform: linux/amd64
-          #  build_from: ghcr.io/home-assistant/amd64-base-python
+          - platform: linux/amd64
+            build_from: ghcr.io/home-assistant/amd64-base-python
+            arch_name: amd64
           - platform: linux/arm/v7
-            build_from: ghcr.io/home-assistant/armv7-base-python
-
+            build_from: python:3.11-alpine
+            arch_name: armv7
+          - platform: linux/arm64
+            build_from: python:3.11-alpine
+            arch_name: aarch64
+          - platform: linux/arm/v6
+            build_from: python:3.11-alpine
+            arch_name: armhf
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -44,5 +56,6 @@ jobs:
             BUILD_FROM=${{ matrix.build_from }}
             TARGETPLATFORM=${{ matrix.platform }}
           tags: |
-            oideibrett/matterflow:latest
-            oideibrett/matterflow:${{ github.sha }}
+            oideibrett/image-${{ matrix.arch_name }}-matterflow:latest
+            oideibrett/image-${{ matrix.arch_name }}-matterflow:${{ github.sha }}
+            oideibrett/image-${{ matrix.arch_name }}-matterflow:${{ github.event.release.tag_name }}
