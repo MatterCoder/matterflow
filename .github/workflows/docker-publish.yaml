@@ -45,5 +45,5 @@ jobs:
             BUILD_FROM=${{ matrix.build_from }}
             TARGETPLATFORM=${{ matrix.platform }}
           tags: |
-            oideibrett/matterflow:latest
-            oideibrett/matterflow:${{ github.sha }}
+            oideibrett/image-${{ matrix.platform }}-matterflow:latest
+            oideibrett/image-${{ matrix.platform }}-matterflow:${{ github.sha }}
