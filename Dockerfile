@@ -89,8 +89,11 @@ RUN node --version && npm --version
 # Install Web front end
 WORKDIR /matterflow/web
 
-RUN npm install
+RUN npm ci --production
 RUN npm run build
+
+# Delete the node_modules directory
+RUN rm -rf node_modules
 
 # Copy data for add-on
 COPY run.sh .
