@@ -10,12 +10,12 @@ jobs:
     strategy:
       matrix:
         platform:
-          - linux/amd64
-          - linux/arm/v7
+          - amd64
+          - armv7
         include:
-          - platform: linux/amd64
+          - platform: amd64
             build_from: ghcr.io/home-assistant/amd64-base-python
-          - platform: linux/arm/v7
+          - platform: armv7
             build_from: python:3.11-alpine
 
     steps:
