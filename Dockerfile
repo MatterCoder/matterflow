@@ -43,7 +43,7 @@ RUN echo "Target platform is $TARGETPLATFORM"
 
 # Conditional installation based on TARGETPLATFORM
 RUN echo "Conditionally Install Python dependencies" && \
-    if [ "$TARGETPLATFORM" = "armv7" ] ; then \ 
+    if [ "$TARGETPLATFORM" = "linux/arm/v7" ] ; then \ 
         venv/bin/pip install --index-url=https://www.piwheels.org/simple --no-cache-dir -r requirements.txt; \
     else \
     venv/bin/pip install --no-cache-dir -r requirements.txt; \
@@ -112,6 +112,6 @@ LABEL \
     org.opencontainers.image.created=${BUILD_DATE} \
     org.opencontainers.image.revision=${BUILD_REF} \
     org.opencontainers.image.version=${BUILD_VERSION}
-
+    
 CMD ["./run.sh"]
 
