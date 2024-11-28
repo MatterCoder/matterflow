@@ -160,9 +160,9 @@ async def run_all_ws_flows(filenames, verbose):
                     #as then we will use the matter server home assistant
                     if 'HASSIO_TOKEN' in os.environ:
                         connection_settings["host"] = 'local-matterflow'
-
-                    if 'MATTER_SERVER' in os.environ:                            
-                        connection_settings["host"] = os.environ['MATTER_SERVER']
+                    else:
+                        if 'MATTER_SERVER' in os.environ:                            
+                            connection_settings["host"] = os.environ['MATTER_SERVER']
                                       
                     input_settings = {
                         "Topic": "#",

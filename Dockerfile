@@ -90,15 +90,12 @@ WORKDIR /matterflow/web
 RUN npm ci
 RUN npm run build
 
-# Remove devDependencies to reduce the size of the final image
-RUN npm prune --production
-
-# Delete the node_modules directory
-RUN rm -rf node_modules
-
 # Copy data for add-on
-COPY run.sh .
-RUN chmod +x run.sh
+WORKDIR /matterflow/
+COPY run.sh /
+RUN chmod +x /run.sh
+
+CMD ["/run.sh"]
 
 # Labels
 LABEL \
@@ -117,5 +114,3 @@ LABEL \
     org.opencontainers.image.revision=${BUILD_REF} \
     org.opencontainers.image.version=${BUILD_VERSION}
     
-CMD ["./run.sh"]
-

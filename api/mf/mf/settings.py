@@ -25,22 +25,9 @@ SECRET_KEY = os.environ['SECRET_KEY']
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-default_allowed_hosts = ['back-end:8000',
-                 'back-end',
-                 'localhost',
-                 '127.0.0.1',
-                 '0.0.0.0',
-                 '[::1]',
-                 'homeassistant.local']
-
-# Get the ALLOWED_HOSTS environment variable, or use an empty list if it's not set
-env_allowed_host = os.getenv('LOCAL_IP', '')
-
-# Add the environment variable value to the default list, if it's set
-if env_allowed_host:
-    default_allowed_hosts.append(env_allowed_host)
-
-ALLOWED_HOSTS = default_allowed_hosts
+#Allow everything as we are running inside a docker container with 
+#restricted access from outside
+ALLOWED_HOSTS = ['*'] 
 
 # Application definition
 

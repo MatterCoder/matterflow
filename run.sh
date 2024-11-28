@@ -2,12 +2,11 @@
 echo "==> Making the temp directory called /data to hold persistent data"
 mkdir -p /data
 
-echo "==> Getting the local docker IP address"
-# Retrieve the container's local IP address
-myaddr=$(ip addr show eth0 | awk '$1 == "inet" {print $2}' | cut -f1 -d/)
-
-# Append the local IP address to the .environment file
-echo "LOCAL_IP=$myaddr" >> /matterflow/api/mf/.environment
+#echo "==> Mapping /tmp to /config"
+mkdir -p /config
+chmod 1777  /config  
+#rm -rf /tmp  
+ln -s /config /tmp  
 
 echo "==> Starting Matterflow API backend"
 
