@@ -14,7 +14,7 @@ jobs:
           - linux/amd64
           - linux/arm/v7
           - linux/arm64
-          - linux/arm/v6
+#          - linux/arm/v6
         include:
           - platform: linux/amd64
             build_from: ghcr.io/home-assistant/amd64-base-python
@@ -25,9 +25,9 @@ jobs:
           - platform: linux/arm64
             build_from: ghcr.io/home-assistant/aarch64-base-python
             arch_name: aarch64
-          - platform: linux/arm/v6
-            build_from: ghcr.io/home-assistant/armhf-base-python
-            arch_name: armhf
+#          - platform: linux/arm/v6
+#            build_from: ghcr.io/home-assistant/armhf-base-python
+#            arch_name: armhf
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
