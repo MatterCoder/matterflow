@@ -12,16 +12,16 @@ jobs:
       matrix:
         platform:
           - linux/amd64
-          - linux/arm/v7
+#          - linux/arm/v7
           - linux/arm64
 #          - linux/arm/v6
         include:
           - platform: linux/amd64
             build_from: ghcr.io/home-assistant/amd64-base-python
             arch_name: amd64
-          - platform: linux/arm/v7
-            build_from: ghcr.io/home-assistant/armv7-base-python
-            arch_name: armv7
+#          - platform: linux/arm/v7
+#            build_from: ghcr.io/home-assistant/armv7-base-python
+#            arch_name: armv7
           - platform: linux/arm64
             build_from: ghcr.io/home-assistant/aarch64-base-python
             arch_name: aarch64
