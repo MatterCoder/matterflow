@@ -33,9 +33,8 @@ RUN git clone https://github.com/MatterCoder/matterflow.git . && \
 WORKDIR /matterflow/api
 
 # Create venv and install Python dependencies
-RUN echo "Install Python dependencies" && \
+RUN echo "Creating Python venv" && \
     python3 -m venv venv
-
 
 # Debug TARGETPLATFORM
 RUN echo "Target platform is $TARGETPLATFORM"
@@ -47,9 +46,6 @@ RUN echo "Conditionally Install Python dependencies" && \
     else \
         venv/bin/pip install --no-cache-dir -r requirements.txt; \
     fi
-
-# Verify Python dependencies
-RUN /matterflow/api/venv/bin/pip show numpy pandas cryptography
 
 # Install supervisord:
 RUN /matterflow/api/venv/bin/pip install supervisor

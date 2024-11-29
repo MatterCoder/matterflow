@@ -2,11 +2,28 @@
 echo "==> Making the temp directory called /data to hold persistent data"
 mkdir -p /data
 
-#echo "==> Mapping /tmp to /config"
+echo "==> Ensuring /config exists and is writable"
 mkdir -p /config
-chmod 1777  /config  
-#rm -rf /tmp  
-ln -s /config /tmp  
+chmod 1777 /config
+
+if [ ! -L /tmp ]; then
+  echo "==> Remapping /tmp to /config"
+  # Create a temporary location for active `/tmp` files
+  TMP_BACKUP=$(mktemp -d /config/tmp-backup.XXXXXX)
+  
+  # Move the contents of /tmp to the backup location (if applicable)
+  mv /tmp/* "$TMP_BACKUP" 2>/dev/null || true
+  
+  # Remove the original /tmp directory
+  rm -rf /tmp
+  
+  # Create the symbolic link
+  ln -s /config /tmp
+  
+  # Restore moved files to the new /tmp (now /config)
+  mv "$TMP_BACKUP"/* /tmp 2>/dev/null || true
+  rmdir "$TMP_BACKUP"
+fi
 
 echo "==> Starting Matterflow API backend"
 
