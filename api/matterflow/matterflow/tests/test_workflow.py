@@ -8,7 +8,7 @@ from matterflow.tests.sample_test_data import GOOD_NODES, BAD_NODES, DATA_FILES
 
 class WorkflowTestCase(unittest.TestCase):
     def setUp(self):
-        self.workflow = Workflow("Untitled", root_dir="/tmp", node_dir=os.path.join(os.getcwd(), 'nodes'))
+        self.workflow = Workflow("Untitled", root_dir="/data", node_dir=os.path.join(os.getcwd(), 'nodes'))
 
         self.read_csv_node = GOOD_NODES["read_csv_node"]
         self.local_flow_node = GOOD_NODES["string_input"]
@@ -52,7 +52,7 @@ class WorkflowTestCase(unittest.TestCase):
         self.assertEqual(self.workflow.filename, "Untitled.json")
 
     def test_workflow_from_json(self):
-        new_workflow = Workflow("Untitled", root_dir="/tmp")
+        new_workflow = Workflow("Untitled", root_dir="/data")
         workflow_copy = Workflow.from_json(self.workflow.to_session_dict())
 
         self.assertEqual(new_workflow.name, workflow_copy.name)
@@ -62,12 +62,12 @@ class WorkflowTestCase(unittest.TestCase):
             new_workflow = Workflow.from_json(dict())
 
     def test_empty_workflow_to_session(self):
-        new_workflow = Workflow("Untitled", root_dir="/tmp")
+        new_workflow = Workflow("Untitled", root_dir="/data")
         saved_workflow = new_workflow.to_session_dict()
 
         workflow_to_compare = {
             'name': 'Untitled',
-            'root_dir': '/tmp',
+            'root_dir': '/data',
             'graph': Workflow.to_graph_json(new_workflow.graph),
             'flow_vars': Workflow.to_graph_json(new_workflow.flow_vars),
         }
@@ -235,7 +235,7 @@ class WorkflowTestCase(unittest.TestCase):
     def test_download_file(self):
         file = self.workflow.download_file("1")
 
-        self.assertEqual(file.name, "/tmp/sample1.csv")
+        self.assertEqual(file.name, "/data/sample1.csv")
         file.close()
 
     def test_download_file_error(self):

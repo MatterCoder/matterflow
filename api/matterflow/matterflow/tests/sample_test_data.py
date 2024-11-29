@@ -8,7 +8,7 @@ GOOD_NODES = {
         "node_key": "ReadCsvNode",
         "is_global": False,
         "options": {
-            "file": "/tmp/sample1.csv"
+            "file": "/data/sample1.csv"
         }
     },
     "write_csv_node": {
@@ -18,7 +18,7 @@ GOOD_NODES = {
         "node_key": "WriteCsvNode",
         "is_global": False,
         "options": {
-            "file": "/tmp/sample_out.csv"
+            "file": "/data/sample_out.csv"
         }
     },
     "join_node": {

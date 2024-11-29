@@ -60,7 +60,7 @@ class WsConnectionNode(ConnectionNode):
         '''
         
         try:
-            if flow_vars["file"].get_value() == "/tmp/":
+            if flow_vars["file"].get_value() == "/data/":
                 return '{"message":"try uploading a test json file"}'
             else:    
                 df = pd.read_json(

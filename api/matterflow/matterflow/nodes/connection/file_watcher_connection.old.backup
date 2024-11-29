@@ -29,7 +29,7 @@ class FileWatcherConnectionNode(ConnectionNode):
         ),
         "connection": TextParameter(
             "Connection Settings",
-            default='{"file_path": "/tmp/test.json", "multiline": false}',
+            default='{"file_path": "/data/test.json", "multiline": false}',
             docstring="Connection Settings Input"
         ),   
         "input": TextParameter(
@@ -46,7 +46,7 @@ class FileWatcherConnectionNode(ConnectionNode):
 
         try:
             # Read from file
-            if flow_vars["file"].get_value() == "/tmp/":
+            if flow_vars["file"].get_value() == "/data/":
                 return '{"message":"try uploading a test json file"}'
             else:    
                 df = pd.read_json(

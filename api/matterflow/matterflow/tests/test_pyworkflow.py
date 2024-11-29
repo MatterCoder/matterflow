@@ -9,13 +9,13 @@ from matterflow.tests.sample_test_data import GOOD_NODES, BAD_NODES, DATA_FILES
 class MatterflowTestCase(unittest.TestCase):
     def setUp(self):
 
-        with open('/tmp/sample1.csv', 'w') as f:
+        with open('/data/sample1.csv', 'w') as f:
             f.write(DATA_FILES["sample1"])
 
-        with open('/tmp/sample2.csv', 'w') as f:
+        with open('/data/sample2.csv', 'w') as f:
             f.write(DATA_FILES["sample2"])
 
-        self.matterflow = Workflow("My Workflow", root_dir="/tmp")
+        self.matterflow = Workflow("My Workflow", root_dir="/data")
 
         self.read_csv_node_1 = Node(GOOD_NODES["read_csv_node"])
 
@@ -26,7 +26,7 @@ class MatterflowTestCase(unittest.TestCase):
             "node_key": "ReadCsvNode",
             "is_global": False,
             "options": {
-                "file": "/tmp/sample2.csv",
+                "file": "/data/sample2.csv",
                 "sep": ";",
             },
             "option_replace": {
@@ -46,7 +46,7 @@ class MatterflowTestCase(unittest.TestCase):
             "node_key": "WriteCsvNode",
             "is_global": False,
             "options": {
-                "file": "/tmp/sample_out.csv"
+                "file": "/data/sample_out.csv"
             }
         })
 
@@ -109,8 +109,8 @@ class MatterflowTestCase(unittest.TestCase):
             self.matterflow.execute("100")
 
     def test_upload_file(self):
-        with open('/tmp/sample1.csv', 'rb') as f:
-            to_open = '/tmp/sample_upload.csv'
+        with open('/data/sample1.csv', 'rb') as f:
+            to_open = '/data/sample_upload.csv'
             saved_filed = self.matterflow.upload_file(f, to_open)
 
             self.assertEqual(to_open, saved_filed)

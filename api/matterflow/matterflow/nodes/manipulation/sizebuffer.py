@@ -33,7 +33,7 @@ class SizeBufferNode(ManipulationNode):
             return predecessor_data[0]
 
         # use a temporary file to buffer into
-        tempFileName = "/tmp/" + self.node_id + "_sizebuffer.json"
+        tempFileName = "/data/" + self.node_id + "_sizebuffer.json"
 
         # Read the existing JSONL file
         try:

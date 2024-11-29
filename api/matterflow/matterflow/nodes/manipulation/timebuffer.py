@@ -33,7 +33,7 @@ class TimeBufferNode(ManipulationNode):
             return predecessor_data[0]
 
         # Define the temporary file for buffering
-        tempFileName = "/tmp/" + self.node_id + "_timebuffer.json"
+        tempFileName = "/data/" + self.node_id + "_timebuffer.json"
 
         # Read the existing JSONL file or initialize an empty buffer
         try:

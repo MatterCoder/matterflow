@@ -6,16 +6,6 @@ echo "==> Ensuring /config exists and is writable"
 mkdir -p /config
 chmod 1777 /config
 
-if [ ! -L /tmp ]; then
-  echo "==> Binding /tmp to /config"
-  
-  # Move existing contents of /tmp to /config
-  mv /tmp/* /config/ 2>/dev/null || true
-  
-  # Mount /config to /tmp (bind mount)
-  mount --bind /config /tmp
-fi
-
 echo "==> Starting Matterflow API backend"
 
 # Activate the virtual environment
