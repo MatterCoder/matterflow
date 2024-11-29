@@ -7,22 +7,13 @@ mkdir -p /config
 chmod 1777 /config
 
 if [ ! -L /tmp ]; then
-  echo "==> Remapping /tmp to /config"
-  # Create a temporary location for active `/tmp` files
-  TMP_BACKUP=$(mktemp -d /config/tmp-backup.XXXXXX)
+  echo "==> Binding /tmp to /config"
   
-  # Move the contents of /tmp to the backup location (if applicable)
-  mv /tmp/* "$TMP_BACKUP" 2>/dev/null || true
+  # Move existing contents of /tmp to /config
+  mv /tmp/* /config/ 2>/dev/null || true
   
-  # Remove the original /tmp directory
-  rm -rf /tmp
-  
-  # Create the symbolic link
-  ln -s /config /tmp
-  
-  # Restore moved files to the new /tmp (now /config)
-  mv "$TMP_BACKUP"/* /tmp 2>/dev/null || true
-  rmdir "$TMP_BACKUP"
+  # Mount /config to /tmp (bind mount)
+  mount --bind /config /tmp
 fi
 
 echo "==> Starting Matterflow API backend"
