@@ -73,7 +73,7 @@ RUN echo "SECRET_KEY=tmp" > mf/.environment
 RUN echo "MATTER_SERVER=localhost" >> mf/.environment
 
 # Set up the path for the sqlite3 db to be the tmp which we have mapped to /config 
-RUN echo "DB_DIR_PATH='/tmp'" >> mf/.environment
+RUN echo "DB_DIR_PATH='/data'" >> mf/.environment
 
 # Install Node.js and npm
 RUN apk add --no-cache nodejs npm

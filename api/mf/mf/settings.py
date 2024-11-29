@@ -85,7 +85,7 @@ SESSION_ENGINE = 'django.contrib.sessions.backends.file'
 WSGI_APPLICATION = 'mf.wsgi.application'
 
 # SECURITY WARNING: keep the secret key used in production secret!
-DB_DIR_PATH = os.getenv('DB_DIR_PATH', BASE_DIR)
+DB_DIR_PATH = os.getenv('DB_DIR_PATH') or '/tmp'
 
 # Database
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases

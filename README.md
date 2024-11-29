@@ -90,7 +90,7 @@ echo "SECRET_KEY='TEMPORARY SECRET KEY'" > mf/.environment
 
 - Create environment variable your specific db path 
 ```
-echo "DB_DIR_PATH='/tmp'" >> mf/.environment
+echo "DB_DIR_PATH='/data'" >> mf/.environment
 ```
 
 4. Start dev server from app root
