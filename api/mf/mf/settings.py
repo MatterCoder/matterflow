@@ -84,19 +84,19 @@ SESSION_ENGINE = 'django.contrib.sessions.backends.file'
 
 WSGI_APPLICATION = 'mf.wsgi.application'
 
-# SECURITY WARNING: keep the secret key used in production secret!
-DB_DIR_PATH = os.getenv('DB_DIR_PATH') or '/tmp'
+DIR_PATH = os.getenv('DIR_PATH') or '/tmp'
 
 # Database
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': DB_DIR_PATH + "/db.sqlite3",
+        'NAME': DIR_PATH + "/db.sqlite3",
     }
 }
 
-MEDIA_ROOT = '/data'
+# MEDIA_ROOT is either '/data' or '/tmp'
+MEDIA_ROOT = DIR_PATH
 
 # Password validation
 # https://docs.djangoproject.com/en/3.0/ref/settings/#auth-password-validators

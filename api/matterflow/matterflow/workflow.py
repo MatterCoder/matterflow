@@ -431,7 +431,7 @@ class Workflow:
         """Construct list of predecessor DataFrames
 
         Retrieves the data file for all of a Node's predecessors. Ignores
-        exceptions for missing Nodes/data as this is checked prior to execution.
+        exceptions for missing Nodes as this is checked prior to execution.
 
         Args:
             node_id: The Node with predecessors

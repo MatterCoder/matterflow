@@ -70,10 +70,11 @@ WORKDIR /matterflow/api
 RUN echo "SECRET_KEY=tmp" > mf/.environment
 
 # Set up the address for the Matter python server websocket
-RUN echo "MATTER_SERVER=localhost" >> mf/.environment
+RUN echo "MATTER_SERVER=host.docker.internal" >> mf/.environment
 
-# Set up the path for the sqlite3 db to be the tmp which we have mapped to /config 
-RUN echo "DB_DIR_PATH='/data'" >> mf/.environment
+# Set up the path for the sqlite3 db and other config file to be the /tmp or /data
+# if not set defaults to /tmp 
+RUN echo "DIR_PATH='/data'" >> mf/.environment
 
 # Install Node.js and npm
 RUN apk add --no-cache nodejs npm

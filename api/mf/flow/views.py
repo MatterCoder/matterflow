@@ -145,8 +145,9 @@ def handle_flow(request, flow_id):
                 item = json.loads(serializers.serialize("json", FlowModel.objects.filter(pk=flow_id)))
                 flow_name = item[0]['fields']['name']
 
-                #1. Delete the workflows file in the /data folder       
-                pattern = f"/data/{flow_name}*" 
+                #1. Delete the workflows file in the /tmp or /data folder 
+                DIR_PATH = os.getenv('DIR_PATH') or '/tmp'
+                pattern = f"{DIR_PATH}/{flow_name}*" 
                 for file_path in glob.glob(pattern):
                     if os.path.isfile(file_path):
                         os.remove(file_path)
@@ -154,7 +155,7 @@ def handle_flow(request, flow_id):
                 #2. Delete the file to the supervisord in supervisor_confs folder       
                 dir_path = os.path.dirname(os.path.realpath(__file__))
                 #supervisord_filename = f"{dir_path}/../../supervisor_confs/{flow_name}.conf"
-                supervisord_filename = f"/data/{flow_name}.conf"
+                supervisord_filename = f"{DIR_PATH}/{flow_name}.conf"
                 os.remove(supervisord_filename)
             except:
                 pass

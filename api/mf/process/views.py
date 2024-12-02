@@ -145,9 +145,8 @@ def delete_process(request):
                 print("processing name:" + process_name)
 
                 # Delete the file to the supervisord in supervisor_confs folder       
-                dir_path = os.path.dirname(os.path.realpath(__file__))
-                #supervisord_filename = f"{dir_path}/../../supervisor_confs/{process_name}.json.conf"
-                supervisord_filename = f"/data/{process_name}.json.conf"
+                DIR_PATH = os.getenv('DIR_PATH') or '/tmp'
+                supervisord_filename = f"{DIR_PATH}/{process_name}.json.conf"
                 print("supervisord_filename:" + supervisord_filename)
                 os.remove(supervisord_filename)
             except:

@@ -156,13 +156,16 @@ async def run_all_ws_flows(filenames, verbose):
                         "port": 5580,
                         "Clean Session": True
                     }
-                    #Check if we are running as part of HASSIO (Home assistant IO)
-                    #as then we will use the matter server home assistant
-                    if 'HASSIO_TOKEN' in os.environ:
-                        connection_settings["host"] = 'local-matterflow'
+
+                    #Check if MATTER_SERVER is set 
+                    if 'MATTER_SERVER' in os.environ:                            
+                        connection_settings["host"] = os.environ['MATTER_SERVER']
+                    elif 'HASSIO_TOKEN' in os.environ:
+                        #Check if we are running as part of HASSIO (Home assistant IO)
+                        #as then we will use the matter server home assistant
+                        connection_settings["host"] = 'host.docker.internal'
                     else:
-                        if 'MATTER_SERVER' in os.environ:                            
-                            connection_settings["host"] = os.environ['MATTER_SERVER']
+                        connection_settings["host"] = 'localhost'
                                       
                     input_settings = {
                         "Topic": "#",
@@ -227,8 +230,8 @@ def event():
 
 
 # You can run this program with 
-# matterflow execute /data/ae5727c6-c9c9-4b0e-adf1-46b34dd870d9.json --verbose (for websocket initiated flows)
-# matterflow execute /data/ae5727c6-c9c9-4b0e-adf1-46b34dd870d9.json --verbose --interval 5 (for periodic initiated flows e.g. 5 secs)
+# matterflow execute /tmp/ae5727c6-c9c9-4b0e-adf1-46b34dd870d9.json --verbose (for websocket initiated flows)
+# matterflow execute /tmp/ae5727c6-c9c9-4b0e-adf1-46b34dd870d9.json --verbose --interval 5 (for periodic initiated flows e.g. 5 secs)
 @event.command()
 @click.argument('filenames', type=click.Path(exists=True), nargs=-1)
 @click.option('--verbose', is_flag=True, help='Enables verbose mode.')

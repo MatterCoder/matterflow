@@ -92,7 +92,7 @@ class Node:
             num_input_data: Number of input data passed in
 
         Raises:
-            NodeException on mis-matched input ports/data
+            NodeException on mis-matched input ports
         """
         if num_input_data != self.num_in:
             raise NodeException(

@@ -1,6 +1,7 @@
 from matterflow.node import ConnectionNode, NodeException
 from matterflow.parameters import *
 import json
+import os
 import pandas as pd
 from matterflow.connection import *
 
@@ -50,7 +51,8 @@ class MqttConnectionInNode(ConnectionNode):
         '''
         
         try:
-            if flow_vars["file"].get_value() == "/data/":
+            DIR_PATH = os.getenv('DIR_PATH') or '/tmp'
+            if flow_vars["file"].get_value() == DIR_PATH + "/":
                 return '{"message":"try uploading a test json file"}'
             else:    
                 df = pd.read_json(
