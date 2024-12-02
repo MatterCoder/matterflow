@@ -92,37 +92,30 @@ echo "SECRET_KEY='TEMPORARY SECRET KEY'" > mf/.environment
 ```
 echo "DIR_PATH='/data'" >> mf/.environment
 ```
+4. Supervisor - This project requires supervisord to control unix based processes which run the flows in the background. 
 
-4. Start dev server from app root
-```
-cd mf
-python manage.py migrate
-python manage.py runserver
-```
-    
-### Supervisor
-This project requires supervisord to control unix based processes which run the flows in the background. To install supervisor follow these steps:
-
-1. Install supervisor
-
-```
-pip install supervisor
-```
-
-2. Start/Restart the supervisor
+4.1. Start/Restart the supervisor
 
 Cd to the `api` directory with `supervisord.conf` file
 ```
 supervisord -c ./supervisord.conf 
 ```
 
-3. Check the status of the supervisor
+4.2. Check the status of the supervisor
 
 ```
 supervisorctl status
 ```
 
 Note: there should be one process running that is specified in the supervisor_confs folder and defined in the foo.conf file
+
+5. Start dev server from app root
+```
+cd mf
+python manage.py migrate
+python manage.py runserver
+```
+    
 
 ### Web Client 
 In a separate terminal window, perform the following steps to start the
