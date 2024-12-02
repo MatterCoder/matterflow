@@ -163,7 +163,7 @@ async def run_all_ws_flows(filenames, verbose):
                     elif 'HASSIO_TOKEN' in os.environ:
                         #Check if we are running as part of HASSIO (Home assistant IO)
                         #as then we will use the matter server home assistant
-                        connection_settings["host"] = 'host.docker.internal'
+                        connection_settings["host"] = 'hassio'
                     else:
                         connection_settings["host"] = 'localhost'
                                       
