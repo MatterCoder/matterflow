@@ -1,10 +1,8 @@
-# Allow overriding of the base image
+# Stage 1: Build Stage
 ARG BUILD_FROM="ghcr.io/home-assistant/amd64-base-python"
-
 FROM --platform=$BUILDPLATFORM ${BUILD_FROM} AS build
 ARG TARGETPLATFORM
 ARG BUILDPLATFORM
-# Build arguments
 ARG BUILD_ARCH
 ARG BUILD_DATE
 ARG BUILD_DESCRIPTION
@@ -13,82 +11,59 @@ ARG BUILD_REF
 ARG BUILD_REPOSITORY
 ARG BUILD_VERSION
 
-RUN echo "Docker buildx running on $BUILDPLATFORM, building for $TARGETPLATFORM"
-
 ENV LANG=C.UTF-8
 
-# Install build tools and create venv
-RUN echo "Installing Build tools" 
-RUN apk add --update --no-cache git jq cargo npm dumb-init && \
-    echo "Installing MatterFlow"
+RUN echo "Docker buildx running on $BUILDPLATFORM, building for $TARGETPLATFORM"
+
+# Install build tools
+RUN apk add --no-cache git jq cargo npm python3-dev build-base
 
 WORKDIR /matterflow/
 
 # Clone the matterflow repository
 RUN git clone https://github.com/MatterCoder/matterflow.git . && \
     mkdir dist && \
-    jq -n --arg commit $(eval git rev-parse --short HEAD) '$commit' > dist/.hash && \
-    echo "Installed MatterFlow @ version $(cat dist/.hash)" 
+    jq -n --arg commit $(git rev-parse --short HEAD) '$commit' > dist/.hash
 
 WORKDIR /matterflow/api
 
-# Create venv and install Python dependencies
-RUN echo "Creating Python venv" && \
-    python3 -m venv venv
-
-# Debug TARGETPLATFORM
-RUN echo "Target platform is $TARGETPLATFORM"
-
-# Conditional installation based on TARGETPLATFORM
-RUN echo "Conditionally Install Python dependencies" && \ 
-    if [ "$TARGETPLATFORM" = "linux/arm/v7" ] || [ "$TARGETPLATFORM" = "linux/arm64" ] || [ "$TARGETPLATFORM" = "linux/arm/v6" ]; then \ 
+# Create Python venv and install Python dependencies
+RUN python3 -m venv venv && \
+    if [ "$TARGETPLATFORM" = "linux/arm/v7" ] || [ "$TARGETPLATFORM" = "linux/arm64" ] || [ "$TARGETPLATFORM" = "linux/arm/v6" ]; then \
         venv/bin/pip install --index-url=https://www.piwheels.org/simple --no-cache-dir -r requirements.txt; \
     else \
         venv/bin/pip install --no-cache-dir -r requirements.txt; \
-    fi
+    fi && \
+    venv/bin/pip install supervisor
 
-# Install supervisord:
-RUN /matterflow/api/venv/bin/pip install supervisor
-
-# Download the latest python matter server dashboard - note 
-# we still require the python matter server to run as a separate docker container
-RUN echo "Installing Python Matter Server Dashboard"
-
-# Git clone the python matter server
+# Clone and install python-matter-server
 RUN git clone https://github.com/home-assistant-libs/python-matter-server.git /python-matter-server && \
     mkdir /python-matter-server/dist && \
-    jq -n --arg commit $(eval cd /python-matter-server;git rev-parse --short HEAD) '$commit' > /python-matter-server/dist/.hash ; \
-    echo "Installed Python-matter-server @ version $(cat /python-matter-server/dist/.hash)"
+    jq -n --arg commit $(cd /python-matter-server; git rev-parse --short HEAD) '$commit' > /python-matter-server/dist/.hash && \
+    /matterflow/api/venv/bin/pip install /python-matter-server
 
-# Install the python matter server
-WORKDIR /python-matter-server
-RUN /matterflow/api/venv/bin/pip install python-matter-server
-
-WORKDIR /matterflow/api
-
-# Set up not so Secret Key
-RUN echo "SECRET_KEY=tmp" > mf/.environment
-
-# Uncomment to set up a standaline Matter python server websocket
-#RUN echo "MATTER_SERVER=your_matter_server_address" >> mf/.environment
-
-# Set up the path for the sqlite3 db and other config file to be the /tmp or /data
-# if not set defaults to /tmp 
-RUN echo "DIR_PATH='/data'" >> mf/.environment
-
-# Install Node.js and npm
-RUN apk add --no-cache nodejs npm
-
-# Verify Node.js and npm installation
-RUN node --version && npm --version
-
-# Install Web front end
+# Install web front-end dependencies and build assets
 WORKDIR /matterflow/web
-RUN npm ci
-RUN npm run build
+RUN npm ci && npm run build
 
-# Copy data for add-on
-WORKDIR /matterflow/
+# Stage 2: Runtime Stage
+FROM --platform=$BUILDPLATFORM ${BUILD_FROM} AS runtime
+
+WORKDIR /matterflow
+
+# Copy necessary files from build stage
+COPY --from=build /matterflow /matterflow
+COPY --from=build /python-matter-server /python-matter-server
+
+# Install runtime dependencies only
+RUN apk add --no-cache dumb-init nodejs npm 
+
+# Set environment variables and permissions
+WORKDIR /matterflow/api
+RUN echo "SECRET_KEY=tmp" > mf/.environment && \
+    echo "DIR_PATH='/data'" >> mf/.environment
+
+# Copy run script and make it executable
 COPY run.sh /
 RUN chmod +x /run.sh
 
@@ -110,4 +85,3 @@ LABEL \
     org.opencontainers.image.created=${BUILD_DATE} \
     org.opencontainers.image.revision=${BUILD_REF} \
     org.opencontainers.image.version=${BUILD_VERSION}
-    
