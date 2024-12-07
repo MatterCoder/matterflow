@@ -131,7 +131,7 @@ class MQTTConnection(BaseConnection):
     async def connect(self):
         """Set up MQTT client and connect to the broker."""
         # Connect to the MQTT broker
-        async with aiomqtt.Client(self.connection_settings["host"], self.connection_settings["port"]) as client:
+        async with aiomqtt.Client(hostname=self.connection_settings["host"], port=self.connection_settings["port"], username=self.connection_settings["username"], password=self.connection_settings["password"]) as client:
             self.client = client
 
             #Subscribe to topics

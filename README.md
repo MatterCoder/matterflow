@@ -157,7 +157,7 @@ but you will need to know the IP address of your main docker interface
 Find the docker0 ip address using  ip a | grep docker0
 
 ```
-docker run --rm --add-host="localhost:172.17.0.1" -p 4173:4173 -p 9001:9001 -v /data:/data:rw  -v /config:/config oideibrett/image-amd64-matterflow:0.0.1
+docker run --rm --add-host="localhost:172.17.0.1" -p 4173:4173 -p 9001:9001 -v /data:/data:rw  -v /config:/config oideibrett/image-amd64-matterflow:latest
 ```
 
 
