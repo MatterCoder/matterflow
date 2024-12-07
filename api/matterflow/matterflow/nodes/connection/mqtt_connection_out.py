@@ -61,7 +61,7 @@ class MqttConnectionOutNode(ConnectionNode):
             # Define the async task to run the MQTT client publish
             async def mqtt_publish(payload, connection_settings, output_settings):
                 try:
-                    async with aiomqtt.Client(hostname = connection_settings["host"], port = connection_settings["port"]) as client:
+                    async with aiomqtt.Client(hostname=self.connection_settings["host"], port=self.connection_settings["port"], username=self.connection_settings["username"], password=self.connection_settings["password"]) as client:
                         await client.publish(output_settings["Topic"], payload=payload)
                 except Exception as e:
                     print(f"Error in MQTT publish: {str(e)}")
