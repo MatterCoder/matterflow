@@ -176,7 +176,7 @@ class MQTTConnection(BaseConnection):
         
     async def send_output(self, data):
         # Connect to the MQTT broker
-        async with aiomqtt.Client(self.connection_settings["host"], self.connection_settings["port"]) as client:
+        async with aiomqtt.Client(hostname=self.connection_settings["host"], port=self.connection_settings["port"], username=self.connection_settings["username"], password=self.connection_settings["password"]) as client:
             """Publish a message to a specific topic."""
             topic = data.get("topic", self.output_settings.get("default_topic"))
             payload = data.get("payload")
