@@ -40,7 +40,9 @@ A great place to start is to follow the "Getting Started Tutorial" on our docume
 
 ## Demo video
 
-[<img src="web/public/matterflowdemo.png" width="800">](https://youtu.be/fyOmPssi-9g){:target="_blank" rel="noopener"}
+<a href="https://youtu.be/fyOmPssi-9g" target="_blank">
+<img src="web/public/matterflowdemo.png" width="800">
+</a>
 
 ## Installation
 
