@@ -22,7 +22,7 @@
     <h1>Matter IoT Data Pipelines</h1>
 </div>
 
-## Overview
+# Overview
 
 Matterflow is a visual tool for working with data from **Matter-enabled IoT devices**, simplifying the process of collecting, transforming, and integrating data from **smart home** systems. With Matterflow, you can **Transform** and **Stream** IoT Data to Cloud and AI Applications. Matterflow can be deployed as a Home Assistant addon or a standalone Docker container. It provides functionality to:
 
@@ -38,12 +38,13 @@ Matterflow is ideal for developers, data scientists, and IoT enthusiasts looking
 A great place to start is to follow the "Getting Started Tutorial" on our documentation website: https://matterflow.cloud/docs/intro
 
 
-# User Interface Example
+## Demo video
 
-<img src="web/public/matterflowexample.png" width="800">
+<a href="https://youtu.be/fyOmPssi-9g">
+<img src="web/public/matterflowdemo.png" width="800">
+</a>
 
-
-# Installation
+## Installation
 
 ### Server (Django)
 
