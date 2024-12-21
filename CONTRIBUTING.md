@@ -2,8 +2,7 @@
 
 Want to contribute? Great! First, read this page (including the small print at
 the end). By submitting a pull request, you represent that you have the right to
-license your contribution to the Connectivity Standards Alliance and the
-community, and agree by submitting the patch that your contributions are
+license your contribution to the open source community, and agree by submitting the patch that your contributions are
 licensed under the [Apache 2.0 license](./LICENSE). Before submitting the pull
 request, please make sure you have tested your changes and that they follow the
 project guidelines for contributing code.
@@ -11,10 +10,7 @@ project guidelines for contributing code.
 # Contributing as an Open Source Contributor
 
 As an open source contributor you can report bugs and request features in the
-[Issue Tracker](https://github.com/MatterCoder/matterflow/issues), as well
-as contribute bug fixes and features. For example: ports of Matterflows to add APIs
-or an optimized implementation of existing functionality. The requirements to become 
-an open source contributor of the 
+[Issue Tracker](https://github.com/MatterCoder/matterflow/issues), as well as contribute bug fixes and features. For example: ports of Matterflows to add APIs or an optimized implementation of existing functionality. The requirements to become  an open source contributor of the 
 [Matterflow Repository](https://github.com/MatterCoder/matterflow/issues) are:
 
 -   Agree to the [Code of Conduct](./CODE_OF_CONDUCT.md)
