@@ -40,7 +40,7 @@ A great place to start is to follow the "Getting Started Tutorial" on our docume
 
 ## Demo video
 
-<a href="https://youtu.be/fyOmPssi-9g">
+<a href="https://youtu.be/fyOmPssi-9g target="_blank"">
 <img src="web/public/matterflowdemo.png" width="800">
 </a>
 
