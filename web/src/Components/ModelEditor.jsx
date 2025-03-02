@@ -24,6 +24,7 @@ const ModelEditor = (params) => {
     "Object",
     "Array",
     "Timestamp",
+    "Datetime"
   ];
 
   // Fetch data from API if model_id exists

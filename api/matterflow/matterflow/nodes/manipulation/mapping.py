@@ -90,6 +90,9 @@ def process_item(item, predecessor_data, result):
         # If the field is a timestamp, use the current timestamp
         if item['fieldDatatype'] == 'Timestamp':
             result = int(time.time())
+        # If the field is a datetime, use the current timestamp
+        elif item['fieldDatatype'] == 'Datetime':
+             result = time.strftime("%a %b %d %Y %H:%M:%S", time.localtime())
         else:
             # Replace placeholders with actual values
             if '${' in item['fieldValue'] and '}' in item['fieldValue']:
