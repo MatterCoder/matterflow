@@ -124,9 +124,7 @@ const Workspace = (props) => {
     const flowNodes = stormNodes.map(node => {
       const position = node.getPosition();
       const nodeOptions = node.getOptions();
-      
-      // Log the node options to see what we're getting
-      console.log('Node options:', nodeOptions);
+      const nodeConfig = node.getConfig ? node.getConfig() : {};
       
       return {
         id: nodeOptions.id,
@@ -137,17 +135,50 @@ const Workspace = (props) => {
         type: 'customNode',
         draggable: true,
         data: {
+          id: nodeOptions.id,
           label: nodeOptions.name,
-          nodeType: nodeOptions.type,
           color: nodeOptions.color,
-          // Use the explicit num_in and num_out values
+          status: nodeOptions.status,
+          description: nodeOptions.description,
           numInputs: nodeOptions.num_in === undefined ? 0 : parseInt(nodeOptions.num_in),
           numOutputs: nodeOptions.num_out === undefined ? 0 : parseInt(nodeOptions.num_out),
           isFlowControl: nodeOptions.node_type === "flow_control",
+          options: nodeOptions,
+          config: nodeConfig,
+          configParams: node.configParams || {},
+          flowVariables: node.flow_variables || [],
+          flowData: nodeOptions.option_replace || {},
+          onConfigSubmit: (nodeId, optionsData, flowData) => {
+            const stormNode = stormNodes.find(n => n.getOptions().id === nodeId);
+            if (stormNode) {
+              API.updateNode(stormNode, optionsData, flowData)
+                .then(() => {
+                  stormNode.setStatus("configured");
+                  setFlowNodes([...flowNodes]); // Trigger re-render
+                })
+                .catch(err => console.log(err));
+            }
+          },
+          onDelete: (nodeId) => {
+            const stormNode = stormNodes.find(n => n.getOptions().id === nodeId);
+            if (stormNode) {
+              API.deleteNode(stormNode)
+                .then(() => {
+                  // Remove from Storm diagram
+                  stormNode.remove();
+                  engine.repaintCanvas();
+                  
+                  // Remove from ReactFlow
+                  const updatedNodes = flowNodes.filter(n => n.id !== nodeId);
+                  setFlowNodes(updatedNodes);
+                })
+                .catch(err => console.log(err));
+            }
+          }
         }
       };
     });
-
+    
     const flowEdges = stormLinks.map(link => ({
       id: link.getOptions().id,
       source: link.getSourcePort().getNode().getOptions().id,
@@ -586,12 +617,13 @@ const Workspace = (props) => {
                 onEdgesChange={onEdgesChange}
                 onNodeDragStop={onNodeDragStop}
                 nodeTypes={nodeTypes}
-                fitView
                 nodesDraggable={true}
                 nodesConnectable={false}
-                defaultViewport={{ x: 0, y: 0, zoom: 1 }}
+                defaultViewport={{ x: 0, y: 0, zoom: 1.0 }}
                 minZoom={0.1}
                 maxZoom={4}
+                fitView={false} 
+                fitViewOptions={{ padding: 0.2 }} 
               >
                 {/* Add ReactFlow controls */}
                 <Controls />

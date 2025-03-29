@@ -1,0 +1,77 @@
+.reactflow-node-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.reactflow-node-name {
+    margin-bottom: 3px;
+    font-weight: bold;
+    font-size: 12px;
+}
+
+.reactflow-port-col {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+}
+
+.reactflow-port-col-in {
+    left: -20px;
+}
+
+.reactflow-port-col-out {
+    right: -20px;
+}
+
+.reactflow-triangle-port {
+    width: 0;
+    height: 0;
+    border-top: 6px solid transparent;
+    border-bottom: 6px solid transparent;
+    border-right: 10px solid #444;
+    cursor: pointer;
+}
+
+.reactflow-triangle-port:hover {
+    border-right-color: mediumpurple;
+}
+
+.custom-node-icons {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.custom-node-configure {
+    cursor: pointer;
+    font-size: 16px;
+    color: #666;
+    transition: color 0.2s;
+}
+
+.custom-node-configure:hover {
+    color: #000;
+}
+
+.custom-node-tabular {
+    cursor: pointer;
+    opacity: 0.6;
+    transition: opacity 0.2s;
+}
+
+.custom-node-tabular:hover {
+    opacity: 1;
+}
+
+.custom-node-tabular img {
+    vertical-align: middle;
+}
