@@ -1,15 +1,22 @@
 import { Handle, Position } from 'reactflow';
 import StatusLight from '../StatusLight';
 import NodeConfig from '../CustomNode/NodeConfig';
+import GraphView from '../CustomNode/GraphView';
 import { useState } from 'react';
+import '../../styles/ReactFlowCustomNode.css';
 
 const CustomNode = ({ data }) => {
   const [showConfig, setShowConfig] = useState(false);
+  const [showGraph, setShowGraph] = useState(false);
   const nodeWidth = 150;
   const nodeHeight = 40;
 
   const toggleConfig = () => {
     setShowConfig(!showConfig);
+  };
+
+  const toggleGraph = () => {
+    setShowGraph(!showGraph);
   };
 
   const handleSubmit = (optionsData, flowData) => {
@@ -26,7 +33,7 @@ const CustomNode = ({ data }) => {
     toggleConfig();
   };
 
-  // Create a nodeData object that matches the structure expected by NodeConfig
+  // Create a nodeData object that matches the structure expected by NodeConfig/GraphView
   const nodeData = {
     options: {
       id: data.id,
@@ -34,64 +41,18 @@ const CustomNode = ({ data }) => {
       color: data.color,
       status: data.status,
       option_replace: data.flowData,
+      node_type: data.options?.node_type,
       ...data.options
     },
     config: data.config || {},
     configParams: data.configParams || {},
-    flow_variables: data.flowVariables || []
+    flow_variables: data.flowVariables || [],
+    getNodeId: () => data.id,
+    serialize: () => ({
+      id: data.id,
+      ...data.options
+    })
   };
-
-  // Only create input handles if numInputs > 0
-  const inputHandles = data.numInputs > 0 ? Array.from({ length: data.numInputs }, (_, i) => (
-    <Handle
-      key={`input-${i}`}
-      type="target"
-      position={Position.Left}
-      id={`in-${i}`}
-      style={{
-        top: `${(i + 1) * (100 / (data.numInputs + 1))}%`,
-        left: 0
-      }}
-    />
-  )) : null;
-
-  // Only create output handles if numOutputs > 0
-  const outputHandles = data.numOutputs > 0 ? Array.from({ length: data.numOutputs }, (_, i) => (
-    <Handle
-      key={`output-${i}`}
-      type="source"
-      position={Position.Right}
-      id={`out-${i}`}
-      style={{
-        top: `${(i + 1) * (100 / (data.numOutputs + 1))}%`,
-        right: 0
-      }}
-    />
-  )) : null;
-
-  // Add flow control handles if needed
-  const flowHandles = data.isFlowControl ? (
-    <>
-      <Handle
-        type="target"
-        position={Position.Top}
-        id="flow-in"
-        style={{ 
-          top: 0,
-          background: 'purple'
-        }}
-      />
-      <Handle
-        type="source"
-        position={Position.Bottom}
-        id="flow-out"
-        style={{ 
-          bottom: 0,
-          background: 'purple'
-        }}
-      />
-    </>
-  ) : null;
 
   return (
     <div className="custom-node-wrapper">
@@ -107,9 +68,24 @@ const CustomNode = ({ data }) => {
           padding: '10px'
         }}
       >
-        {inputHandles}
-        {outputHandles}
-        {flowHandles}
+        {/* Input/Output handles */}
+        {Array.from({ length: data.numInputs }).map((_, i) => (
+          <Handle
+            key={`input-${i}`}
+            type="target"
+            position={Position.Left}
+            style={{ top: `${(i + 1) * (100 / (data.numInputs + 1))}%` }}
+          />
+        ))}
+        {Array.from({ length: data.numOutputs }).map((_, i) => (
+          <Handle
+            key={`output-${i}`}
+            type="source"
+            position={Position.Right}
+            style={{ top: `${(i + 1) * (100 / (data.numOutputs + 1))}%` }}
+          />
+        ))}
+
         <div className="custom-node-icons">
           <div 
             className="custom-node-configure" 
@@ -120,6 +96,17 @@ const CustomNode = ({ data }) => {
           >
             {String.fromCharCode(9881)}
           </div>
+          {nodeData.options.node_type !== "flow_control" && (
+            <div 
+              className="custom-node-tabular"
+              onClick={(e) => {
+                e.stopPropagation();
+                toggleGraph();
+              }}
+            >
+              <img src="/json-icon.png" alt="Tabular" style={{width: 25, height: 25}}/>
+            </div>
+          )}
         </div>
       </div>
       <StatusLight status={data.status || 'unconfigured'} />
@@ -131,6 +118,12 @@ const CustomNode = ({ data }) => {
         toggleShow={toggleConfig}
         onDelete={handleDelete}
         onSubmit={handleSubmit}
+      />
+
+      <GraphView
+        node={nodeData}
+        show={showGraph}
+        toggleShow={toggleGraph}
       />
     </div>
   );
