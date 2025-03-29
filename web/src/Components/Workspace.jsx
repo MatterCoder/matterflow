@@ -57,7 +57,7 @@ const Workspace = (props) => {
   const engine = useRef(createEngine()).current;
   const model = useRef(new DiagramModel()).current;
 
-  const diagramData = useRef(null);
+  const diagramData = useRef({});
 
   engine.getNodeFactories().registerFactory(new CustomNodeFactory());
   engine.getLinkFactories().registerFactory(new MFLinkFactory());
@@ -126,34 +126,35 @@ const Workspace = (props) => {
     const isSourceFlow = sourceId?.includes('flow');
     const isTargetFlow = targetId?.includes('flow');
     
-    // Validation rules:
-    // 1. Flow ports can only connect to flow ports
-    // 2. Regular ports can only connect to regular ports
-    // 3. Input ports can only connect to output ports
+    // Validation rules remain the same
     const isValidConnection = () => {
-      // Both ports must be either flow or regular
       if (isSourceFlow !== isTargetFlow) {
         return false;
       }
 
-      // For flow ports
       if (isSourceFlow) {
         return sourceId === 'flow-out' && targetId === 'flow-in';
       }
 
-      // For regular ports
       const isSourceOutput = !sourceId?.includes('in-');
       const isTargetInput = targetId?.includes('in-');
       return isSourceOutput && isTargetInput;
     };
 
-    if (isValidConnection()) {
+    // Check if edge already exists
+    const edgeExists = flowEdges.some(edge => 
+      edge.source === params.source && 
+      edge.target === params.target &&
+      edge.sourceHandle === sourceId &&
+      edge.targetHandle === targetId
+    );
+
+    if (isValidConnection() && !edgeExists) {
       const edge = {
         ...params,
         type: isSourceFlow ? 'flow' : 'default',
         animated: isSourceFlow
       };
-      setFlowEdges((eds) => addEdge(edge, eds));
       
       // Create an edge object similar to MFLinkModel for API compatibility
       const linkData = {
@@ -167,16 +168,15 @@ const Workspace = (props) => {
         })
       };
       
-      API.addEdge(linkData).catch((err) => {
-        console.log('Failed to add edge:', err);
-        // Optionally remove the edge if API call fails
-        setFlowEdges((eds) => eds.filter(e => 
-          e.source !== params.source || 
-          e.target !== params.target
-        ));
-      });
+      API.addEdge(linkData)
+        .then(() => {
+          setFlowEdges((eds) => addEdge(edge, eds));
+        })
+        .catch((err) => {
+          console.log('Failed to add edge:', err);
+        });
     }
-  }, []);
+  }, [flowEdges]);
 
   const onEdgesDelete = useCallback((edgesToDelete) => {
     edgesToDelete.forEach(edge => {
@@ -267,81 +267,126 @@ const Workspace = (props) => {
   }, [pollProcesses, pollInterval]); // Only include `pollProcesses` and not `pollInterval`.
   
   const showBannerMessage = useCallback(() => {
-
-    // Get screen width
     const screenWidth = window.innerWidth;
-
-    // Determine banner width dynamically based on screen width
-    let bannerWidth;
-    if (screenWidth > 1200) {
-      bannerWidth = 900; // For larger screens
-    } else if (screenWidth > 768) {
-      bannerWidth = 600; // For medium screens like tablets
-    } else {
-      bannerWidth = 300; // For smaller screens like mobile
-    }
+    let bannerWidth = screenWidth > 1200 ? 900 : screenWidth > 768 ? 600 : 300;
 
     api.open({
-      style : { width: bannerWidth },
+      style: { width: bannerWidth },
       message: "",   
-      description:(
-        <BannerBox/>
-      ),
-      duration: 0, //0 means indefinite, pass a +ve number to hide it after that time
+      description: <BannerBox/>,
+      duration: 0,
       placement: "topRight",
       onClick: (e) => {
-        //Perform any action on click on message
-        console.log("Banner Message Click");
-        console.log(e);
+        console.log("Banner Message Click", e);
       },
       onClose: () => {
-        //Perform whatever action wanted after message is closed
         console.log("Banner Message Closed");
       },
     });
   }, [api]);
 
   useEffect(() => {
-    if (flow_id && flow_id != "new") {
+    if (flow_id && flow_id !== "new") {
+      console.log("Loading flow with ID:", flow_id);
+      
       API.getFlow(flow_id)
         .then((value) => {
           try {
-            diagramData.current = JSON.parse(value.data.json_data)["react"];
-            setProcessId(diagramData.current.id)
-          } catch {
-            console.log("Invalid or missing json data");
-            diagramData.current = {};
-            window.location = `/`;
-          }
-
-          if (Object.keys(diagramData.current).length === 0) {
-            API.initWorkflow(model)
-              .then(() => {
-                getAvailableNodes();
-                getGlobalVars();
-              })
-              .catch((err) => console.log(err));
-          } else {
-            //activate on the server
+            console.log("Raw flow data:", value.data);
+            const parsedData = JSON.parse(value.data.json_data);
+            diagramData.current = parsedData["react"];
+            const matterflowData = parsedData["matterflow"];
+            
+            // First deserialize the model - do this only once
+            model.deserializeModel(diagramData.current, engine);
+            
             API.activateWorkflow(value).then(() => {
-              model.deserializeModel(diagramData.current, engine);
-              setTimeout(() => engine.repaintCanvas(), 100);
+              console.log("Activating workflow...");
+              
+              // Get all nodes and convert them to ReactFlow format
+              const nodes = model.getNodes();
+              const flowNodes = nodes.map(node => ({
+                id: node.getOptions().id,
+                position: node.getPosition(),
+                type: 'customNode',
+                draggable: true,
+                data: node
+              }));
+              
+              // Create edges using matterflow link data
+              const flowEdges = matterflowData.graph.links.map(link => {
+                const sourceNode = model.getNode(link.source);
+                const targetNode = model.getNode(link.target);
+                
+                // Find the appropriate ports
+                const sourcePort = Object.values(sourceNode.getPorts())
+                  .find(port => !port.getOptions().in && port.getOptions().name.includes('out'));
+                const targetPort = Object.values(targetNode.getPorts())
+                  .find(port => port.getOptions().in && port.getOptions().name.includes('in'));
+                
+                return {
+                  id: `${link.source}-${link.target}`,
+                  source: link.source,
+                  target: link.target,
+                  sourceHandle: sourcePort.getOptions().name,
+                  targetHandle: targetPort.getOptions().name,
+                  type: sourcePort.getOptions().name.includes('flow') ? 'flow' : 'default',
+                  animated: sourcePort.getOptions().name.includes('flow')
+                };
+              });
+
+              // Update ReactFlow state only once
+              setFlowNodes(flowNodes);
+              setFlowEdges(flowEdges);
+              
+              // Set process ID and get required data
+              setProcessId(diagramData.current.id);
               getGlobalVars();
               getAvailableNodes();
             });
+          } catch (error) {
+            console.error("Error processing flow data:", error);
+            diagramData.current = {};
+            window.location = `/`;
           }
         })
-        .catch(() => (window.location = `/`));
+        .catch((error) => {
+          console.error("Error fetching flow:", error);
+          window.location = `/`;
+        });
     } else {
+      console.log("No flow ID provided or new flow");
+      
+      // Initialize with empty nodes and edges
+      setFlowNodes([]);
+      setFlowEdges([]);
+      
+      // Initialize the workflow with empty data
       API.initWorkflow(model)
         .then(() => {
+          // After initialization, set up the model listeners to track changes
+          const listener = {
+            linksUpdated: (event) => {
+              event.link.registerListener({
+                targetPortChanged: (e) => {
+                  e.stopPropagation();
+                  API.addEdge(e.entity).catch(() => {});
+                },
+                entityRemoved: (e) => {
+                  e.stopPropagation();
+                  API.deleteEdge(e.entity).catch(() => {});
+                }
+              });
+            }
+          };
+          
+          model.registerListener(listener);
           getAvailableNodes();
           getGlobalVars();
         })
-        .catch((err) => console.log(err));
+        .catch((err) => console.log("Error initializing workflow:", err));
 
-      if (flow_id != "new") {
-        //Open Banner Message
+      if (flow_id !== "new") {
         showBannerMessage();
       }
     }
