@@ -75,3 +75,22 @@
 .custom-node-tabular img {
     vertical-align: middle;
 }
+
+.flow-handle {
+    background: purple !important;
+    width: 10px !important;
+    height: 10px !important;
+    border-radius: 50% !important;
+}
+
+.flow-handle-in {
+    top: 0 !important;
+    left: 0 !important;
+    transform: translate(-50%, -50%) !important;
+}
+
+.flow-handle-out {
+    top: 0 !important;
+    right: 0 !important;
+    transform: translate(50%, -50%) !important;
+}

@@ -44,7 +44,7 @@ export default class CustomNode extends React.Component {
 
   render() {
     const { data: node } = this.props;
-    const nodeWidth = 80;
+    const nodeWidth = 150;
     const nodeHeight = 40;
 
     return (
@@ -62,12 +62,47 @@ export default class CustomNode extends React.Component {
             padding: '10px'
           }}
         >
-          {/* Input/Output handles */}
+          {/* Flow control input handle */}
+          <Handle
+            type="target"
+            position={Position.Left}
+            id="flow-in"
+            style={{ 
+              top: 0,
+              left: 0,
+              transform: 'translate(-50%, -50%)',
+              background: 'purple',
+              width: '10px',
+              height: '10px',
+              borderRadius: '50%'
+            }}
+          />
+
+          {/* Flow control output handle - only for flow control nodes */}
+          {node.options.node_type === "flow_control" && (
+            <Handle
+              type="source"
+              position={Position.Right}
+              id="flow-out"
+              style={{ 
+                top: 0,
+                right: 0,
+                transform: 'translate(50%, -50%)',
+                background: 'purple',
+                width: '10px',
+                height: '10px',
+                borderRadius: '50%'
+              }}
+            />
+          )}
+
+          {/* Regular input/output handles */}
           {Array.from({ length: node.options.num_in || 0 }).map((_, i) => (
             <Handle
               key={`input-${i}`}
               type="target"
               position={Position.Left}
+              id={`in-${i}`}
               style={{ top: `${(i + 1) * (100 / ((node.options.num_in || 0) + 1))}%` }}
             />
           ))}
@@ -76,6 +111,7 @@ export default class CustomNode extends React.Component {
               key={`output-${i}`}
               type="source"
               position={Position.Right}
+              id={`out-${i}`}
               style={{ top: `${(i + 1) * (100 / ((node.options.num_out || 0) + 1))}%` }}
             />
           ))}
