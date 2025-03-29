@@ -123,9 +123,13 @@ const Workspace = (props) => {
 
     const flowNodes = stormNodes.map(node => {
       const position = node.getPosition();
+      const nodeOptions = node.getOptions();
+      
+      // Log the node options to see what we're getting
+      console.log('Node options:', nodeOptions);
+      
       return {
-        id: node.getOptions().id,
-        // Ensure we have valid numbers for coordinates
+        id: nodeOptions.id,
         position: {
           x: position.x || 0,
           y: position.y || 0
@@ -133,8 +137,13 @@ const Workspace = (props) => {
         type: 'customNode',
         draggable: true,
         data: {
-          label: node.getOptions().name,
-          nodeType: node.getOptions().type,
+          label: nodeOptions.name,
+          nodeType: nodeOptions.type,
+          color: nodeOptions.color,
+          // Use the explicit num_in and num_out values
+          numInputs: nodeOptions.num_in === undefined ? 0 : parseInt(nodeOptions.num_in),
+          numOutputs: nodeOptions.num_out === undefined ? 0 : parseInt(nodeOptions.num_out),
+          isFlowControl: nodeOptions.node_type === "flow_control",
         }
       };
     });
