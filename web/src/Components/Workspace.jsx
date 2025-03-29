@@ -52,6 +52,7 @@ const Workspace = (props) => {
   const [isDirty, setIsDirty] = useState(false);
   const [processId, setProcessId] = useState();
   const [processes, setProcesses] = useState([]);
+  // const [selectedEdge, setSelectedEdge] = useState(null); // Removed
 
   // Set up the react-diagrams engine
   const engine = useRef(createEngine()).current;
@@ -196,6 +197,31 @@ const Workspace = (props) => {
         console.log('Failed to delete edge:', err);
       });
     });
+  }, []);
+
+  const onEdgeClick = useCallback((event, edge) => {
+    event.stopPropagation();
+    if (window.confirm('Do you want to delete this connection?')) {
+      // Create link data object similar to existing onEdgesDelete
+      const linkData = {
+        getSourcePort: () => ({ 
+          getNode: () => ({ options: { id: edge.source } }),
+          options: { in: edge.sourceHandle?.includes('in-') }
+        }),
+        getTargetPort: () => ({ 
+          getNode: () => ({ options: { id: edge.target } }),
+          options: { in: edge.targetHandle?.includes('in-') }
+        })
+      };
+
+      API.deleteEdge(linkData)
+        .then(() => {
+          setFlowEdges((eds) => eds.filter((e) => e.id !== edge.id));
+        })
+        .catch(err => {
+          console.log('Failed to delete edge:', err);
+        });
+    }
   }, []);
 
   // Convert nodes to ReactFlow format - only called when a new node is added
@@ -697,6 +723,7 @@ const Workspace = (props) => {
                   onNodeDragStop={onNodeDragStop}
                   onConnect={onConnect}
                   onEdgesDelete={onEdgesDelete}
+                  onEdgeClick={onEdgeClick}
                   nodeTypes={nodeTypes}
                   nodesDraggable={true}
                   nodesConnectable={true}
