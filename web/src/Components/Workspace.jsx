@@ -121,63 +121,13 @@ const Workspace = (props) => {
     const stormNodes = model.getNodes();
     const stormLinks = model.getLinks();
 
-    const flowNodes = stormNodes.map(node => {
-      const position = node.getPosition();
-      const nodeOptions = node.getOptions();
-      const nodeConfig = node.getConfig ? node.getConfig() : {};
-      
-      return {
-        id: nodeOptions.id,
-        position: {
-          x: position.x || 0,
-          y: position.y || 0
-        },
-        type: 'customNode',
-        draggable: true,
-        data: {
-          id: nodeOptions.id,
-          label: nodeOptions.name,
-          color: nodeOptions.color,
-          status: nodeOptions.status,
-          description: nodeOptions.description,
-          numInputs: nodeOptions.num_in === undefined ? 0 : parseInt(nodeOptions.num_in),
-          numOutputs: nodeOptions.num_out === undefined ? 0 : parseInt(nodeOptions.num_out),
-          isFlowControl: nodeOptions.node_type === "flow_control",
-          options: nodeOptions,
-          config: nodeConfig,
-          configParams: node.configParams || {},
-          flowVariables: node.flow_variables || [],
-          flowData: nodeOptions.option_replace || {},
-          onConfigSubmit: (nodeId, optionsData, flowData) => {
-            const stormNode = stormNodes.find(n => n.getOptions().id === nodeId);
-            if (stormNode) {
-              API.updateNode(stormNode, optionsData, flowData)
-                .then(() => {
-                  stormNode.setStatus("configured");
-                  setFlowNodes([...flowNodes]); // Trigger re-render
-                })
-                .catch(err => console.log(err));
-            }
-          },
-          onDelete: (nodeId) => {
-            const stormNode = stormNodes.find(n => n.getOptions().id === nodeId);
-            if (stormNode) {
-              API.deleteNode(stormNode)
-                .then(() => {
-                  // Remove from Storm diagram
-                  stormNode.remove();
-                  engine.repaintCanvas();
-                  
-                  // Remove from ReactFlow
-                  const updatedNodes = flowNodes.filter(n => n.id !== nodeId);
-                  setFlowNodes(updatedNodes);
-                })
-                .catch(err => console.log(err));
-            }
-          }
-        }
-      };
-    });
+    const flowNodes = stormNodes.map(node => ({
+      id: node.getOptions().id,
+      position: node.getPosition(),
+      type: 'customNode',
+      draggable: true,
+      data: node  // Pass the entire node object instead of reconstructing it
+    }));
     
     const flowEdges = stormLinks.map(link => ({
       id: link.getOptions().id,
@@ -192,7 +142,6 @@ const Workspace = (props) => {
 
   // Update ReactFlow when Storm diagram changes
   useEffect(() => {
-    // Listen to model changes
     const listener = {
       nodesUpdated: () => {
         convertStormNodesToFlow();
@@ -203,12 +152,13 @@ const Workspace = (props) => {
     };
 
     model.registerListener(listener);
-    
-    // Initial conversion
     convertStormNodesToFlow();
 
     return () => {
-      model.deregisterListener(listener);
+      // Check if model exists and has deregisterListener method
+      if (model && typeof model.deregisterListener === 'function') {
+        model.deregisterListener(listener);
+      }
     };
   }, [model, convertStormNodesToFlow]);
 
