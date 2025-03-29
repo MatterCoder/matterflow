@@ -8,7 +8,7 @@ import {
   PlaySquareFilled, 
   StopOutlined 
 } from "@ant-design/icons";
-import { CanvasWidget } from "@projectstorm/react-canvas-core";
+//import { CanvasWidget } from "@projectstorm/react-canvas-core";
 import createEngine, { DiagramModel } from "@projectstorm/react-diagrams";
 import { Button as AntdButton, Modal as AntdModal, notification, Checkbox as AntdCheckbox } from "antd";
 import { useEffect, useRef, useState, useCallback } from "react";
@@ -198,11 +198,11 @@ const Workspace = (props) => {
     });
   }, []);
 
-  // Convert Storm nodes to ReactFlow format - only called when a new node is added
-  const convertStormNodesToFlow = useCallback(() => {
-    const stormNodes = model.getNodes();
+  // Convert nodes to ReactFlow format - only called when a new node is added
+  const convertNodesToFlow = useCallback(() => {
+    const nodes = model.getNodes();
     
-    const newFlowNodes = stormNodes.map(node => ({
+    const newFlowNodes = nodes.map(node => ({
       id: node.getOptions().id,
       position: node.getPosition(),
       type: 'customNode',
@@ -215,30 +215,29 @@ const Workspace = (props) => {
 
   // Initial setup only
   useEffect(() => {
-    convertStormNodesToFlow();
-  }, [convertStormNodesToFlow]);
+    convertNodesToFlow();
+  }, [convertNodesToFlow]);
 
-  // Update ReactFlow when Storm diagram changes
+  // Update ReactFlow when diagram changes
   useEffect(() => {
     const listener = {
       nodesUpdated: () => {
-        convertStormNodesToFlow();
+        convertNodesToFlow();
       },
       linksUpdated: () => {
-        convertStormNodesToFlow();
+        convertNodesToFlow();
       }
     };
 
     model.registerListener(listener);
-    convertStormNodesToFlow();
+    convertNodesToFlow();
 
     return () => {
-      // Check if model exists and has deregisterListener method
       if (model && typeof model.deregisterListener === 'function') {
         model.deregisterListener(listener);
       }
     };
-  }, [model, convertStormNodesToFlow]);
+  }, [model, convertNodesToFlow]);
 
   // Constant for poll interval (in milliseconds)
   const PROCESS_POLL_TIME = 10000; // 10 seconds (converted to ms)
@@ -437,11 +436,11 @@ const Workspace = (props) => {
   };
 
   // Handler for Storm diagram drops
-  const handleStormDrop = (event) => {
-    const evtData = event.dataTransfer.getData("storm-diagram-node");
-    if (!evtData) return;
+  const handleDiagramDrop = (event) => {
+    event.preventDefault();
+    const data = JSON.parse(event.dataTransfer.getData("storm-diagram-node"));
+    if (!data) return;
     
-    const data = JSON.parse(evtData);
     const point = engine.getRelativeMousePoint(event);
     createNode(point, data);
   };
@@ -571,7 +570,7 @@ const Workspace = (props) => {
                 width: '50%',
                 borderRight: '1px solid #ccc' 
               }}
-              onDrop={handleStormDrop}
+              onDrop={handleDiagramDrop}
               onDragOver={handleDragOver}
             >
               <div style={{ position: "relative", zIndex: 100, maxWidth: "80%" }}>
@@ -638,39 +637,39 @@ const Workspace = (props) => {
                   <WatermarkText text={processText}/>
                 </div>
               </div>
-              <CanvasWidget className="diagram-canvas" engine={engine} />
+              {/* New ReactFlow Canvas */}
+              <div 
+                className="react-flow-wrapper"
+                style={{ width: '100%', height: '100%' }}
+                onDrop={handleReactFlowDrop}
+                onDragOver={handleDragOver}
+              >
+                <ReactFlow
+                  nodes={flowNodes}
+                  edges={flowEdges}
+                  onNodesChange={onNodesChange}
+                  onEdgesChange={onEdgesChange}
+                  onNodeDragStop={onNodeDragStop}
+                  onConnect={onConnect}
+                  onEdgesDelete={onEdgesDelete}
+                  nodeTypes={nodeTypes}
+                  nodesDraggable={true}
+                  nodesConnectable={true}
+                  connectOnClick={false}
+                  snapToGrid={true}
+                  defaultViewport={{ x: 0, y: 0, zoom: 1.0 }}
+                  minZoom={0.1}
+                  maxZoom={4}
+                  fitView={false}
+                  fitViewOptions={{ padding: 0.2 }}
+                >
+                  <Controls />
+                  <Background />
+                </ReactFlow>
+              </div>              
             </div>
 
-            {/* New ReactFlow Canvas */}
-            <div 
-              className="react-flow-wrapper"
-              style={{ width: '50%', height: '100%' }}
-              onDrop={handleReactFlowDrop}
-              onDragOver={handleDragOver}
-            >
-              <ReactFlow
-                nodes={flowNodes}
-                edges={flowEdges}
-                onNodesChange={onNodesChange}
-                onEdgesChange={onEdgesChange}
-                onNodeDragStop={onNodeDragStop}
-                onConnect={onConnect}
-                onEdgesDelete={onEdgesDelete}
-                nodeTypes={nodeTypes}
-                nodesDraggable={true}
-                nodesConnectable={true}
-                connectOnClick={false}
-                snapToGrid={true}
-                defaultViewport={{ x: 0, y: 0, zoom: 1.0 }}
-                minZoom={0.1}
-                maxZoom={4}
-                fitView={false}
-                fitViewOptions={{ padding: 0.2 }}
-              >
-                <Controls />
-                <Background />
-              </ReactFlow>
-            </div>
+
           </div>
         </Col>
         {showNodeMenu && (
