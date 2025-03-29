@@ -201,26 +201,22 @@ const Workspace = (props) => {
   // Convert Storm nodes to ReactFlow format - only called when a new node is added
   const convertStormNodesToFlow = useCallback(() => {
     const stormNodes = model.getNodes();
-    const stormLinks = model.getLinks();
-
-    const flowNodes = stormNodes.map(node => ({
+    
+    const newFlowNodes = stormNodes.map(node => ({
       id: node.getOptions().id,
       position: node.getPosition(),
       type: 'customNode',
       draggable: true,
-      data: node  // Pass the entire node object instead of reconstructing it
+      data: node
     }));
     
-    const flowEdges = stormLinks.map(link => ({
-      id: link.getOptions().id,
-      source: link.getSourcePort().getNode().getOptions().id,
-      target: link.getTargetPort().getNode().getOptions().id,
-      type: 'default'
-    }));
-
-    setFlowNodes(flowNodes);
-    setFlowEdges(flowEdges);
+    setFlowNodes(newFlowNodes);
   }, [model]);
+
+  // Initial setup only
+  useEffect(() => {
+    convertStormNodesToFlow();
+  }, [convertStormNodesToFlow]);
 
   // Update ReactFlow when Storm diagram changes
   useEffect(() => {
@@ -409,7 +405,7 @@ const Workspace = (props) => {
     });
   };
 
-  // Modified handleNodeCreation to be canvas-agnostic
+  // Modified createNode to handle both Storm and ReactFlow
   const createNode = (point, data) => {
     // Ensure valid coordinates
     const validPoint = {
@@ -424,7 +420,17 @@ const Workspace = (props) => {
       .then(() => {
         model.addNode(node);
         engine.repaintCanvas();
-        convertStormNodesToFlow(); // This will handle the ReactFlow update
+        
+        // Add node directly to ReactFlow state
+        const newFlowNode = {
+          id: node.getOptions().id,
+          position: validPoint,
+          type: 'customNode',
+          draggable: true,
+          data: node
+        };
+        
+        setFlowNodes(nodes => [...nodes, newFlowNode]);
         setIsDirty(true);
       })
       .catch((err) => console.log(err));
