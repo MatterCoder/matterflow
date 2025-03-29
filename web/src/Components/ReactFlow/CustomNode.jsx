@@ -44,7 +44,7 @@ export default class CustomNode extends React.Component {
 
   render() {
     const { data: node } = this.props;
-    const nodeWidth = 150;
+    const nodeWidth = node.options.node_type === "flow_control" ? 40 : 80;
     const nodeHeight = 40;
 
     return (
@@ -96,26 +96,6 @@ export default class CustomNode extends React.Component {
             />
           )}
 
-          {/* Regular input/output handles */}
-          {Array.from({ length: node.options.num_in || 0 }).map((_, i) => (
-            <Handle
-              key={`input-${i}`}
-              type="target"
-              position={Position.Left}
-              id={`in-${i}`}
-              style={{ top: `${(i + 1) * (100 / ((node.options.num_in || 0) + 1))}%` }}
-            />
-          ))}
-          {Array.from({ length: node.options.num_out || 0 }).map((_, i) => (
-            <Handle
-              key={`output-${i}`}
-              type="source"
-              position={Position.Right}
-              id={`out-${i}`}
-              style={{ top: `${(i + 1) * (100 / ((node.options.num_out || 0) + 1))}%` }}
-            />
-          ))}
-
           <div className="custom-node-icons">
             <div 
               className="custom-node-configure" 
@@ -138,6 +118,26 @@ export default class CustomNode extends React.Component {
               </div>
             )}
           </div>
+
+          {/* Regular input/output handles */}
+          {Array.from({ length: node.options.num_in || 0 }).map((_, i) => (
+            <Handle
+              key={`input-${i}`}
+              type="target"
+              position={Position.Left}
+              id={`in-${i}`}
+              style={{ top: `${(i + 1) * (100 / ((node.options.num_in || 0) + 1))}%` }}
+            />
+          ))}
+          {Array.from({ length: node.options.num_out || 0 }).map((_, i) => (
+            <Handle
+              key={`output-${i}`}
+              type="source"
+              position={Position.Right}
+              id={`out-${i}`}
+              style={{ top: `${(i + 1) * (100 / ((node.options.num_out || 0) + 1))}%` }}
+            />
+          ))}
         </div>
         <StatusLight status={node.options.status} />
         <div className="custom-node-description">{node.config.description}</div>
