@@ -199,30 +199,39 @@ const Workspace = (props) => {
     });
   }, []);
 
+  const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false);
+  const [edgeToDelete, setEdgeToDelete] = useState(null);
+
   const onEdgeClick = useCallback((event, edge) => {
     event.stopPropagation();
-    if (window.confirm('Do you want to delete this connection?')) {
-      // Create link data object similar to existing onEdgesDelete
-      const linkData = {
-        getSourcePort: () => ({ 
-          getNode: () => ({ options: { id: edge.source } }),
-          options: { in: edge.sourceHandle?.includes('in-') }
-        }),
-        getTargetPort: () => ({ 
-          getNode: () => ({ options: { id: edge.target } }),
-          options: { in: edge.targetHandle?.includes('in-') }
-        })
-      };
-
-      API.deleteEdge(linkData)
-        .then(() => {
-          setFlowEdges((eds) => eds.filter((e) => e.id !== edge.id));
-        })
-        .catch(err => {
-          console.log('Failed to delete edge:', err);
-        });
-    }
+    setEdgeToDelete(edge);
+    setIsDeleteModalVisible(true);
   }, []);
+
+  const handleEdgeDelete = () => {
+    if (!edgeToDelete) return;
+    
+    const linkData = {
+      getSourcePort: () => ({ 
+        getNode: () => ({ options: { id: edgeToDelete.source } }),
+        options: { in: edgeToDelete.sourceHandle?.includes('in-') }
+      }),
+      getTargetPort: () => ({ 
+        getNode: () => ({ options: { id: edgeToDelete.target } }),
+        options: { in: edgeToDelete.targetHandle?.includes('in-') }
+      })
+    };
+
+    API.deleteEdge(linkData)
+      .then(() => {
+        setFlowEdges((eds) => eds.filter((e) => e.id !== edgeToDelete.id));
+        setIsDeleteModalVisible(false);
+        setEdgeToDelete(null);
+      })
+      .catch(err => {
+        console.log('Failed to delete edge:', err);
+      });
+  };
 
   // Convert nodes to ReactFlow format - only called when a new node is added
   const convertNodesToFlow = useCallback(() => {
@@ -344,22 +353,52 @@ const Workspace = (props) => {
                 const sourceNode = model.getNode(link.source);
                 const targetNode = model.getNode(link.target);
                 
-                // Find the appropriate ports
-                const sourcePort = Object.values(sourceNode.getPorts())
-                  .find(port => !port.getOptions().in && port.getOptions().name.includes('out'));
-                const targetPort = Object.values(targetNode.getPorts())
-                  .find(port => port.getOptions().in && port.getOptions().name.includes('in'));
+                // Skip if either source or target node doesn't exist
+                if (!sourceNode || !targetNode) {
+                  console.log(`Skipping edge creation - missing node(s): ${link.source} -> ${link.target}`);
+                  return null;
+                }
+
+                try {
+                  // Find the appropriate ports based on type
+                  const sourcePort = Object.values(sourceNode.getPorts())
+                    .find(port => {
+                      // For flow connections
+                      if (port.getOptions().name.includes('flow')) {
+                        return !port.getOptions().in && port.getOptions().name === 'flow-out';
+                      }
+                      // For regular connections
+                      return !port.getOptions().in && port.getOptions().name.includes('out');
+                    });
+
+                  const targetPort = Object.values(targetNode.getPorts())
+                    .find(port => {
+                      // For flow connections
+                      if (sourcePort?.getOptions().name.includes('flow')) {
+                        return port.getOptions().in && port.getOptions().name === 'flow-in';
+                      }
+                      // For regular connections
+                      return port.getOptions().in && port.getOptions().name.includes('in-');
+                    });
+                  
+                  // Only create edge if we found compatible ports
+                  if (sourcePort && targetPort) {
+                    return {
+                      id: `${link.source}-${link.target}`,
+                      source: link.source,
+                      target: link.target,
+                      sourceHandle: sourcePort.getOptions().name,
+                      targetHandle: targetPort.getOptions().name,
+                      type: sourcePort.getOptions().name.includes('flow') ? 'flow' : 'default',
+                      animated: sourcePort.getOptions().name.includes('flow')
+                    };
+                  }
+                } catch (error) {
+                  console.log(`Error creating edge between ${link.source} and ${link.target}:`, error);
+                }
                 
-                return {
-                  id: `${link.source}-${link.target}`,
-                  source: link.source,
-                  target: link.target,
-                  sourceHandle: sourcePort.getOptions().name,
-                  targetHandle: targetPort.getOptions().name,
-                  type: sourcePort.getOptions().name.includes('flow') ? 'flow' : 'default',
-                  animated: sourcePort.getOptions().name.includes('flow')
-                };
-              });
+                return null;
+              }).filter(Boolean); // Remove any null edges
 
               // Update ReactFlow state only once
               setFlowNodes(flowNodes);
@@ -756,6 +795,21 @@ const Workspace = (props) => {
           </Col>
         )}
       </Row>
+
+      <AntdModal
+        title="Delete Connection"
+        open={isDeleteModalVisible}
+        onOk={handleEdgeDelete}
+        onCancel={() => {
+          setIsDeleteModalVisible(false);
+          setEdgeToDelete(null);
+        }}
+        okText="Delete"
+        cancelText="Cancel"
+        okButtonProps={{ danger: true }}
+      >
+        <p>Are you sure you want to delete this connection?</p>
+      </AntdModal>
 
       {showNodeMenu ? (
         <div style={{ position: "absolute", top: 24, right: 14 }}>
