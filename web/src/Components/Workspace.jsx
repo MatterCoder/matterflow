@@ -1,4 +1,13 @@
-import { CloseCircleFilled, SaveOutlined, ExportOutlined, UploadOutlined, ClearOutlined, PlayCircleOutlined, PlaySquareFilled, StopOutlined } from "@ant-design/icons";
+import { 
+  CloseCircleFilled, 
+  SaveOutlined, 
+  ExportOutlined, 
+  UploadOutlined, 
+  ClearOutlined, 
+  PlayCircleOutlined, 
+  PlaySquareFilled, 
+  StopOutlined 
+} from "@ant-design/icons";
 import { CanvasWidget } from "@projectstorm/react-canvas-core";
 import createEngine, { DiagramModel } from "@projectstorm/react-diagrams";
 import { Button as AntdButton, Modal as AntdModal, notification, Checkbox as AntdCheckbox } from "antd";
@@ -16,8 +25,20 @@ import ModelMenu from "./ModelMenu";
 import NodeMenu from "./NodeMenu";
 import BannerBox from "./BannerBox";
 import WatermarkText from "./WatermarkText";
+import ReactFlow, { 
+  Controls, 
+  Background,
+  applyNodeChanges,
+  applyEdgeChanges
+} from 'reactflow';
+import CustomNode from './ReactFlow/CustomNode';
+import 'reactflow/dist/style.css';
 
 const { confirm } = AntdModal;
+
+const nodeTypes = {
+  customNode: CustomNode
+};
 
 /**
  * Workspace Component: Manages the diagram workspace and handles node operations.
@@ -66,6 +87,90 @@ const Workspace = (props) => {
 
   const [showNodeMenu, setShowNodeMenu] = useState(true);
   const [api, contextHolder] = notification.useNotification();
+
+  // Add new state for ReactFlow
+  const [flowNodes, setFlowNodes] = useState([]);
+  const [flowEdges, setFlowEdges] = useState([]);
+
+  // Add ReactFlow required handlers
+  const onNodesChange = useCallback((changes) => {
+    setFlowNodes((nds) => applyNodeChanges(changes, nds));
+  }, []);
+  const onEdgesChange = useCallback(
+    (changes) => setFlowEdges((eds) => applyEdgeChanges(changes, eds)),
+    []
+  );
+
+  const onNodeDragStop = useCallback((event, node) => {
+    // Update ReactFlow state
+    setFlowNodes((nds) =>
+      nds.map((n) => {
+        if (n.id === node.id) {
+          return {
+            ...n,
+            position: node.position
+          };
+        }
+        return n;
+      })
+    );
+  }, []);
+
+  // Convert Storm nodes to ReactFlow format - only called when a new node is added
+  const convertStormNodesToFlow = useCallback(() => {
+    const stormNodes = model.getNodes();
+    const stormLinks = model.getLinks();
+
+    const flowNodes = stormNodes.map(node => {
+      const position = node.getPosition();
+      return {
+        id: node.getOptions().id,
+        // Ensure we have valid numbers for coordinates
+        position: {
+          x: position.x || 0,
+          y: position.y || 0
+        },
+        type: 'customNode',
+        draggable: true,
+        data: {
+          label: node.getOptions().name,
+          nodeType: node.getOptions().type,
+        }
+      };
+    });
+
+    const flowEdges = stormLinks.map(link => ({
+      id: link.getOptions().id,
+      source: link.getSourcePort().getNode().getOptions().id,
+      target: link.getTargetPort().getNode().getOptions().id,
+      type: 'default'
+    }));
+
+    setFlowNodes(flowNodes);
+    setFlowEdges(flowEdges);
+  }, [model]);
+
+  // Update ReactFlow when Storm diagram changes
+  useEffect(() => {
+    // Listen to model changes
+    const listener = {
+      nodesUpdated: () => {
+        convertStormNodesToFlow();
+      },
+      linksUpdated: () => {
+        convertStormNodesToFlow();
+      }
+    };
+
+    model.registerListener(listener);
+    
+    // Initial conversion
+    convertStormNodesToFlow();
+
+    return () => {
+      model.deregisterListener(listener);
+    };
+  }, [model, convertStormNodesToFlow]);
 
   // Constant for poll interval (in milliseconds)
   const PROCESS_POLL_TIME = 10000; // 10 seconds (converted to ms)
@@ -232,24 +337,62 @@ const Workspace = (props) => {
     });
   };
 
-  /**
-   * Handle node creation from the drag-and-drop event
-   * @param {Object} event - The drag-and-drop event
-   */
-  const handleNodeCreation = (event) => {
-    const evtData = event.dataTransfer.getData("storm-diagram-node");
-    if (!evtData) return;
-    const data = JSON.parse(evtData);
+  // Modified handleNodeCreation to be canvas-agnostic
+  const createNode = (point, data) => {
+    // Ensure valid coordinates
+    const validPoint = {
+      x: point.x || 0,
+      y: point.y || 0
+    };
+
     const node = new CustomNodeModel(data.nodeInfo, data.config);
-    const point = engine.getRelativeMousePoint(event);
-    node.setPosition(point);
+    node.setPosition(validPoint.x, validPoint.y);
+    
     API.addNode(node)
       .then(() => {
         model.addNode(node);
         engine.repaintCanvas();
+        convertStormNodesToFlow(); // This will handle the ReactFlow update
         setIsDirty(true);
       })
       .catch((err) => console.log(err));
+  };
+
+  // Handler for Storm diagram drops
+  const handleStormDrop = (event) => {
+    const evtData = event.dataTransfer.getData("storm-diagram-node");
+    if (!evtData) return;
+    
+    const data = JSON.parse(evtData);
+    const point = engine.getRelativeMousePoint(event);
+    createNode(point, data);
+  };
+
+  // Handler for ReactFlow drops
+  const handleReactFlowDrop = (event) => {
+    event.preventDefault();
+    const evtData = event.dataTransfer.getData("storm-diagram-node");
+    if (!evtData) return;
+    
+    const data = JSON.parse(evtData);
+    
+    // Get the ReactFlow wrapper element
+    const reactFlowWrapper = document.querySelector('.react-flow-wrapper');
+    const bounds = reactFlowWrapper.getBoundingClientRect();
+
+    // Calculate the relative position in ReactFlow and ensure valid numbers
+    const point = {
+      x: Math.max(0, event.clientX - bounds.left),
+      y: Math.max(0, event.clientY - bounds.top)
+    };
+
+    createNode(point, data);
+  };
+
+  // Common drag over handler
+  const handleDragOver = (event) => {
+    event.preventDefault();
+    event.dataTransfer.dropEffect = 'move';
   };
 
   /**
@@ -340,76 +483,112 @@ const Workspace = (props) => {
           xs={showNodeMenu ? 7 : 9}
           style={{ paddingLeft: 0, marginTop: 24 }}
         >
-          <div
-            style={{ position: "relative", flexGrow: 1 }}
-            onDrop={handleNodeCreation}
-            onDragOver={(event) => event.preventDefault()}
-          >
-            <div style={{ position: "relative", zIndex: 100, maxWidth: "80%" }}>
-              <div style={{ position: "absolute", top: 8, left: 8 }}>
-              <AntdButton
-                size="sm"
-                type="primary"
-                icon={flowProcesses.length > 0 && flowProcesses[0]["statename"] === "RUNNING" ? <StopOutlined /> : <PlayCircleOutlined />}
-                onClick={() => {
-                  if (flowProcesses.length > 0) {
-                    if (flowProcesses[0]["statename"] === "RUNNING") {
-                      API.stopProcess(processId)
+          {/* Split the canvas area into two sections */}
+          <div style={{ display: 'flex', height: '100vh' }}>
+            {/* Original Storm Diagram */}
+            <div
+              style={{ 
+                position: "relative", 
+                flexGrow: 1, 
+                width: '50%',
+                borderRight: '1px solid #ccc' 
+              }}
+              onDrop={handleStormDrop}
+              onDragOver={handleDragOver}
+            >
+              <div style={{ position: "relative", zIndex: 100, maxWidth: "80%" }}>
+                <div style={{ position: "absolute", top: 8, left: 8 }}>
+                <AntdButton
+                  size="sm"
+                  type="primary"
+                  icon={flowProcesses.length > 0 && flowProcesses[0]["statename"] === "RUNNING" ? <StopOutlined /> : <PlayCircleOutlined />}
+                  onClick={() => {
+                    if (flowProcesses.length > 0) {
+                      if (flowProcesses[0]["statename"] === "RUNNING") {
+                        API.stopProcess(processId)
+                          .then(() => {
+                            console.log("Stopped Process Successfully");
+                            setPollInterval(pollInterval + 1); //lets change the polling interval to force a refetch
+                          })
+                          .catch((err) => console.log(err));
+                      } else {
+                        API.startProcess(processId)
+                          .then(() => {
+                            console.log("Started Process Successfully");
+                            setPollInterval(pollInterval - 1); //lets change the polling interval to force a refetch
+                          })
+                          .catch((err) => console.log(err));
+                      }
+                    } else {
+                      API.addProcess(processId)
                         .then(() => {
-                          console.log("Stopped Process Successfully");
+                          console.log("Added Process Successfully");
                           setPollInterval(pollInterval + 1); //lets change the polling interval to force a refetch
                         })
                         .catch((err) => console.log(err));
-                    } else {
-                      API.startProcess(processId)
-                        .then(() => {
-                          console.log("Started Process Successfully");
-                          setPollInterval(pollInterval - 1); //lets change the polling interval to force a refetch
-                        })
-                        .catch((err) => console.log(err));
                     }
-                  } else {
-                    API.addProcess(processId)
-                      .then(() => {
-                        console.log("Added Process Successfully");
-                        setPollInterval(pollInterval + 1); //lets change the polling interval to force a refetch
-                      })
-                      .catch((err) => console.log(err));
-                  }
-                }}
-              >
-                {flowProcesses.length > 0 && flowProcesses[0]["statename"] === "RUNNING" ? "Stop" : flowProcesses.length > 0 ? "Restart" : "Start"}
-              </AntdButton>{" "}
-                <ExportButton model={model}/>{" "}
-                <FileUpload handleData={load} />{" "}
-                <AntdButton 
-                  size="sm" 
-                  onClick={clear}
-                  type="primary"
-                  icon=<ClearOutlined />  
+                  }}
                 >
-                  Clear
+                  {flowProcesses.length > 0 && flowProcesses[0]["statename"] === "RUNNING" ? "Stop" : flowProcesses.length > 0 ? "Restart" : "Start"}
                 </AntdButton>{" "}
-                <AntdButton 
-                  size="sm" 
-                  onClick={execute}
-                  type="primary"
-                  icon=<PlaySquareFilled />  
-                >
-                  Test
-                </AntdButton>{" "}
-                <AntdButton 
-                  size="sm" 
-                  type="primary"
-                  icon=<SaveOutlined />  
-                  onClick={() => handleSave(flow_id)}
+                  <ExportButton model={model}/>{" "}
+                  <FileUpload handleData={load} />{" "}
+                  <AntdButton 
+                    size="sm" 
+                    onClick={clear}
+                    type="primary"
+                    icon=<ClearOutlined />  
                   >
-                  Save
-                </AntdButton>
-                <WatermarkText text={processText}/>
+                    Clear
+                  </AntdButton>{" "}
+                  <AntdButton 
+                    size="sm" 
+                    onClick={execute}
+                    type="primary"
+                    icon=<PlaySquareFilled />  
+                  >
+                    Test
+                  </AntdButton>{" "}
+                  <AntdButton 
+                    size="sm" 
+                    type="primary"
+                    icon=<SaveOutlined />  
+                    onClick={() => handleSave(flow_id)}
+                    >
+                    Save
+                  </AntdButton>
+                  <WatermarkText text={processText}/>
+                </div>
               </div>
+              <CanvasWidget className="diagram-canvas" engine={engine} />
             </div>
-            <CanvasWidget className="diagram-canvas" engine={engine} />
+
+            {/* New ReactFlow Canvas */}
+            <div 
+              className="react-flow-wrapper"
+              style={{ width: '50%', height: '100%' }}
+              onDrop={handleReactFlowDrop}
+              onDragOver={handleDragOver}
+            >
+              <ReactFlow
+                nodes={flowNodes}
+                edges={flowEdges}
+                onNodesChange={onNodesChange}
+                onEdgesChange={onEdgesChange}
+                onNodeDragStop={onNodeDragStop}
+                nodeTypes={nodeTypes}
+                fitView
+                nodesDraggable={true}
+                nodesConnectable={false}
+                defaultViewport={{ x: 0, y: 0, zoom: 1 }}
+                minZoom={0.1}
+                maxZoom={4}
+              >
+                {/* Add ReactFlow controls */}
+                <Controls />
+                <Background />
+              </ReactFlow>
+            </div>
           </div>
         </Col>
         {showNodeMenu && (

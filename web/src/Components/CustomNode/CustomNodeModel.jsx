@@ -8,6 +8,10 @@ export default class CustomNodeModel extends NodeModel {
             ...options,
             type: 'custom-node'
         });
+        
+        // Ensure the node is draggable
+        this.options.draggable = true;
+        
         this.options.node_id = this.options.id;
         this.config = config;
         this.configParams = options.option_types;
@@ -72,5 +76,11 @@ export default class CustomNodeModel extends NodeModel {
 
     setStatus(status) {
         this.options.status = status;
+    }
+
+    // Add method to handle position updates
+    setPosition(x, y) {
+        super.setPosition(x, y);
+        this.fireEvent({ type: 'positionChanged' }, { x, y });
     }
 }
