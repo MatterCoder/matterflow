@@ -29,7 +29,8 @@ import ReactFlow, {
   Controls, 
   Background,
   applyNodeChanges,
-  applyEdgeChanges
+  applyEdgeChanges,
+  addEdge
 } from 'reactflow';
 import CustomNode from './ReactFlow/CustomNode';
 import 'reactflow/dist/style.css';
@@ -114,6 +115,87 @@ const Workspace = (props) => {
         return n;
       })
     );
+  }, []);
+
+  const onConnect = useCallback((params) => {
+    // Extract source and target port information
+    const sourceId = params.sourceHandle;
+    const targetId = params.targetHandle;
+    
+    // Check if either port is a flow port
+    const isSourceFlow = sourceId?.includes('flow');
+    const isTargetFlow = targetId?.includes('flow');
+    
+    // Validation rules:
+    // 1. Flow ports can only connect to flow ports
+    // 2. Regular ports can only connect to regular ports
+    // 3. Input ports can only connect to output ports
+    const isValidConnection = () => {
+      // Both ports must be either flow or regular
+      if (isSourceFlow !== isTargetFlow) {
+        return false;
+      }
+
+      // For flow ports
+      if (isSourceFlow) {
+        return sourceId === 'flow-out' && targetId === 'flow-in';
+      }
+
+      // For regular ports
+      const isSourceOutput = !sourceId?.includes('in-');
+      const isTargetInput = targetId?.includes('in-');
+      return isSourceOutput && isTargetInput;
+    };
+
+    if (isValidConnection()) {
+      const edge = {
+        ...params,
+        type: isSourceFlow ? 'flow' : 'default',
+        animated: isSourceFlow
+      };
+      setFlowEdges((eds) => addEdge(edge, eds));
+      
+      // Create an edge object similar to MFLinkModel for API compatibility
+      const linkData = {
+        getSourcePort: () => ({ 
+          getNode: () => ({ options: { id: params.source } }),
+          options: { in: sourceId?.includes('in-') }
+        }),
+        getTargetPort: () => ({ 
+          getNode: () => ({ options: { id: params.target } }),
+          options: { in: targetId?.includes('in-') }
+        })
+      };
+      
+      API.addEdge(linkData).catch((err) => {
+        console.log('Failed to add edge:', err);
+        // Optionally remove the edge if API call fails
+        setFlowEdges((eds) => eds.filter(e => 
+          e.source !== params.source || 
+          e.target !== params.target
+        ));
+      });
+    }
+  }, []);
+
+  const onEdgesDelete = useCallback((edgesToDelete) => {
+    edgesToDelete.forEach(edge => {
+      // Create link data object similar to above
+      const linkData = {
+        getSourcePort: () => ({ 
+          getNode: () => ({ options: { id: edge.source } }),
+          options: { in: edge.sourceHandle?.includes('in-') }
+        }),
+        getTargetPort: () => ({ 
+          getNode: () => ({ options: { id: edge.target } }),
+          options: { in: edge.targetHandle?.includes('in-') }
+        })
+      };
+
+      API.deleteEdge(linkData).catch(err => {
+        console.log('Failed to delete edge:', err);
+      });
+    });
   }, []);
 
   // Convert Storm nodes to ReactFlow format - only called when a new node is added
@@ -566,16 +648,19 @@ const Workspace = (props) => {
                 onNodesChange={onNodesChange}
                 onEdgesChange={onEdgesChange}
                 onNodeDragStop={onNodeDragStop}
+                onConnect={onConnect}
+                onEdgesDelete={onEdgesDelete}
                 nodeTypes={nodeTypes}
                 nodesDraggable={true}
-                nodesConnectable={false}
+                nodesConnectable={true}
+                connectOnClick={false}
+                snapToGrid={true}
                 defaultViewport={{ x: 0, y: 0, zoom: 1.0 }}
                 minZoom={0.1}
                 maxZoom={4}
-                fitView={false} 
-                fitViewOptions={{ padding: 0.2 }} 
+                fitView={false}
+                fitViewOptions={{ padding: 0.2 }}
               >
-                {/* Add ReactFlow controls */}
                 <Controls />
                 <Background />
               </ReactFlow>

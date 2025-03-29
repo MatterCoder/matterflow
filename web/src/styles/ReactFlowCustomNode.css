@@ -94,3 +94,23 @@
     right: 0 !important;
     transform: translate(50%, -50%) !important;
 }
+
+/* Flow port connection styles */
+.react-flow__edge-path {
+  stroke: #b1b1b7;
+  stroke-width: 2;
+}
+
+.react-flow__edge.flow-connection .react-flow__edge-path {
+  stroke: purple;
+  stroke-width: 3;
+}
+
+/* Invalid connection attempt feedback */
+.react-flow__handle-connecting {
+  background: #ff6060 !important;
+}
+
+.react-flow__handle-valid {
+  background: #55dd55 !important;
+}
