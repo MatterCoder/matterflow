@@ -8,6 +8,7 @@ import {
   PlaySquareFilled, 
   StopOutlined 
 } from "@ant-design/icons";
+//Commented Out
 //import { CanvasWidget } from "@projectstorm/react-canvas-core";
 import createEngine, { DiagramModel } from "@projectstorm/react-diagrams";
 import { Button as AntdButton, Modal as AntdModal, notification, Checkbox as AntdCheckbox } from "antd";
@@ -25,6 +26,7 @@ import ModelMenu from "./ModelMenu";
 import NodeMenu from "./NodeMenu";
 import BannerBox from "./BannerBox";
 import WatermarkText from "./WatermarkText";
+
 import ReactFlow, { 
   Controls, 
   Background,
@@ -32,7 +34,7 @@ import ReactFlow, {
   applyEdgeChanges,
   addEdge
 } from 'reactflow';
-import CustomNode from './ReactFlow/CustomNode';
+import CustomNode from './CustomNode/CustomNode';
 import 'reactflow/dist/style.css';
 
 const { confirm } = AntdModal;
@@ -747,6 +749,12 @@ const Workspace = (props) => {
                   <WatermarkText text={processText}/>
                 </div>
               </div>
+
+              {/* Old React-Diagrams Canvas */}
+              {/* Commented Out 
+              <CanvasWidget className="diagram-canvas" engine={engine} />
+              */}
+
               {/* New ReactFlow Canvas */}
               <div 
                 className="react-flow-wrapper"
@@ -777,9 +785,8 @@ const Workspace = (props) => {
                   <Controls />
                   <Background />
                 </ReactFlow>
-              </div>              
+              </div>
             </div>
-
 
           </div>
         </Col>
